@@ -1,17 +1,15 @@
-CONTACT PENDING v0.2.8 — DISPLAY LOCK
+CONTACT PENDING v0.3.5 — OA KESTREL BASEMAP
+Protected parent: v0.3.2 Web/Mobile Terrain
 
-Purpose: isolate and eliminate small-display focus/viewport zoom behavior while preserving v0.2.7 ISR/input architecture and gameplay.
+This build integrates actual individual WebP terrain files into OA KESTREL.
+The game masks rectangular terrain images into SVG hexes and draws hex borders separately.
+Biomes included: Mountain, Forest, Plains, Desert, Urban, Coast, Water.
+Three texture variants are included for each biome (21 individual game assets).
 
-Changes:
-- fixed desktop application viewport and locked game shell
-- action buttons use pointerdown and immediately release focus
-- 16px+ action-control text to avoid browser focus magnification heuristics
-- visualViewport telemetry added to DEV panel
-- double-click and Ctrl+wheel browser zoom suppressed inside the game session
-- no gameplay or balance changes
-
-Run:
+Run locally:
   python -m http.server 8080
-Then open http://localhost:8080
+Then open:
+  http://localhost:8080
 
-Test especially: ISR -> UNKNOWN -> COLLECT -> CLEAR/INTERCEPT repeatedly on the smaller 1080p display. Open DEV to watch VIEWPORT/SCALE.
+Recommended test:
+  F12 -> Device Toolbar -> landscape phone viewport.

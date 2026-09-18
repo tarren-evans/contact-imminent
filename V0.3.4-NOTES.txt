@@ -1,0 +1,5 @@
+CONTACT PENDING v0.3.4 — OA KESTREL BASEMAP
+v0.3.3 remains frozen.
+This build replaces per-hex texture composition with the approved continuous OA KESTREL basemap, including its stylistic hex overlay. Gameplay/input/tactical SVG layers remain above it.
+Run: python -m http.server 8080
+Open: http://localhost:8080
