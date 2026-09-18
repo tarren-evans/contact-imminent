@@ -1,0 +1,7 @@
+window.CP_MAP={id:'OA-KESTREL',name:'KESTREL',region:'MOUNTAIN-COAST',seed:'7F3A',rows:[
+['mountain','mountain','forest','forest','desert','desert','desert'],
+['mountain','forest','forest','forest','plains','desert','desert'],
+['mountain','forest','forest','plains','plains','urban','desert'],
+['forest','forest','forest','plains','urban','coast','water'],
+['forest','forest','plains','coast','coast','water','water']
+],labels:{'0,0':'RIDGELINE A1','0,2':'PINE VALLEY A3','1,3':'KORU RIVER B4','2,0':'THE SPINE C1','2,4':'STONE PASS C5','2,5':'KESSEL TOWN C6','3,1':'BLACK FOREST D2','3,5':'HARBOR D6','4,3':'COAST RIDGE E4','4,5':'SABLE WATER E6'},textures:{"mountain":["terrain/mountain/mountain_peak.webp","terrain/mountain/mountain_ridgeline.webp","terrain/mountain/mountain_slope.webp"],"forest":["terrain/forest/forest_dense.webp","terrain/forest/forest_mixed.webp","terrain/forest/forest_clearing.webp"],"plains":["terrain/plains/plains_grassland.webp","terrain/plains/plains_farmland.webp","terrain/plains/plains_dirtroad.webp"],"desert":["terrain/desert/desert_flat.webp","terrain/desert/desert_dunes.webp","terrain/desert/desert_wadi.webp"],"urban":["terrain/urban/urban_downtown.webp","terrain/urban/urban_industrial.webp","terrain/urban/urban_suburban.webp"],"coast":["terrain/coast/coast_beach.webp","terrain/coast/coast_rocky.webp","terrain/coast/coast_harbor.webp"],"water":["terrain/water/water_ocean.webp","terrain/water/water_shallows.webp","terrain/water/water_island.webp"]}};
