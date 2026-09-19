@@ -1,0 +1,7 @@
+CONTACT IMMINENT v0.4.2 — CAMPAIGN 01-01 // ESTABLISH
+Parent: protected v0.3.6.6 web/mobile baseline.
+
+Vertical slice: Title > Campaign > OA KESTREL mission list > 01-01 briefing > gameplay > result.
+01-01: identify 6, correctly disposition 6, maintain Intelligence Integrity >=80%.
+IRREGULAR is intentionally withheld in 01-01. 01-02 through 01-05 are locked placeholders.
+No new imagery or basemap changes.

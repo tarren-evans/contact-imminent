@@ -1,6 +1,6 @@
 {
-  "name": "Contact Pending",
-  "short_name": "Contact Pending",
+  "name": "Contact Imminent",
+  "short_name": "Contact Imminent",
   "description": "A tactical ISR identification and decision game.",
   "start_url": "./",
   "display": "standalone",

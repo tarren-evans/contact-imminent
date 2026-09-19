@@ -1,4 +1,4 @@
-CONTACT PENDING v0.3.6.6 — OA KESTREL BASEMAP
+CONTACT IMMINENT v0.4.2 — OA KESTREL BASEMAP
 Protected parent: v0.3.2 Web/Mobile Terrain
 
 This build integrates actual individual WebP terrain files into OA KESTREL.
