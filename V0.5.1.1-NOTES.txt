@@ -1,0 +1,8 @@
+CONTACT IMMINENT v0.5.1.1 — COMPACT CAMPAIGN SELECTOR HOTFIX
+Parent: v0.5.1 GitHub release candidate.
+
+- Campaign 01 selector now follows the same compact-screen philosophy as mission briefings.
+- Reduced campaign panel width/padding, OA KESTREL title, mission-row height/margins, BACK button, and footer spacing.
+- Additional landscape/mobile compression keeps all five missions, BACK, and campaign footer comfortably visible.
+- Scope is #campaignMenu only. Mission briefing fixes and 01-05 difficulty from v0.5.1 are unchanged.
+- No gameplay/balance changes.

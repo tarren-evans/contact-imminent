@@ -1,0 +1,33 @@
+CONTACT IMMINENT v0.4.6.2 — OBJECTIVE FEEDBACK + UI/COUNTER FIX
+Parent: v0.4.6.1.
+
+Critical CONTESTED counter fix:
+- Correct dispositions in 01-04 now increment campaignCorrect and threat/non-threat counters.
+- Previous code accidentally placed 01-04 accounting inside a condition that only admitted 01-01/02/03.
+- This explains failure screens showing zero campaign counts while generic RESOLVED/INTERCEPTS showed activity.
+
+Objective tracker:
+- Persistent CONTESTED HUD shows:
+  RESOLVED x / 14
+  COLLECTION INTERRUPTED x / 4
+  INTEGRITY x% / >=80%
+  OE COMPROMISE x% / <60%
+- Completed objectives turn green; integrity failure / high compromise receive danger treatment.
+- 01-04 HUD now displays campaignCompromise, matching the actual mission failure mechanic.
+
+Decision feedback:
+- Correct final disposition creates a +1 at the track's map position, floats upward and fades.
+- +1 uses classification color: HST red, IRG gold, FRI blue, NTL green.
+- Incorrect final disposition creates a white -1 and fades.
+- Feedback occurs on CLEAR/INTERCEPT, not classification.
+
+Intel Drop layout:
+- Desktop Intel Drop moved to upper-center of the map so it cannot cover the Selected Track action buttons.
+- Mobile retains a compact upper-right treatment.
+
+Result behavior:
+- 01-04 timer expiration routes to CONDITIONS NOT SET / MISSION OBJECTIVES INCOMPLETE.
+- >=60% compromise remains OE COMPROMISED / THRESHOLD EXCEEDED.
+- Success still requires 14 correct resolutions, 4 collection interruptions, integrity >=80%, compromise <60%.
+
+No imagery or balance values changed.

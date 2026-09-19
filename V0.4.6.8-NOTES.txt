@@ -1,0 +1,7 @@
+CONTACT IMMINENT v0.4.6.8 — HUD POSITIONING HOTFIX
+No gameplay/balance changes.
+- Header is three columns again: brand/objectives | phase/timer | score/active/ISR.
+- Objectives are a single horizontal line under the brand/version, using existing header width.
+- Notification stack and hostile warning are physically inside #mapWrap, so positioning is map-relative.
+- Persistent hostile warning and transient notification boxes are substantially smaller.
+- Continuous infrastructure OE model and prior selected-track cleanup retained.

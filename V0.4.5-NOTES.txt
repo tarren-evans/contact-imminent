@@ -1,0 +1,21 @@
+CONTACT IMMINENT v0.4.5 — CAMPAIGN 01-04 // CONTESTED
+Parent: accepted v0.4.4 INDICATORS.
+
+Objectives:
+- Resolve 14 contacts
+- Interrupt 4 hostile collection events
+- Keep AO compromise below 60%
+- Maintain Intelligence Integrity above 80%
+
+New:
+- HST/IRG tracks near BLUFOR sites can begin active collection after dwell.
+- Active collection increases AO compromise.
+- Correctly intercepting an actively collecting threat counts as an interrupted collection event.
+- On-screen operational warning: ACTIVE HOSTILE COLLECTION WITHIN AO / BLUFOR EXPOSURE INCREASING.
+- Warning persists while any hostile collection remains active and clears when none remains.
+- 60% compromise causes mission failure.
+- Successful INDICATORS completion persistently unlocks CONTESTED.
+- Lightweight TRACK STALL diagnostic guard logs unexpectedly immobile mobile tracks; it does not alter track behavior.
+- 01-05 remains locked.
+
+No new imagery. Existing OA KESTREL art and persistent SVG architecture preserved.

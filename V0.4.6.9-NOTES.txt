@@ -1,0 +1,6 @@
+CONTACT IMMINENT v0.4.6.9 — OBJECTIVE LEGIBILITY + STATUS COLORS
+- Header objectives enlarged, spaced out, and use full action wording: RESOLVE / INTERRUPT / INTEGRITY / OE.
+- Integrity and OE colors are mirrored between the header objective values and right-side BLUFOR status.
+- Integrity: green >=80%, gold 60–79%, red <60%.
+- OE: green <30%, gold 30–49%, red >=50%.
+- No gameplay or balance changes.

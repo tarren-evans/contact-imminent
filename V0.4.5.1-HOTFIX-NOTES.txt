@@ -1,0 +1,19 @@
+CONTACT IMMINENT v0.4.5.1 — TRACK STALL DIAGNOSTIC HOTFIX
+
+Root cause confirmed from runtime diagnostics:
+The v0.4.5 diagnostic stall guard attempted to call label(t), but no label()
+function exists in the game runtime. Once a mobile track remained below the
+stall movement threshold long enough to trigger the diagnostic, JavaScript
+threw ReferenceError: label is not defined from inside the RAF loop.
+
+Because the exception occurred in the animation loop, RAF stopped scheduling
+the next frame. That froze ISR movement and track simulation while pointer
+events continued to register, exactly matching the supplied log.
+
+Fix:
+- Replace nonexistent label(t) call with existing track nomenclature logic
+  using t.type, abbr(), t.id, and padStart().
+- Diagnostic remains observational only; no movement behavior changed.
+- Bumped visible/runtime/cache generation to v0.4.5.1.
+
+No gameplay balancing, imagery, collection logic, or persistent SVG architecture changed.

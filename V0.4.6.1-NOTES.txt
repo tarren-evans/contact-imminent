@@ -1,0 +1,17 @@
+CONTACT IMMINENT v0.4.6.1 — GRID BOUNDS + RESULT-STATE CLEANUP
+Parent: v0.4.6.0.
+
+Visual cleanup:
+- Geometric hex grid clipped to the 900x600 KESTREL raster/map bounds.
+- Grid stroke increased 1.15 -> 1.70 while retaining non-scaling stroke.
+- Legacy MOUNTAIN / FOREST / PLAINS / DESERT / URBAN / COAST-WATER map key removed/hidden.
+- No imagery regenerated.
+
+CONTESTED result-state cleanup:
+- >=60% compromise: OE COMPROMISED / THRESHOLD EXCEEDED.
+- Timer expires without objectives: CONDITIONS NOT SET / MISSION OBJECTIVES INCOMPLETE.
+- CONDITIONS HAVE BEEN SET only when CONTESTED objectives are actually met:
+  14 resolved, 4 collection interruptions, integrity >=80%, compromise <60%.
+- Result display uses current mission counters rather than a generic success screen.
+
+Gameplay/balance from v0.4.5.5 remains unchanged.

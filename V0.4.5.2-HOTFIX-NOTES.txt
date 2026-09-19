@@ -1,0 +1,16 @@
+CONTACT IMMINENT v0.4.5.2 — DIAGNOSTIC HOTFIX
+
+Second runtime log confirmed the simulation freeze was still caused by the
+TRACK STALL diagnostic, not by ISR/track movement.
+
+v0.4.5.1 removed nonexistent label(t), but mistakenly replaced it with another
+nonexistent helper, abbr(t.type). When the stall guard fired, that ReferenceError
+again escaped from the RAF loop and stopped simulation frames while pointer
+events continued.
+
+v0.4.5.2 makes the diagnostic logger self-contained:
+  String(t.type || 'UNKNOWN') + '-' + String(t.id).padStart(3,'0')
+
+It calls no project helper functions.
+
+No gameplay, movement, collection, scoring, imagery, or persistent SVG behavior changed.

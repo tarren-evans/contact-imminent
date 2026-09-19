@@ -1,0 +1,14 @@
+CONTACT IMMINENT v0.4.6.10 — MISSION-AWARE OBJECTIVE HUD
+Parent: v0.4.6.9. No gameplay/balance changes.
+
+The persistent header objective tracker now reads the actual active campaign mission and its live counters:
+01-01 ESTABLISH — RESOLVE 0/10 | INTEGRITY /80
+01-02 PATTERN — RESOLVE 0/12 | STATIONARY 0/4 | INTEGRITY /80
+01-03 INDICATORS — RESOLVE 0/14 | PROXIMITY 0/5 | INTEGRITY /80
+01-04 CONTESTED — RESOLVE 0/14 | INTERRUPT 0/4 | INTEGRITY /80 | OE /60
+
+The gold OBJECTIVES heading changes with the mission.
+Secondary/OE chips hide when not applicable.
+Values are sourced from the same campaign counters used by gameplay/end-state logic.
+Existing status colors, map-local alerts, continuous infrastructure OE floor, and gameplay balance retained.
+01-05 remains intentionally undefined until the final mission is designed.

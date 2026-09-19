@@ -1,0 +1,15 @@
+CONTACT IMMINENT v0.4.6.5 — MOBILE BRIEFING + COMMAND GOLD
+Parent: v0.4.6.4.
+
+UI-only refinement; gameplay/balance unchanged.
+
+- OBJECTIVES // CONTESTED is now a hard 28px single-line tactical status bar.
+- No wrapping; overflow is suppressed rather than consuming map height.
+- Smaller screens switch to OBJ / RES / COL / INT / OE / DEG abbreviations.
+- Mobile/short-height operation briefing is compressed so title, narrative, objectives,
+  BEGIN OPERATION and BACK TO CAMPAIGN fit within the landscape viewport.
+- Added restrained command-gold accents to mission/briefing borders, objective divider
+  and command emphasis.
+- Gold tactical IRREGULAR classification remains unchanged and distinct from UI accents.
+- Five-site BLUFOR, OE degradation floor, notifications, base degradation/mobilization,
+  KESTREL basemap/grid and CONTESTED balance all retained.

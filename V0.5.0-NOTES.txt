@@ -1,0 +1,16 @@
+CONTACT IMMINENT v0.5.0 — CAMPAIGN 01 FINALE // CONDITIONS SET
+Parent: protected v0.4.6.10.1.
+
+01-05 unlocks only after successful completion of 01-04.
+Final mission synthesizes the KESTREL campaign:
+- Resolve 16 contacts.
+- Interrupt 5 hostile collection events.
+- Maintain Intelligence Integrity >=80%.
+- Finish with OE compromise <50%.
+- Catastrophic OE threshold remains 60%.
+- Five-site BLUFOR exposure/degradation, continuous OE floor, track mobilization, FRI/NTL recovery,
+  hostile collection disruption, Intel Drop, ISR Fusion, notifications and existing balance systems remain active.
+- Objective HUD is mission-aware and displays CONDITIONS SET / RESOLVE 0/16 / INTERRUPT 0/5 / INTEGRITY / OE /50.
+- Successful finale records CAMPAIGN 01 complete and marks 01-05 COMPLETE in mission selection.
+- Final result reports resolved contacts, interruptions, OE, degraded sites, identity mix, integrity and score.
+No new imagery or basemap changes.

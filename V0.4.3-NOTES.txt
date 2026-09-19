@@ -1,0 +1,33 @@
+CONTACT IMMINENT v0.4.3 — CAMPAIGN 01-02 // PATTERN
+
+Parent baseline: CONTACT IMMINENT v0.4.2 (accepted/live).
+
+NEW MISSION
+01-02 // PATTERN
+Question: WHAT ARE THEY DOING?
+
+Objectives:
+- Resolve 12 contacts
+- Assess 4 stationary contacts
+- Maintain Intelligence Integrity above 80%
+
+New gameplay:
+- PATTERN uses both mobile (diamond) and stationary (square) contacts.
+- Stationary and mobile behavior remain independent of identity.
+- Selected identified tracks display OBSERVED time.
+- PATTERN guarantees enough stationary tracks to satisfy the objective while retaining randomized identity.
+- HST / IRG require INTERCEPT; FRI / NTL require CLEAR.
+- Adversary collection/compromise behavior is withheld from PATTERN.
+- Completing 01-01 successfully unlocks 01-02 for the current browser session.
+- 01-03 through 01-05 remain locked.
+
+Preserved:
+- OA KESTREL basemap and art direction
+- Persistent SVG track architecture
+- ISR controls and movement
+- Pause/resume/restart/abort behavior
+- 3-minute mission clock
+- Existing 01-01 ESTABLISH gameplay
+- Historical baselines
+
+Also corrected the remaining split-line CONTACT PENDING title on the legacy start overlay.

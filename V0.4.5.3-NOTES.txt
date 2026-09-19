@@ -1,0 +1,23 @@
+CONTACT IMMINENT v0.4.5.3 — CONTESTED BALANCE + INTEL DROP
+Parent: v0.4.5.2 diagnostic hotfix.
+
+CONTESTED balance:
+- Hostile collection rate reduced from 0.55%/sec to 0.20%/sec per active collector.
+- Each hostile/irregular collector can contribute a maximum of 15% AO compromise.
+- Multiple simultaneous collectors remain additive.
+- 60% AO compromise failure threshold unchanged.
+- Existing 5-second dwell-to-collection behavior retained.
+
+INTEL DROP:
+- One guaranteed report arrives about 65 seconds after CONTESTED begins.
+- Player has 10 seconds to choose:
+  MITIGATE: immediately reduce AO compromise by 10 percentage points, floor 0%.
+  EXPLOIT: activate INTEL FUSION for 20 seconds.
+- INTEL FUSION expands effective ISR collection radius by 30%.
+- Where the existing identification timer exposes the standard 1000ms threshold,
+  fusion reduces it to 600ms during the buff.
+- Intel Drop and fusion timers compensate correctly across pause/resume.
+- No selection causes INTEL DROP EXPIRED.
+- No new imagery.
+
+Diagnostic stall guard from v0.4.5.2 retained unchanged.

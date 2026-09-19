@@ -1,0 +1,9 @@
+CONTACT IMMINENT v0.4.6.4 — OPERATIONAL STATUS + EXPANDED BLUFOR
+- Common five-site BLUFOR architecture: BLU-FOB, BLU-C2, BLU-LOG, BLU-AIR, BLU-AOB.
+- Proximity-capable campaign missions derive site targets dynamically from the common BLUFOR array.
+- Each degraded site creates a persistent +10% OE compromise floor, up to 50%.
+- FRI/NTL/disruption/Intel mitigation cannot recover below the degradation floor.
+- Collection still drives OE above the floor; 60% failure threshold unchanged.
+- Always-visible OBJECTIVES // CONTESTED strip moved above tactical interface.
+- Strip shows resolved, collection interruptions, integrity, OE compromise, degraded sites and OE floor.
+- Lower-left notifications, bottom-center hostile warning, degradation mobilization, grid and balance retained.
