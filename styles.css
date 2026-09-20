@@ -507,3 +507,47 @@ header .status{display:flex!important;flex-wrap:wrap!important;justify-content:f
   .op-status-item{padding-left:5px!important;padding-right:5px!important}
   .command-controls-bottom{padding-left:9px!important;padding-right:9px!important}
 }
+
+/* v0.6.6.8 // PHYSICAL VIEWPORT LOCK
+   Phone acceptance contract: the Dynamic Island may overlay the OA. The gameplay
+   shell is locked to the real viewport, and the complete 900x650 SVG is fitted
+   inside the map pane. No safe-area width reservation, no crop, no stretch. */
+@media (min-width:681px) and (max-height:500px){
+  html,body{width:100%!important;height:100%!important;min-height:0!important;overflow:hidden!important}
+  #app{width:100vw!important;height:100dvh!important;min-height:0!important;overflow:hidden!important;display:flex!important;flex-direction:column!important}
+  #app>header{flex:0 0 auto!important}
+  .layout{
+    flex:1 1 0!important;
+    height:auto!important;
+    min-height:0!important;
+    overflow:hidden!important;
+    grid-template-columns:minmax(0,65%) minmax(0,35%)!important;
+  }
+  #mapWrap{
+    position:relative!important;
+    width:100%!important;
+    height:100%!important;
+    min-width:0!important;
+    min-height:0!important;
+    padding:0!important;
+    overflow:hidden!important;
+    background:#070c0f!important;
+  }
+  #map{
+    position:absolute!important;
+    inset:6px!important;
+    left:6px!important;
+    right:6px!important;
+    top:6px!important;
+    bottom:6px!important;
+    width:calc(100% - 12px)!important;
+    height:calc(100% - 12px)!important;
+    max-width:none!important;
+    max-height:none!important;
+    aspect-ratio:auto!important;
+    overflow:visible!important;
+    border:1px solid rgba(127,146,155,.32)!important;
+    background:#070c0f!important;
+  }
+  aside{height:100%!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important}
+}
