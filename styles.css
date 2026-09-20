@@ -655,19 +655,28 @@ button:not(:disabled):active{transform:translateY(1px)}
 }
 
 
-/* v0.6.6.13 // KESTREL TACTICAL BOUNDARY ALIGNMENT HOTFIX
-   Preserve the 900x650 tactical geometry without distortion. The physical SVG
-   viewport has no border; the visible playable boundary lives inside the same
-   coordinate system as the hex grid, tracks, ISR, and BLUFOR. */
+/* v0.6.6.14 // KESTREL HORIZONTAL GRID COVERAGE
+   Restore the approved v0.6.6.10/11 physical map footprint. The original
+   #geometricGrid remains authoritative and unchanged. Pointer-transparent
+   extensions continue that exact lattice only through the left/right gutters. */
 #map{
-  border:0!important;
-  box-shadow:none!important;
-  preserve-aspect-ratio:xMidYMid meet;
+  border:1px solid rgba(226,235,238,.92)!important;
+  box-shadow:0 0 0 1px rgba(8,15,18,.55),0 0 18px rgba(0,0,0,.18)!important;
+  z-index:2;
 }
-#playableBoundary{
+#gridExtensions{
+  position:absolute;
+  inset:6px;
+  width:calc(100% - 12px);
+  height:calc(100% - 12px);
+  z-index:1;
+  pointer-events:none;
+  overflow:hidden;
+}
+#gridExtensions .geoHex{
   fill:none;
-  stroke:rgba(226,235,238,.92);
-  stroke-width:1.5;
+  stroke:rgba(224,233,236,.42);
+  stroke-width:1.45;
   vector-effect:non-scaling-stroke;
   shape-rendering:geometricPrecision;
 }
