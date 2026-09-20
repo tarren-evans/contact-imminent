@@ -593,3 +593,63 @@ button:not(:disabled):active{transform:translateY(1px)}
   #map{background:transparent!important}
   aside section{padding-top:10px!important;padding-bottom:10px!important}
 }
+
+
+/* v0.6.6.10 // KESTREL UI ALIGNMENT HOTFIX
+   Freeze v0.6.6.9 map/overscan geometry. Only align tactical overlays. */
+
+/* Transient notices belong to the physical lower-left of the map window,
+   not the retired safe-frame/playable-map inset. Stack upward and stay clear
+   of the persistent bottom-center hostile-collection warning. */
+#mapWrap .notification-stack{
+  left:10px!important;
+  right:auto!important;
+  bottom:10px!important;
+  width:min(300px,27%)!important;
+  max-width:300px!important;
+  flex-direction:column-reverse!important;
+  align-items:stretch!important;
+}
+#mapWrap .hostile-collection-warning{
+  left:50%!important;
+  right:auto!important;
+  bottom:10px!important;
+  transform:translateX(-50%)!important;
+  width:min(430px,38%)!important;
+  max-width:430px!important;
+}
+
+/* The geometric grid is tactical symbology: hard-clip it to the authoritative
+   900x650 SVG/playable border. It never belongs in visual overscan. */
+#map{overflow:hidden!important;}
+#geometricGrid{clip-path:url(#mapRasterClip)!important;}
+#geometricGrid .geoHex{vector-effect:non-scaling-stroke!important;}
+
+/* Keep the two top map readouts in separate lanes. ISR control state is
+   right-anchored and may never grow left into the ISR status HUD. */
+#mapWrap .hud{
+  max-width:42%!important;
+  overflow:hidden!important;
+}
+#mapWrap #isrModeBadge{
+  left:auto!important;
+  right:10px!important;
+  top:10px!important;
+  width:auto!important;
+  max-width:42%!important;
+  box-sizing:border-box!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  text-align:center!important;
+  font-size:9px!important;
+  letter-spacing:.07em!important;
+  padding:7px 10px!important;
+}
+
+@media (min-width:681px) and (max-height:500px){
+  #mapWrap .notification-stack{left:8px!important;bottom:8px!important;width:min(285px,27%)!important;}
+  #mapWrap .hostile-collection-warning{bottom:8px!important;width:min(415px,38%)!important;}
+  #mapWrap .hud{max-width:41%!important;}
+  #mapWrap #isrModeBadge{right:8px!important;top:8px!important;max-width:40%!important;font-size:8.5px!important;padding:6px 9px!important;}
+}
