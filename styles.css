@@ -595,7 +595,7 @@ button:not(:disabled):active{transform:translateY(1px)}
 }
 
 
-/* v0.6.6.17 // KESTREL UI ALIGNMENT HOTFIX
+/* v0.6.6.18 // KESTREL UI ALIGNMENT HOTFIX
    Freeze v0.6.6.9 map/overscan geometry. Only align tactical overlays. */
 
 /* Transient notices belong to the physical lower-left of the map window,
@@ -655,7 +655,7 @@ button:not(:disabled):active{transform:translateY(1px)}
 }
 
 
-/* v0.6.6.17 // TRUE HORIZONTAL GRID EXTENSION
+/* v0.6.6.18 // TRUE HORIZONTAL GRID EXTENSION
    Preserve the original 6.6.10 lattice geometry and SVG scaling. The grid is
    allowed to render outside the 900x650 viewBox into xMidYMid meet gutters;
    #map itself still clips at the physical map border. */
