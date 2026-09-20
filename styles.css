@@ -255,7 +255,7 @@ header .status{display:flex!important;flex-wrap:wrap!important;justify-content:f
  [id^="briefing01"] .menu-primary,[id^="briefing01"] .menu-secondary{min-height:30px!important;height:30px!important;margin:3px 0!important;font-size:9px!important}
 }
 
-/* v0.5.1.1 — compact Campaign 01 selector */
+/* v0.6.0 — compact Campaign 01 selector */
 #campaignMenu .campaignpanel{
  width:min(430px,calc(100vw - 24px))!important;
  max-height:calc(100vh - 16px)!important;
@@ -284,4 +284,226 @@ header .status{display:flex!important;flex-wrap:wrap!important;justify-content:f
  #campaignMenu .mission-row{min-height:30px!important;height:30px!important;margin:3px 0!important;font-size:8.5px!important}
  #campaignMenu #campaignBack{min-height:30px!important;height:30px!important;margin:5px 0 3px!important}
  #campaignMenu .menu-version{margin-top:5px!important;font-size:7px!important}
+}
+
+/* v0.6.0 // ARCADE */
+#arcadeBriefing .arcadepanel,#arcadeResult .arcadepanel{width:min(430px,calc(100vw - 24px));max-height:calc(100vh - 16px);padding:12px 18px;box-sizing:border-box;overflow:hidden}
+#arcadeBriefing .menu-title,#arcadeResult .menu-title{font-size:20px;letter-spacing:3px;margin:5px 0 7px}
+#arcadeBriefing .brief-copy{font-size:10px;line-height:1.3;margin:7px 0}
+#arcadeBriefing .objectives{font-size:9px;line-height:1.25;margin:7px 0;padding:8px 10px}
+#arcadeBriefing .objectives p{margin:3px 0}
+#arcadeBriefing button,#arcadeResult button{min-height:34px;height:34px;margin:5px 0;font-size:10px}
+#arcadeResult .result-body{font-size:9px;line-height:1.45;margin:8px 0;white-space:normal}
+@media(max-height:650px),(max-width:900px){#arcadeBriefing .arcadepanel,#arcadeResult .arcadepanel{width:min(410px,calc(100vw - 16px));max-height:calc(100vh - 8px);padding:8px 14px}#arcadeBriefing .menu-title,#arcadeResult .menu-title{font-size:18px;margin:3px 0 4px}#arcadeBriefing .brief-copy{font-size:9px;line-height:1.2;margin:4px 0}#arcadeBriefing .objectives{font-size:8.5px;line-height:1.15;margin:4px 0;padding:6px 9px}#arcadeBriefing button,#arcadeResult button{min-height:30px;height:30px;margin:3px 0;font-size:9px}#arcadeResult .result-body{font-size:8px;line-height:1.3;margin:5px 0}}
+
+
+/* v0.6.1 // INTEL REPORTING POSITION + TACTICAL AUDIO UI CONTRACT */
+#mapWrap .intel-drop{position:absolute!important;z-index:81!important;left:8px!important;right:auto!important;top:auto!important;bottom:82px!important;transform:none!important;width:min(220px,34%)!important;padding:8px!important}
+#mapWrap .intel-drop-kicker{font-size:9px!important;margin-bottom:3px!important}
+#mapWrap .intel-drop-copy{font-size:7px!important;margin-bottom:5px!important}
+#mapWrap .intel-drop-btn{min-height:38px!important;margin:4px 0!important;padding:5px 7px!important}
+#mapWrap .intel-drop-btn b{font-size:9px!important}
+#mapWrap .intel-drop-btn span{font-size:7px!important}
+#mapWrap .intel-drop-timer{margin-top:4px!important;font-size:7px!important}
+#mapWrap .intel-fusion-badge{position:absolute!important;z-index:80!important;left:8px!important;right:auto!important;top:auto!important;bottom:54px!important;padding:5px 7px!important;font-size:8px!important;max-width:220px!important}
+@media(max-width:900px),(max-height:650px){#mapWrap .intel-drop{left:6px!important;bottom:74px!important;width:min(180px,30%)!important}#mapWrap .intel-fusion-badge{left:6px!important;bottom:45px!important;max-width:180px!important}}
+\n/* v0.6.2.1 Intel reporting prominence */
+#mapWrap .intel-drop{left:10px!important;bottom:104px!important;width:min(310px,42%)!important;padding:12px 13px!important;border-width:2px!important;box-shadow:0 0 24px rgba(216,168,62,.28)!important}
+#mapWrap .intel-drop-kicker{font-size:12px!important;margin-bottom:5px!important}
+#mapWrap .intel-drop-copy{font-size:9px!important;margin-bottom:8px!important}
+#mapWrap .intel-drop-btn{min-height:48px!important;margin:6px 0!important;padding:7px 9px!important}
+#mapWrap .intel-drop-btn b{font-size:11px!important}
+#mapWrap .intel-drop-btn span{font-size:8px!important}
+#mapWrap .intel-drop-timer{margin-top:6px!important;font-size:9px!important}
+#mapWrap .intel-fusion-badge{left:10px!important;bottom:68px!important;max-width:310px!important;padding:7px 10px!important;font-size:10px!important;border-width:2px!important}
+@media(max-width:900px),(max-height:650px){#mapWrap .intel-drop{left:7px!important;bottom:88px!important;width:min(270px,39%)!important;padding:9px 10px!important}#mapWrap .intel-drop-kicker{font-size:10px!important}#mapWrap .intel-drop-copy{font-size:8px!important}#mapWrap .intel-drop-btn{min-height:42px!important;margin:5px 0!important;padding:6px 8px!important}#mapWrap .intel-drop-btn b{font-size:10px!important}#mapWrap .intel-drop-btn span{font-size:7.5px!important}#mapWrap .intel-drop-timer{font-size:8px!important}#mapWrap .intel-fusion-badge{left:7px!important;bottom:52px!important;max-width:270px!important;font-size:9px!important}}
+
+
+/* v0.6.3 // PASSIVE ISR PROTOTYPE */
+.passive-isr-panel{border-top:1px solid rgba(216,168,62,.25)!important}
+.passive-isr-kv{display:grid;grid-template-columns:1fr auto;gap:4px 10px;margin:5px 0 7px;font-size:8px;letter-spacing:1px}.passive-isr-kv b{color:#d8a83e;text-align:right}
+#passiveDeploy{width:100%;min-height:34px;border:1px solid #8b7136;background:rgba(216,168,62,.07);color:#d8a83e;font-size:9px;letter-spacing:1px}#passiveDeploy.deploying{background:rgba(216,168,62,.22);box-shadow:0 0 14px rgba(216,168,62,.18)}
+.passive-hint{margin-top:6px;color:#8fa0a5;font-size:7px;line-height:1.35;letter-spacing:.5px}
+.passive-range-layer .passive-range{fill:rgba(216,168,62,.035);stroke:#d8a83e;stroke-width:1.5;stroke-opacity:.62;stroke-dasharray:5 7}.passive-node .passive-core{fill:#0d1418;stroke:#d8a83e;stroke-width:2}.passive-node .passive-mark{fill:none;stroke:#d8a83e;stroke-width:1.4}.passive-node text{fill:#d8a83e;font-size:9px;letter-spacing:1px}
+@media(max-width:900px),(max-height:650px){.passive-isr-kv{font-size:7px;margin:3px 0 5px}#passiveDeploy{min-height:29px;font-size:8px}.passive-hint{font-size:6.5px;margin-top:4px}}
+\n/* v0.6.3.1 // MOBILE INTEL REPORTING MID-SIZE */
+#mapWrap .intel-drop{left:9px!important;bottom:112px!important;width:min(270px,38%)!important;padding:10px 11px!important;border-width:2px!important}
+#mapWrap .intel-drop-kicker{font-size:11px!important;margin-bottom:4px!important}
+#mapWrap .intel-drop-copy{font-size:8px!important;margin-bottom:6px!important}
+#mapWrap .intel-drop-btn{min-height:43px!important;margin:5px 0!important;padding:6px 8px!important}
+#mapWrap .intel-drop-btn b{font-size:10px!important}
+#mapWrap .intel-drop-btn span{font-size:7.5px!important}
+#mapWrap .intel-drop-timer{margin-top:5px!important;font-size:8px!important}
+#mapWrap .intel-fusion-badge{left:9px!important;bottom:78px!important;max-width:270px!important;padding:6px 8px!important;font-size:9px!important}
+@media(max-width:900px),(max-height:650px){#mapWrap .intel-drop{left:7px!important;bottom:100px!important;width:min(230px,35%)!important;padding:8px 9px!important}#mapWrap .intel-drop-kicker{font-size:9px!important}#mapWrap .intel-drop-copy{font-size:7px!important}#mapWrap .intel-drop-btn{min-height:38px!important;margin:4px 0!important;padding:5px 7px!important}#mapWrap .intel-drop-btn b{font-size:9px!important}#mapWrap .intel-drop-btn span{font-size:7px!important}#mapWrap .intel-drop-timer{font-size:7.5px!important}#mapWrap .intel-fusion-badge{left:7px!important;bottom:68px!important;max-width:230px!important;font-size:8px!important}}
+
+.passive-nai polygon{fill:rgba(216,168,62,.08);stroke:#d8a83e;stroke-width:1.6;stroke-opacity:.78;stroke-dasharray:8 5}.passive-nai text{fill:#e8c56d;font-size:9px;font-weight:700;letter-spacing:.7px;text-anchor:middle;paint-order:stroke;stroke:#0d1418;stroke-width:3px;stroke-linejoin:round}
+
+.ewo-sweep{width:100%;min-height:32px;margin-top:5px;border:1px solid #627b83;background:rgba(92,135,148,.08);color:#a9c7cf;font-size:9px;letter-spacing:1px}.ewo-sweep:not(:disabled){box-shadow:inset 0 0 12px rgba(92,135,148,.08)}.ewo-sweep:disabled{opacity:.38}
+@media(max-width:900px),(max-height:650px){.ewo-sweep{min-height:28px;font-size:8px;margin-top:4px}}
+
+/* v0.6.5 // SUPPORT EFFECTS */
+.ewo-wave{fill:none;stroke:#ff39d6;stroke-width:3;stroke-opacity:.9;filter:drop-shadow(0 0 8px #ff39d6)}.ewo-particle{fill:#ff70e5;filter:drop-shadow(0 0 4px #ff39d6)}
+.blue-repairable{cursor:pointer;filter:drop-shadow(0 0 8px #ffd166)}
+
+
+/* v0.6.5.1 // STABILIZATION + AUDIO SETTINGS + FULL MAP */
+#map{preserve-aspect-ratio:xMidYMid slice}
+#ewoEffects{pointer-events:none!important}
+.supply-use{width:100%;min-height:32px;margin-top:5px;border:1px solid #8b7136;background:rgba(216,168,62,.06);color:#e8c56d;font-size:9px;letter-spacing:1px}.supply-use:not(:disabled){box-shadow:inset 0 0 12px rgba(216,168,62,.10)}
+.site.reconstituting .row{color:#d8a83e}.site.reconstituting .meter i{background:#d8a83e!important}
+.settingspanel{width:min(440px,calc(100vw - 24px))!important;padding:16px 20px!important}.audio-setting{padding:11px 0;border-bottom:1px solid var(--border)}.audio-setting>div{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:10px;letter-spacing:.1em}.audio-setting span{color:#d8a83e}.audio-setting input[type=range]{width:100%;accent-color:#d8a83e;touch-action:pan-x}.settingspanel #settingsBack{width:100%;margin-top:12px}
+@media(max-width:900px),(max-height:650px){.settingspanel{width:min(390px,calc(100vw - 16px))!important;padding:10px 15px!important}.audio-setting{padding:7px 0}.audio-setting>div{margin-bottom:5px;font-size:9px}.supply-use{min-height:28px;font-size:8px;margin-top:4px}}
+
+.boot-splash{position:fixed;inset:0;z-index:9999;background:#05090c;display:grid;place-items:center;transition:opacity .6s ease,visibility .6s ease}.boot-splash.done{opacity:0;visibility:hidden;pointer-events:none}.boot-art{position:absolute;inset:0;overflow:hidden}.boot-art img{width:100%;height:100%;object-fit:cover;filter:saturate(.8) contrast(1.15) brightness(.58);transform:scale(1.04)}.boot-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,9,12,.94),rgba(4,9,12,.45) 55%,rgba(4,9,12,.72)),linear-gradient(0deg,rgba(4,9,12,.9),transparent 60%)}.boot-copy{position:absolute;left:6vw;bottom:11vh;letter-spacing:.16em;text-shadow:0 2px 12px #000}.boot-kicker{font-size:11px;color:#8ba7b7;margin-bottom:10px}.boot-title{font-size:clamp(30px,5vw,68px);font-weight:800;color:#eefaff;letter-spacing:.22em}.boot-title span{color:#ff5b55}.boot-sub{margin-top:12px;color:#9ec4d7;font-size:12px}.boot-load-row{margin-top:24px;display:flex;align-items:center;gap:12px;width:min(480px,78vw)}.boot-load{margin-top:0;flex:1;height:5px;background:#26343c;overflow:hidden}.boot-load i{display:block;height:100%;width:0;background:#ff4b45;transition:width .08s linear,background-color .15s linear}.boot-pct{min-width:42px;color:#ff6b65;font:700 12px monospace;letter-spacing:.08em;text-align:right}
+.tutorial-guide{position:absolute;z-index:70;left:18px;top:18px;width:min(350px,42vw);padding:14px 16px;background:rgba(7,13,17,.96);border:1px solid #d8a83e;box-shadow:0 8px 24px rgba(0,0,0,.45);pointer-events:auto}.tutorial-guide b{display:block;color:#fff;letter-spacing:.13em;margin:5px 0 8px}.tutorial-guide p{margin:0;color:#b9cbd3;line-height:1.35;font-size:12px}.tutorial-kicker{font-size:9px;color:#d8a83e;letter-spacing:.18em}.tutorial-guide button{margin-top:10px;width:100%}
+.gameoverlay.loss-flash:before,.gameoverlay.win-flash:before{content:"";position:absolute;inset:0;pointer-events:none;animation:resultPulse 1.2s ease-out}.gameoverlay.loss-flash:before{box-shadow:inset 0 0 90px rgba(255,60,55,.75)}.gameoverlay.win-flash:before{box-shadow:inset 0 0 90px rgba(85,214,107,.55)}@keyframes resultPulse{0%,35%{opacity:1}100%{opacity:0}}
+
+.mutebtn{position:absolute;right:106px;bottom:14px;z-index:35;min-height:44px;padding:0 10px;border:1px solid #44545c;background:rgba(11,18,23,.92);color:#aebdc4;font:10px monospace;letter-spacing:.08em}.mutebtn.muted{border-color:#ff5b55;color:#ff8b86}.mission-load{position:absolute;inset:0;z-index:95;background:rgba(4,9,12,.98);display:grid;place-items:center;transition:opacity .45s ease}.mission-load.hidden{display:none}.mission-load-inner{width:min(560px,72vw);text-align:center}.mission-load-kicker{font-size:10px;color:#8ba7b7;letter-spacing:.18em}.mission-load-title{margin-top:12px;font-size:clamp(24px,4vw,46px);font-weight:800;letter-spacing:.18em}.mission-load-sub{margin-top:8px;color:#d8a83e;font-size:11px;letter-spacing:.14em}.mission-load-bar{height:3px;margin-top:22px;background:#26343c;overflow:hidden}.mission-load.show .mission-load-bar i{display:block;height:100%;background:#dcecf3;animation:missionload 2.6s ease forwards}@keyframes missionload{from{width:0}to{width:100%}}.training-degraded{filter:drop-shadow(0 0 5px rgba(255,91,85,.5))}@media(max-width:900px),(max-height:650px){.mutebtn{right:100px;bottom:10px;min-height:36px}.pausebtn{bottom:10px}.mission-load-inner{width:min(500px,76vw)}}
+
+/* v0.6.5.6 command controls moved off-map */
+.command-controls{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}.command-controls .pausebtn,.command-controls .mutebtn{position:static;right:auto;bottom:auto;z-index:auto;width:100%;min-height:38px;padding:6px 8px;font-size:9px}
+
+/* v0.6.5.6 final stabilization */
+.command-controls-bottom{position:sticky;bottom:0;z-index:40;margin:0;padding:9px 15px 10px;border-top:1px solid var(--border);background:rgba(13,20,24,.98);grid-template-columns:1fr 1fr}.command-controls-bottom .pausebtn,.command-controls-bottom .mutebtn{min-height:34px;height:34px;margin:0;padding:4px 7px;font-size:8.5px}.tutorial-briefing-panel{width:min(410px,86vw)!important;max-height:min(470px,calc(100vh - 18px))!important;padding:14px 22px!important}.tutorial-briefing-panel .menu-title{font-size:25px!important;line-height:1.05!important;margin:5px 0 9px!important}.tutorial-briefing-panel .brief-copy{font-size:10px!important;line-height:1.35!important;margin:8px 0!important}.tutorial-briefing-panel .objectives{margin:8px 0 10px!important;padding:9px 11px!important;font-size:9px!important;line-height:1.25!important}.tutorial-briefing-panel .objectives>div{margin-bottom:5px!important}.tutorial-briefing-panel .objectives p{margin:3px 0!important}.tutorial-briefing-panel button{min-height:34px!important;height:34px!important;margin:4px 0!important;font-size:9px!important}
+@media(max-height:650px),(max-width:900px){.tutorial-briefing-panel{width:min(390px,calc(100vw - 18px))!important;max-height:calc(100vh - 8px)!important;padding:8px 16px!important}.tutorial-briefing-panel .menu-title{font-size:20px!important}.tutorial-briefing-panel .brief-copy{font-size:9px!important;margin:4px 0!important}.tutorial-briefing-panel .objectives{margin:4px 0 6px!important;padding:6px 9px!important;font-size:8px!important}.tutorial-briefing-panel button{min-height:30px!important;height:30px!important;margin:3px 0!important}}
+
+/* v0.6.5.9 supply targeting is map-only; BLUFOR status remains informational. */
+.blue-repairable{cursor:crosshair;filter:drop-shadow(0 0 8px rgba(216,168,62,.9))}
+
+/* v0.6.5.9 // MOBILE SAFE FRAME + COMPACT OVERLAYS */
+#mapWrap{--map-safe-x:max(14px,env(safe-area-inset-left));--map-safe-r:max(14px,env(safe-area-inset-right));--map-safe-y:12px;background:#070c0f!important}
+#map{left:var(--map-safe-x)!important;right:var(--map-safe-r)!important;top:var(--map-safe-y)!important;bottom:var(--map-safe-y)!important;width:auto!important;height:auto!important;outline:1px solid rgba(127,146,155,.35);outline-offset:0}
+#mapWrap .hud{left:calc(var(--map-safe-x) + 8px)!important;top:calc(var(--map-safe-y) + 8px)!important}
+#mapWrap #isrModeBadge{right:calc(var(--map-safe-r) + 8px)!important;top:calc(var(--map-safe-y) + 8px)!important}
+#mapWrap .notification-stack{left:calc(var(--map-safe-x) + 8px)!important;bottom:calc(var(--map-safe-y) + 8px)!important}
+#mapWrap .hostile-collection-warning{bottom:calc(var(--map-safe-y) + 8px)!important}
+#mapWrap .intel-drop{left:auto!important;right:calc(var(--map-safe-r) + 8px)!important;top:calc(var(--map-safe-y) + 56px)!important;bottom:auto!important;transform:none!important;width:min(255px,36%)!important}
+#mapWrap .intel-fusion-badge{left:auto!important;right:calc(var(--map-safe-r) + 8px)!important;top:calc(var(--map-safe-y) + 56px)!important;bottom:auto!important;max-width:255px!important}
+.tutorial-guide{left:calc(max(14px,env(safe-area-inset-left)) + 10px)!important;top:22px!important;width:min(330px,38vw)!important;max-height:52%;overflow:auto;padding:10px 12px!important}.tutorial-guide p{font-size:10px!important}.tutorial-guide b{font-size:13px!important;margin:3px 0 5px!important}
+@media(max-width:1000px),(max-height:700px){.menupanel{width:min(350px,58vw)!important;padding:14px 18px!important}.menu-title{font-size:24px!important;letter-spacing:4px!important}.menu-title.small{font-size:19px!important}.menu-sub{margin:5px 0 12px!important}.menu-primary,.menu-secondary{min-height:36px!important;height:36px!important;margin:5px 0!important;font-size:10px!important}.menu-version{margin-top:10px!important}.objectives{margin:7px 0!important;padding:8px 10px!important}.brief-copy{margin:6px 0!important;font-size:9px!important;line-height:1.3!important}#mapWrap .intel-drop{width:min(220px,33%)!important;padding:8px 9px!important}#mapWrap .intel-drop-btn{min-height:37px!important;margin:4px 0!important}.tutorial-guide{width:min(290px,34vw)!important}}
+
+
+/* v0.6.5.9 // MOBILE FRAME + RELIABLE SUPPLY + OPERATIONAL STATUS */
+#mapWrap{--map-safe-y:16px!important;--map-safe-x:max(18px,env(safe-area-inset-left))!important;--map-safe-r:max(18px,env(safe-area-inset-right))!important;background:#070c0f!important}
+#map{background:#070c0f!important;border:1px solid rgba(127,146,155,.32);outline:none!important}
+.track-idle-note{margin-top:7px;padding-top:7px;border-top:1px solid rgba(127,146,155,.18);color:#61737b;font-size:7px;letter-spacing:.09em}
+.op-status-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.op-status-item{position:relative;border:1px solid #29373e;background:#0a1115;padding:8px 9px 9px;min-width:0}
+.op-status-item span{display:block;color:#8fa0a5;font-size:7px;letter-spacing:.08em;white-space:nowrap}
+.op-status-item b{display:block;margin-top:3px;font-size:16px;letter-spacing:.05em}
+.op-status-meter{height:4px;margin-top:6px;background:#26343c;overflow:hidden}
+.op-status-meter i{display:block;height:100%;width:0;background:#55d66b;transition:width .2s linear}
+#compMeter{background:#55d66b}#compMeter.warn,#integrityMeter.warn{background:#d8a83e}#compMeter.danger,#integrityMeter.danger{background:#ff5b55}
+#operationalStatus #detail{margin-top:10px;padding-top:10px;border-top:1px solid #29373e}
+#operationalStatus #detail h3{font-size:13px;margin-bottom:7px}
+#operationalStatus #detail p{font-size:9px;margin:5px 0}
+#operationalStatus #collect,#operationalStatus #clear,#operationalStatus #intercept{min-height:36px;font-size:10px}
+.blue-repairable{pointer-events:all!important;cursor:crosshair;filter:drop-shadow(0 0 11px rgba(255,209,102,.95))}
+@media(max-width:1000px),(max-height:700px){#mapWrap{--map-safe-y:14px!important}.op-status-item{padding:6px 7px}.op-status-item b{font-size:13px}.track-idle-note{font-size:6.5px}#operationalStatus{padding-bottom:10px!important}}
+
+
+/* v0.6.6.3 // OPERATIONAL REFINEMENT */
+/* Keep the entire 900x650 OA visible on extreme landscape phones. The expanded SVG
+   viewBox supplies a deliberate tactical gutter; these insets protect physical screen edges. */
+#mapWrap{--map-safe-y:10px!important;--map-safe-x:max(12px,env(safe-area-inset-left))!important;--map-safe-r:max(12px,env(safe-area-inset-right))!important}
+#map{object-fit:contain!important}
+#blueSites text{paint-order:stroke;stroke:#071014;stroke-width:3px;stroke-linejoin:round;font-weight:700}
+@media(max-height:500px){#mapWrap{--map-safe-y:8px!important}}
+
+/* v0.6.6.3 // MAP COMPOSITION ROLLBACK
+   The OA is once again one 900x650 composition. The layout column follows the
+   largest uncropped OA that fits the available height; surplus width belongs
+   to the command rail, not to empty map canvas. */
+@media (min-width:681px){
+  .layout{
+    grid-template-columns:minmax(0,calc((100dvh - 76px - 16px) * 900 / 650 + 16px)) minmax(310px,1fr)!important;
+  }
+  #mapWrap{
+    --map-safe-y:8px!important;
+    --map-safe-x:max(8px,env(safe-area-inset-left))!important;
+    --map-safe-r:8px!important;
+    min-width:0!important;
+    overflow:hidden!important;
+  }
+  #map{
+    left:var(--map-safe-x)!important;
+    right:var(--map-safe-r)!important;
+    top:var(--map-safe-y)!important;
+    bottom:var(--map-safe-y)!important;
+    width:auto!important;
+    height:auto!important;
+    background:#070c0f!important;
+    border:1px solid rgba(127,146,155,.32)!important;
+    outline:none!important;
+  }
+}
+@media (max-height:500px) and (min-width:681px){
+  .layout{grid-template-columns:minmax(0,calc((100dvh - 76px - 12px) * 900 / 650 + 12px)) minmax(310px,1fr)!important}
+  #mapWrap{--map-safe-y:6px!important;--map-safe-x:max(6px,env(safe-area-inset-left))!important;--map-safe-r:6px!important}
+}
+
+
+/* v0.6.6.6 // PHONE MAP BOUNDS — controlled composition zoom
+   Desktop remains unchanged. On short landscape phones, preserve the proven
+   0.6.6.3 composition but give the OA more horizontal presence. */
+.objective-duplicate-status{display:none!important}
+@media (min-width:681px) and (max-height:500px){
+  .layout{
+    grid-template-columns:minmax(0,60%) minmax(300px,40%)!important;
+    height:calc(100dvh - 76px)!important;
+  }
+  #mapWrap{
+    --map-safe-y:7px!important;
+    --map-safe-x:max(7px,env(safe-area-inset-left))!important;
+    --map-safe-r:7px!important;
+    min-width:0!important;
+    overflow:hidden!important;
+  }
+  #map{
+    left:var(--map-safe-x)!important;
+    right:var(--map-safe-r)!important;
+    top:var(--map-safe-y)!important;
+    bottom:var(--map-safe-y)!important;
+    width:auto!important;
+    height:auto!important;
+  }
+  aside{min-width:0!important}
+  aside section{padding-left:11px!important;padding-right:11px!important}
+  .op-status-grid{gap:6px!important}
+  .op-status-item{padding-left:6px!important;padding-right:6px!important}
+}
+
+/* v0.6.6.7 // PHYSICAL IPHONE BOUNDS
+   Acceptance target: actual iPhone 15 Pro Max landscape. The complete 900x650 OA
+   is fitted inside the real safe rectangle; no cropped viewBox and no layer-specific zoom. */
+@media (min-width:681px) and (max-height:500px){
+  .layout{
+    grid-template-columns:minmax(0,65%) minmax(0,35%)!important;
+    height:calc(100dvh - 76px)!important;
+    min-height:0!important;
+  }
+  #mapWrap{
+    --phone-safe-left:max(8px,env(safe-area-inset-left))!important;
+    --phone-safe-right:max(8px,env(safe-area-inset-right))!important;
+    --phone-safe-top:max(8px,env(safe-area-inset-top))!important;
+    --phone-safe-bottom:max(8px,env(safe-area-inset-bottom))!important;
+    min-width:0!important;
+    min-height:0!important;
+    height:100%!important;
+    overflow:hidden!important;
+    background:#070c0f!important;
+  }
+  #map{
+    right:auto!important;
+    bottom:auto!important;
+    max-width:none!important;
+    max-height:none!important;
+    object-fit:contain!important;
+  }
+  aside{min-width:0!important;overflow-y:auto!important;overflow-x:hidden!important}
+  aside section{padding-left:9px!important;padding-right:9px!important}
+  .op-status-grid{gap:5px!important}
+  .op-status-item{padding-left:5px!important;padding-right:5px!important}
+  .command-controls-bottom{padding-left:9px!important;padding-right:9px!important}
 }
