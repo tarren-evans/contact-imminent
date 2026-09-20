@@ -101,7 +101,7 @@ button:focus-visible{outline:1px solid var(--accent);outline-offset:2px}
 .objective-chip.complete b{color:var(--green)}.objective-chip.danger b{color:var(--red)}
 @media(max-width:680px){.objective-strip{gap:10px;padding:4px 8px;min-height:34px}.objective-strip .objective-title{display:none}.objective-chip{gap:4px;font-size:8px}.objective-chip b{font-size:9px}}
 
-/* v0.4.6.5 — compact tactical status bar */
+/* v0.4.6.5 ΓÇö compact tactical status bar */
 .objective-strip{
   height:28px!important;min-height:28px!important;max-height:28px!important;
   box-sizing:border-box;padding:3px 10px!important;gap:12px!important;
@@ -226,7 +226,7 @@ header .status{display:flex!important;flex-wrap:wrap!important;justify-content:f
 /* v0.4.6.10 mission-aware objective tracker */
 #objectiveSecondaryChip,#objectiveOEChip{transition:none}
 
-/* v0.5.1 — permanent compact campaign briefing contract
+/* v0.5.1 ΓÇö permanent compact campaign briefing contract
    Applies to the actual briefing0101..0105 markup. */
 [id^="briefing01"].gameoverlay .menupanel{
  width:min(430px,calc(100vw - 24px))!important;
@@ -255,7 +255,7 @@ header .status{display:flex!important;flex-wrap:wrap!important;justify-content:f
  [id^="briefing01"] .menu-primary,[id^="briefing01"] .menu-secondary{min-height:30px!important;height:30px!important;margin:3px 0!important;font-size:9px!important}
 }
 
-/* v0.6.0 — compact Campaign 01 selector */
+/* v0.6.0 ΓÇö compact Campaign 01 selector */
 #campaignMenu .campaignpanel{
  width:min(430px,calc(100vw - 24px))!important;
  max-height:calc(100vh - 16px)!important;
@@ -444,7 +444,7 @@ header .status{display:flex!important;flex-wrap:wrap!important;justify-content:f
 }
 
 
-/* v0.6.6.6 // PHONE MAP BOUNDS — controlled composition zoom
+/* v0.6.6.6 // PHONE MAP BOUNDS ΓÇö controlled composition zoom
    Desktop remains unchanged. On short landscape phones, preserve the proven
    0.6.6.3 composition but give the OA more horizontal presence. */
 .objective-duplicate-status{display:none!important}
@@ -655,28 +655,24 @@ button:not(:disabled):active{transform:translateY(1px)}
 }
 
 
-/* v0.6.6.14 // KESTREL HORIZONTAL GRID COVERAGE
-   Restore the approved v0.6.6.10/11 physical map footprint. The original
-   #geometricGrid remains authoritative and unchanged. Pointer-transparent
-   extensions continue that exact lattice only through the left/right gutters. */
-#map{
-  border:1px solid rgba(226,235,238,.92)!important;
-  box-shadow:0 0 0 1px rgba(8,15,18,.55),0 0 18px rgba(0,0,0,.18)!important;
-  z-index:2;
-}
-#gridExtensions{
+/* v0.6.6.15 // KESTREL HORIZONTAL GRID COVERAGE — 6.6.10 presentation preserved.
+   Visual grid uses the same 52/78/sqrt(3)*52 lattice and fitted scale as the
+   authoritative 900x650 coordinate space, then continues horizontally through
+   the physical map window. It is visual-only and never receives input. */
+#physicalGrid{
   position:absolute;
   inset:6px;
   width:calc(100% - 12px);
   height:calc(100% - 12px);
-  z-index:1;
   pointer-events:none;
   overflow:hidden;
 }
-#gridExtensions .geoHex{
+#physicalGrid .geoHex{
   fill:none;
   stroke:rgba(224,233,236,.42);
   stroke-width:1.45;
   vector-effect:non-scaling-stroke;
   shape-rendering:geometricPrecision;
 }
+/* Prevent a doubled center lattice; gameplay/tactical coordinates remain on #map. */
+#geometricGrid{visibility:hidden!important;}
