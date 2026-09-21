@@ -660,3 +660,38 @@ button:not(:disabled):active{transform:translateY(1px)}
    allowed to render outside the 900x650 viewBox into xMidYMid meet gutters;
    #map itself still clips at the physical map border. */
 #geometricGrid{clip-path:none!important;}
+
+/* v0.6.7.1 // Track Memory + Last Known Position: compact selected-track intelligence history */
+.intel-history{margin:7px 0 6px;padding:6px 7px;border:1px solid rgba(139,173,185,.24);background:rgba(8,14,18,.36)}
+.intel-history-title{font-size:9px;letter-spacing:.12em;color:#9fb4bc;margin-bottom:4px}
+.intel-history p{margin:2px 0!important;font-size:10px!important;display:flex;justify-content:space-between;gap:8px}
+.intel-history b{font-weight:600;color:#dce5e8}
+
+/* v0.6.7.5 // Pattern Indicators */
+.pattern-indicators{margin-top:6px;padding-top:5px;border-top:1px solid rgba(139,173,185,.18)}
+.pattern-indicators-title{font-size:8px;letter-spacing:.12em;color:#c7a95b;margin-bottom:3px}
+.pattern-indicator{display:flex;justify-content:space-between;gap:8px;margin:2px 0;font-size:9px;letter-spacing:.035em;color:#aebdc2}
+.pattern-indicator b{color:#d7c17b!important;font-weight:600}
+
+
+/* v0.6.7.5 // Intelligence Picture integration */
+.intel-picture{border-color:rgba(169,192,201,.34);background:rgba(7,13,17,.48)}
+.intel-picture .intel-history-title{color:#dce5e8;font-weight:700;letter-spacing:.15em}
+.intel-picture-subtitle{margin-top:5px;padding-top:5px;border-top:1px solid rgba(139,173,185,.18);font-size:8px;letter-spacing:.12em;color:#879ba3}
+.intel-position{margin-top:3px}
+.intel-assessment{margin-top:5px}
+.intel-assessment>b{display:block;margin-top:4px;font-size:9px;letter-spacing:.07em;font-weight:700}
+.assessment-insufficient{color:#879ba3!important}
+.assessment-developing{color:#d7c17b!important}
+.assessment-significant{color:#e0b24e!important}
+
+/* v0.6.7.5 // Arcade Intel Assists + visible build version */
+.boot-version{margin-top:6px;font-size:10px;letter-spacing:.18em;color:rgba(225,235,238,.68);font-weight:700}
+.arcade-intel-assists{border:1px solid var(--border);padding:7px 9px;margin:6px 0;background:rgba(7,15,19,.58)}
+.arcade-intel-title{display:flex;justify-content:space-between;align-items:center;font-size:9px;letter-spacing:.12em;color:var(--muted)}
+.arcade-intel-title b{color:var(--accent);font-size:9px}
+.arcade-intel-buttons{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:5px;margin-top:5px}
+#arcadeBriefing .arcade-intel-buttons button{height:28px;min-height:28px;margin:0;font-size:8.5px;border-color:var(--border);background:rgba(13,20,24,.85)}
+#arcadeBriefing .arcade-intel-buttons button.selected{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.arcade-intel-help{margin-top:5px;font-size:8px;letter-spacing:.08em;color:var(--muted);text-align:center}
+@media(max-height:650px),(max-width:900px){.arcade-intel-assists{padding:5px 7px;margin:3px 0}.arcade-intel-title{font-size:8px}.arcade-intel-help{font-size:7.5px;margin-top:3px}#arcadeBriefing .arcade-intel-buttons button{height:25px;min-height:25px;margin:0}}
