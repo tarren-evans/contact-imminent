@@ -695,3 +695,16 @@ button:not(:disabled):active{transform:translateY(1px)}
 #arcadeBriefing .arcade-intel-buttons button.selected{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
 .arcade-intel-help{margin-top:5px;font-size:8px;letter-spacing:.08em;color:var(--muted);text-align:center}
 @media(max-height:650px),(max-width:900px){.arcade-intel-assists{padding:5px 7px;margin:3px 0}.arcade-intel-title{font-size:8px}.arcade-intel-help{font-size:7.5px;margin-top:3px}#arcadeBriefing .arcade-intel-buttons button{height:25px;min-height:25px;margin:0}}
+
+/* v0.7.1 // OA VANTAGE FOUNDATION
+   VANTAGE reuses the protected 900x650 tactical viewport and 6.6.18 lattice.
+   Only the visual overscan artwork changes during area preview. */
+#mapWrap.oa-vantage{
+  background-image:linear-gradient(rgba(4,10,13,.08),rgba(4,10,13,.08)),url('assets/maps/oa-vantage-overscan.png')!important;
+}
+.vantage-preview-hud{position:absolute;z-index:55;left:18px;top:18px;display:flex;align-items:center;gap:14px;padding:10px 12px;background:rgba(6,13,17,.9);border:1px solid rgba(216,168,62,.58);backdrop-filter:blur(4px);pointer-events:auto}
+.vantage-preview-hud.hidden{display:none!important}.vantage-preview-hud div{display:flex;flex-direction:column;gap:3px}.vantage-preview-hud b{font-size:12px;letter-spacing:.14em;color:#edf2f3}.vantage-preview-hud span{font-size:9px;letter-spacing:.1em;color:#aebdc2}.vantage-preview-hud button{min-height:36px;padding:7px 10px;font-size:9px;white-space:nowrap}
+@media (max-width:680px){.vantage-preview-hud{left:8px;top:8px;right:8px;flex-wrap:wrap}.vantage-preview-hud button{width:100%}}
+
+/* v0.7.1 Campaign 02 // NETWORK */
+.campaign-section-title{margin:7px 0 4px;font-size:8px;letter-spacing:.13em;color:#9fb2ba}.campaign-section-title.vantage-title{color:#d8a83e}.campaignpanel{max-height:94%;overflow:auto}.campaignpanel .campaign-list{gap:3px}.campaignpanel .mission-row{min-height:28px;padding:5px 9px}.c02-list{margin-bottom:5px}.arcade-oa-select{margin-bottom:7px}.arcade-oa-select .arcade-intel-buttons{grid-template-columns:1fr 1fr}#networkAssociations{border-top:1px solid rgba(216,168,62,.22);margin-top:6px;padding-top:6px}
