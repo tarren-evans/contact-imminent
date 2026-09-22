@@ -762,9 +762,28 @@ button:not(:disabled):active{transform:translateY(1px)}
 
 /* v0.8.3 // Pattern Deviation: analytical presentation only; protected map/grid geometry unchanged. */
 
-/* v0.9.0 // OA VERDANT FOUNDATION — presentation only; protected 900x650 lattice untouched. */
+/* v0.9.0.1 // OA VERDANT FOUNDATION — presentation only; protected 900x650 lattice untouched. */
 #mapWrap.oa-verdant{background-image:linear-gradient(rgba(4,10,13,.08),rgba(4,10,13,.08)),url('assets/maps/oa-verdant-overscan.png')!important;background-position:center center!important;background-size:cover!important}
 .campaign-section-title.verdant-title{color:#86c99a}.verdant-preview-hud{border-color:rgba(134,201,154,.62)}
 .verdant-preview-copy{border:1px solid var(--border);background:rgba(7,15,19,.58);padding:10px;margin:5px 0 7px;display:flex;flex-direction:column;gap:5px}.verdant-preview-copy b{font-size:9px;letter-spacing:.12em;color:#bfe3c9}.verdant-preview-copy span,.verdant-preview-copy small{font-size:7px;line-height:1.35;color:#94a8af}
 .campaign-oa-tabs{grid-template-columns:repeat(3,1fr)!important}
 @media(max-height:700px){#campaignPaneVerdant .verdant-preview-copy{padding:6px;margin:3px 0 4px}.verdant-preview-copy small{display:none}}
+
+/* v0.9.0.1 // Command title safe-area hotfix
+   Physical iPhone landscape: keep the command wordmark clear of the Dynamic Island / sensor housing.
+   Presentation layer only; no tactical map, grid, or gameplay geometry changes. */
+.command-home{
+  box-sizing:border-box;
+  padding-left:max(8px,env(safe-area-inset-left));
+  padding-right:max(8px,env(safe-area-inset-right));
+}
+.command-home-shell{box-sizing:border-box;max-width:100%}
+@media (orientation:landscape) and (max-height:520px){
+  .command-home-shell{
+    width:min(1000px,100%)!important;
+  }
+  .command-home-brand{
+    box-sizing:border-box;
+    padding-left:18px!important;
+  }
+}
