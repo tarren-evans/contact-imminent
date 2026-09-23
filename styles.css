@@ -762,14 +762,14 @@ button:not(:disabled):active{transform:translateY(1px)}
 
 /* v0.8.3 // Pattern Deviation: analytical presentation only; protected map/grid geometry unchanged. */
 
-/* v0.9.1 // OA VERDANT FOUNDATION — presentation only; protected 900x650 lattice untouched. */
+/* v0.10.0 // OA VERDANT FOUNDATION — presentation only; protected 900x650 lattice untouched. */
 #mapWrap.oa-verdant{background-image:linear-gradient(rgba(4,10,13,.08),rgba(4,10,13,.08)),url('assets/maps/oa-verdant-overscan.png')!important;background-position:center center!important;background-size:cover!important}
 .campaign-section-title.verdant-title{color:#86c99a}.verdant-preview-hud{border-color:rgba(134,201,154,.62)}
 .verdant-preview-copy{border:1px solid var(--border);background:rgba(7,15,19,.58);padding:10px;margin:5px 0 7px;display:flex;flex-direction:column;gap:5px}.verdant-preview-copy b{font-size:9px;letter-spacing:.12em;color:#bfe3c9}.verdant-preview-copy span,.verdant-preview-copy small{font-size:7px;line-height:1.35;color:#94a8af}
 .campaign-oa-tabs{grid-template-columns:repeat(3,1fr)!important}
 @media(max-height:700px){#campaignPaneVerdant .verdant-preview-copy{padding:6px;margin:3px 0 4px}.verdant-preview-copy small{display:none}}
 
-/* v0.9.1 // Command title safe-area hotfix
+/* v0.10.0 // Command title safe-area hotfix
    Physical iPhone landscape: keep the command wordmark clear of the Dynamic Island / sensor housing.
    Presentation layer only; no tactical map, grid, or gameplay geometry changes. */
 .command-home{
@@ -789,7 +789,7 @@ button:not(:disabled):active{transform:translateY(1px)}
 }
 
 
-/* v0.9.1 // OA MIRAGE + TEMPEST preview foundation — presentation only. */
+/* v0.10.0 // OA MIRAGE + TEMPEST preview foundation — presentation only. */
 #mapWrap.oa-mirage{background-image:linear-gradient(rgba(4,10,13,.08),rgba(4,10,13,.08)),url('assets/maps/oa-mirage-overscan.png')!important;background-position:center center!important;background-size:cover!important}
 #mapWrap.oa-tempest{background-image:linear-gradient(rgba(4,10,13,.08),rgba(4,10,13,.08)),url('assets/maps/oa-tempest-overscan.png')!important;background-position:center center!important;background-size:cover!important}
 .campaign-section-title.mirage-title{color:#d6b47c}.mirage-preview-hud{border-color:rgba(214,180,124,.64)}
@@ -797,3 +797,343 @@ button:not(:disabled):active{transform:translateY(1px)}
 .campaign-oa-tabs{grid-template-columns:repeat(5,1fr)!important}
 .command-worldline{flex-wrap:wrap}.command-worldline span{white-space:nowrap}
 @media(max-width:1000px),(max-height:700px){.campaign-oa-tabs{gap:3px!important}.campaign-oa-tabs button{padding:4px 5px!important;font-size:7px!important}.campaign-oa-tabs span{font-size:6px!important}.command-worldline{gap:4px!important}.command-worldline span{font-size:6px!important}}
+
+/* v0.10.0 // GLOBAL FOUNDATION PROTOTYPE */
+.global-choice b{color:#d8a83e}.global-overlay{background:radial-gradient(circle at 42% 48%,#10212a 0,#060b0f 42%,#020507 78%)!important;padding:0!important;overflow:hidden}.global-shell{width:100vw;height:100dvh;box-sizing:border-box;padding:max(10px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));display:flex;flex-direction:column;color:#dce5e8}.global-topbar{height:48px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(216,168,62,.34);padding:0 8px;letter-spacing:.13em}.global-topbar span,.global-panel-kicker{display:block;font-size:7px;color:#83979f}.global-topbar b{font-size:11px;color:#d8a83e}.global-zulu{font-size:8px;color:#8ea1a8}.global-zulu b{font-size:9px}.global-stage{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(245px,320px);gap:16px}.orbital-scene{position:relative;min-width:0;overflow:hidden}.earth-wrap{position:absolute;left:46%;top:51%;width:min(58vh,48vw);aspect-ratio:1;transform:translate(-50%,-50%);filter:drop-shadow(0 0 24px rgba(91,160,187,.2))}.earth{position:absolute;inset:0;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 34% 30%,rgba(116,187,210,.32),transparent 34%),radial-gradient(circle at 50% 50%,#1e7187 0,#145064 52%,#0b2835 78%,#06131b 100%);box-shadow:inset -24px -8px 45px rgba(0,0,0,.68),inset 10px 0 20px rgba(128,207,225,.12),0 0 0 1px rgba(164,216,226,.34),0 0 28px rgba(76,155,184,.22);animation:earthPulse 9s ease-in-out infinite}.earth-land{position:absolute;background:#61765c;opacity:.9;filter:drop-shadow(0 1px 1px #17241b)}.land-a{width:52%;height:33%;left:-5%;top:22%;border-radius:58% 42% 54% 46%/45% 60% 40% 55%;transform:rotate(-14deg);box-shadow:40px 55px 0 -18px #536b52,82px 84px 0 -26px #667c5c}.land-b{width:38%;height:48%;right:3%;top:12%;border-radius:45% 55% 38% 62%/34% 44% 56% 66%;transform:rotate(18deg);box-shadow:-38px 110px 0 -20px #596f55}.land-c{width:23%;height:17%;right:17%;bottom:9%;border-radius:60% 40% 55% 45%;transform:rotate(-9deg)}.earth-night{position:absolute;inset:-2%;border-radius:50%;background:linear-gradient(103deg,transparent 0 43%,rgba(2,5,8,.15) 48%,rgba(1,3,6,.82) 61%,rgba(0,1,3,.96) 100%);mix-blend-mode:multiply}.earth-grid{position:absolute;inset:0;border-radius:50%;opacity:.17;background:repeating-linear-gradient(0deg,transparent 0 11.5%,rgba(194,228,236,.25) 12%,transparent 12.5%),repeating-linear-gradient(90deg,transparent 0 11.5%,rgba(194,228,236,.18) 12%,transparent 12.5%)}@keyframes earthPulse{50%{filter:brightness(1.07)}}
+.orbit{position:absolute;left:46%;top:51%;border:1px solid rgba(160,198,208,.23);border-radius:50%;pointer-events:none;transform:translate(-50%,-50%) rotate(var(--rot));animation:orbitSpin var(--orbit-speed,24s) linear infinite}.orbit-a{width:min(72vh,60vw);aspect-ratio:1;--rot:-18deg}.orbit-b{width:min(82vh,68vw);aspect-ratio:1;--rot:51deg;--orbit-speed:34s}.orbit-c{width:min(66vh,55vw);aspect-ratio:1;--rot:104deg;--orbit-speed:19s}.sat{position:absolute;left:50%;top:-5px;width:9px;height:9px;background:#d8a83e;box-shadow:0 0 10px rgba(216,168,62,.75);transform:translateX(-50%) rotate(45deg)}.sat:before,.sat:after{content:"";position:absolute;top:3px;width:12px;height:3px;background:#78929a}.sat:before{right:8px}.sat:after{left:8px}@keyframes orbitSpin{to{transform:translate(-50%,-50%) rotate(calc(var(--rot) + 360deg))}}
+.oa-marker{position:absolute;z-index:4;border:0!important;background:transparent!important;color:#dce5e8!important;padding:0!important;width:auto!important;height:auto!important;min-height:0!important;margin:0!important;display:flex!important;align-items:center;gap:5px;font:7px ui-monospace,monospace;letter-spacing:.08em;white-space:nowrap;text-shadow:0 1px 4px #000}.oa-marker i{width:7px;height:7px;border:1px solid #d8a83e;background:rgba(216,168,62,.16);transform:rotate(45deg);box-shadow:0 0 7px rgba(216,168,62,.45)}.oa-marker:hover i,.oa-marker.selected i{background:#d8a83e}.oa-marker.oa-kestrel{left:17%;top:29%}.oa-marker.oa-vantage{left:59%;top:25%}.oa-marker.oa-verdant{left:30%;top:52%}.oa-marker.oa-mirage{left:56%;top:50%}.oa-marker.oa-tempest{left:65%;top:68%}
+.global-panel{position:relative!important;width:auto!important;height:auto;overflow:auto;background:rgba(5,11,15,.88);border-left:1px solid rgba(216,168,62,.3);padding:18px 16px;box-sizing:border-box}.global-panel-title{font-size:21px;letter-spacing:.12em;margin:4px 0 13px}.global-kv{display:grid;grid-template-columns:1fr auto;gap:7px;font-size:8px;letter-spacing:.08em}.global-kv span{color:#83979f}.global-kv b{color:#a8d4b4}.global-divider{height:1px;background:rgba(142,161,168,.2);margin:14px 0}.global-oa-name{font-size:14px;letter-spacing:.11em;color:#d8a83e;margin:6px 0}.global-oa-detail{font-size:8px;line-height:1.5;color:#9aacb2;min-height:50px}.global-rate{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:7px 0 12px}.global-rate button{height:30px!important;min-height:30px!important;margin:0!important;padding:0!important;font-size:8px!important}.global-rate button.selected{border-color:#d8a83e!important;color:#d8a83e!important}.global-note{font-size:6.5px;line-height:1.45;color:#687b82;margin:8px 0 10px}.global-panel .menu-primary,.global-panel .menu-secondary{height:34px!important;min-height:34px!important;margin:6px 0!important;font-size:8px!important}
+@media(max-height:520px) and (orientation:landscape){.global-topbar{height:34px}.global-stage{grid-template-columns:minmax(0,1fr) 250px;gap:8px}.global-panel{padding:8px 10px}.global-panel-title{font-size:15px;margin:2px 0 6px}.global-divider{margin:7px 0}.global-oa-detail{min-height:28px;line-height:1.25}.global-note{margin:4px 0}.global-panel .menu-primary,.global-panel .menu-secondary{height:28px!important;min-height:28px!important;margin:3px 0!important}.global-rate button{height:25px!important;min-height:25px!important}.earth-wrap{width:min(70vh,44vw)}.orbit-a{width:min(84vh,53vw)}.orbit-b{width:min(96vh,61vw)}.orbit-c{width:min(78vh,49vw)}}
+
+/* v0.11.5.13.1 // GLOBAL COLLECTION PLANNING */
+.global-planning{position:absolute;inset:0;z-index:30;background:rgba(1,4,7,.86);display:grid;place-items:center;padding:max(10px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));box-sizing:border-box}.global-planning.hidden{display:none}.planning-card{width:min(1080px,94vw);height:min(650px,88vh);background:#050b0f;border:1px solid rgba(216,168,62,.48);box-shadow:0 18px 70px #000;display:flex;flex-direction:column}.planning-head{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid rgba(216,168,62,.28);box-sizing:border-box}.planning-head span{display:block;font-size:7px;letter-spacing:.14em;color:#83979f}.planning-head b{font-size:12px;letter-spacing:.12em;color:#d8a83e}.planning-head button{width:auto!important;min-height:28px!important;height:28px!important;margin:0!important;padding:0 14px!important;font-size:7px!important}.planning-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 250px}.planning-map{position:relative;overflow:hidden;background-position:center;background-size:cover;cursor:crosshair}.planning-map:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(rgba(3,8,11,.05),rgba(3,8,11,.15));box-shadow:inset 0 0 0 1px rgba(213,231,236,.2)}.planning-grid{position:absolute;inset:0;pointer-events:none;opacity:.22;background-image:linear-gradient(rgba(213,231,236,.22) 1px,transparent 1px),linear-gradient(90deg,rgba(213,231,236,.22) 1px,transparent 1px);background-size:10% 10%}.planning-nai{position:absolute!important;z-index:5!important;transform:translate(-50%,-50%)!important;width:auto!important;height:auto!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;color:#f0c86c!important;display:flex!important;align-items:center;gap:7px;font:7px ui-monospace,monospace!important;letter-spacing:.1em;text-shadow:0 1px 4px #000}.planning-nai.hidden{display:none!important}.planning-nai i{display:block;width:17px;height:17px;border:2px solid #f0c86c;border-radius:50%;box-shadow:0 0 0 5px rgba(240,200,108,.13),0 0 16px rgba(240,200,108,.7)}.planning-nai i:after{content:"";display:block;width:3px;height:3px;background:#f0c86c;border-radius:50%;margin:5px}.planning-prompt{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:3;padding:6px 10px;background:rgba(3,8,11,.8);border:1px solid rgba(216,168,62,.3);font-size:7px;letter-spacing:.1em;color:#c7d3d7;pointer-events:none}.planning-side{border-left:1px solid rgba(216,168,62,.28);padding:16px;box-sizing:border-box;background:rgba(5,11,15,.94)}.planning-status{display:grid;grid-template-columns:1fr auto;gap:7px;margin:10px 0 15px;font-size:8px}.planning-status span{color:#83979f}.planning-status b{color:#a8d4b4}.planning-side p{font-size:7px;line-height:1.55;color:#91a4aa}.planning-coord{margin:12px 0;padding:8px;border:1px solid rgba(142,161,168,.2);font-size:8px;letter-spacing:.08em;color:#d8a83e}.planning-side small{display:block;margin-top:9px;font-size:6px;line-height:1.45;color:#64777e}.planning-side .menu-primary,.planning-side .menu-secondary{height:32px!important;min-height:32px!important;margin:6px 0!important;font-size:7px!important}
+@media(max-height:520px) and (orientation:landscape){.planning-card{width:96vw;height:92vh}.planning-head{height:36px}.planning-body{grid-template-columns:minmax(0,1fr) 230px}.planning-side{padding:8px 10px}.planning-side p{margin:5px 0}.planning-status{margin:5px 0 7px}.planning-coord{margin:6px 0;padding:5px}.planning-side small{margin-top:4px}.planning-side .menu-primary,.planning-side .menu-secondary{height:26px!important;min-height:26px!important;margin:3px 0!important}}
+
+/* v0.11.5.13.1 // Priority NAI polygon */
+.planning-nai-layer{position:absolute;inset:0;width:100%;height:100%;z-index:5;overflow:visible;touch-action:none;pointer-events:none}.planning-nai-polygon{fill:rgba(236,62,255,.13);stroke:#ec3eff;stroke-width:2.2;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 5px rgba(236,62,255,.55));pointer-events:none}.planning-nai-polygon.hidden{display:none}.planning-nai-polygon.invalid{fill:rgba(236,62,255,.06);stroke-dasharray:8 6;opacity:.7}.planning-nai-polygon.committed{fill:rgba(236,62,255,.16);stroke-width:2.6}.planning-vertex{pointer-events:auto;cursor:grab;touch-action:none}.planning-vertex:active{cursor:grabbing}.planning-vertex-hit{fill:transparent;stroke:none}.planning-vertex-dot{fill:#081016;stroke:#ff63ff;stroke-width:2;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 4px #ec3eff)}.planning-vertex text{fill:#ff9fff;font:700 13px ui-monospace,monospace;paint-order:stroke;stroke:#03070a;stroke-width:3px;pointer-events:none}.planning-vertex.committed{pointer-events:none}.planning-vertex.committed .planning-vertex-dot{fill:#ec3eff}.planning-invalid{color:#ff63ff!important}.planning-side .hidden{display:none!important}
+
+/* v0.11.5.13.1 // GLOBAL regional descent prototype. Presentation only. */
+.global-descent{position:fixed;inset:0;z-index:140;overflow:hidden;background:#010407;pointer-events:none;display:block}.global-descent.hidden{display:none!important}.global-descent-space{position:absolute;inset:0;background:radial-gradient(circle at 50% 44%,rgba(45,79,101,.18),transparent 34%),radial-gradient(circle at 18% 24%,rgba(255,255,255,.7) 0 1px,transparent 1.5px),radial-gradient(circle at 73% 18%,rgba(255,255,255,.5) 0 1px,transparent 1.5px),radial-gradient(circle at 83% 67%,rgba(255,255,255,.4) 0 1px,transparent 1.5px),#010407;background-size:auto,170px 170px,230px 230px,310px 310px}.global-descent-earth{position:absolute;left:50%;top:54%;width:min(58vw,58vh);aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%) scale(.72);background-position:center;background-size:cover;box-shadow:0 0 0 2px rgba(112,190,230,.45),0 0 28px rgba(74,157,211,.42),-28px 0 70px rgba(39,113,166,.22);overflow:hidden;will-change:transform,border-radius,width,height}.global-descent-earth:after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(90deg,rgba(0,0,0,.72),rgba(0,0,0,.05) 48%,rgba(190,225,241,.08) 66%,rgba(0,0,0,.25));box-shadow:inset -22px 0 34px rgba(0,0,0,.5)}.global-descent-atmo{position:absolute;left:50%;top:54%;width:min(59vw,59vh);aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%) scale(.72);border:2px solid rgba(125,210,255,.48);box-shadow:0 0 25px rgba(76,178,235,.35);will-change:transform,opacity}.global-descent-copy{position:absolute;left:50%;bottom:max(7vh,34px);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;text-shadow:0 2px 7px #000}.global-descent-copy span,.global-descent-copy small{font-size:7px;letter-spacing:.18em;color:#8faab7}.global-descent-copy b{font-size:13px;letter-spacing:.16em;color:#e5eef1}.global-descent.run .global-descent-earth{animation:globalDescentEarth 2.2s cubic-bezier(.22,.75,.2,1) forwards}.global-descent.run .global-descent-atmo{animation:globalDescentAtmo 1.95s ease-in forwards}.global-descent.run .global-descent-copy{animation:globalDescentCopy 2.2s ease forwards}@keyframes globalDescentEarth{0%{transform:translate(-50%,-50%) scale(.72);border-radius:50%}24%{transform:translate(-50%,-50%) scale(1.28);border-radius:50%}34%{transform:translate(-50%,-50%) scale(1.28);border-radius:50%}61%{transform:translate(-50%,-50%) scale(2.45);border-radius:34%}70%{transform:translate(-50%,-50%) scale(2.45);border-radius:34%}88%{border-radius:6%}100%{transform:translate(-50%,-50%) scale(6.2);border-radius:0}}@keyframes globalDescentAtmo{0%{transform:translate(-50%,-50%) scale(.72);opacity:1}72%{opacity:.85}100%{transform:translate(-50%,-50%) scale(3.1);opacity:0}}@keyframes globalDescentCopy{0%,58%{opacity:1}100%{opacity:0}}
+
+/* v0.11.5.13.1 // OA tactical placement stabilization: OA classes remain artwork-only. */
+#mapWrap.oa-vantage,#mapWrap.oa-verdant,#mapWrap.oa-mirage,#mapWrap.oa-tempest{
+  background-position:center center!important;
+  background-size:cover!important;
+  background-repeat:no-repeat!important;
+}
+/* v0.11.5.13.1 // Tactical placement hotfix: JS physical-phone fitting is coarse-pointer only; desktop short windows stay on CSS composition. */
+
+
+/* v0.11.5.13.1 // OA TACTICAL PLACEMENT ROOT-CAUSE FIX
+   GLOBAL marker coordinates are scoped to .oa-marker only. The tactical #mapWrap
+   may carry oa-vantage/verdant/mirage/tempest for artwork selection without
+   inheriting GLOBAL globe marker left/top positioning. KESTREL contract unchanged. */
+
+/* v0.11.5.13.1 // STRATEGIC PRIORITY NAI -> TACTICAL HANDOFF
+   Presentation-only overlay in the protected 900x650 tactical coordinate system.
+   Existing KESTREL/map/grid geometry is unchanged. */
+.strategic-priority-nai{
+  fill:rgba(231,72,255,.10);
+  stroke:#e748ff;
+  stroke-width:2;
+  stroke-dasharray:8 5;
+  vector-effect:non-scaling-stroke;
+}
+.strategic-priority-nai-label rect{
+  fill:rgba(12,8,16,.86);
+  stroke:#e748ff;
+  stroke-width:1;
+  vector-effect:non-scaling-stroke;
+}
+.strategic-priority-nai-label text{
+  fill:#f2b8ff;
+  font-size:11px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-weight:700;
+  letter-spacing:1px;
+}
+
+
+/* v0.11.5.13.1 // GLOBAL DESCENT REFINEMENT
+   Globe approach crossfades into a dedicated regional acquisition frame.
+   Avoids extreme raster magnification and the hard final-frame jump seen in test video. */
+.global-descent-region{position:absolute;inset:-6%;opacity:0;background-position:center;background-size:cover;will-change:transform,opacity;transform:scale(1.22)}
+.global-descent.run .global-descent-earth{animation:ciGlobalEarthDescent2 3s cubic-bezier(.22,.61,.24,1) both}
+.global-descent.run .global-descent-atmo{animation:ciGlobalAtmoDescent2 3s cubic-bezier(.22,.61,.24,1) both}
+.global-descent.run .global-descent-region{animation:ciGlobalRegionAcquire 3s cubic-bezier(.22,.61,.24,1) both}
+.global-descent.run .global-descent-space{animation:ciGlobalSpaceFade2 3s ease both}
+.global-descent.run .global-descent-copy{animation:ciGlobalCopy2 3s ease both}
+@keyframes ciGlobalEarthDescent2{0%{transform:translate(-50%,-50%) scale(.70);opacity:1;border-radius:50%}22%{transform:translate(-50%,-50%) scale(.86);opacity:1;border-radius:50%}48%{transform:translate(-50%,-50%) scale(1.32);opacity:1;border-radius:46%}66%{transform:translate(-50%,-50%) scale(1.82);opacity:.35;border-radius:34%}78%,100%{transform:translate(-50%,-50%) scale(2.05);opacity:0;border-radius:28%}}
+@keyframes ciGlobalAtmoDescent2{0%{transform:translate(-50%,-50%) scale(.71);opacity:.7}45%{transform:translate(-50%,-50%) scale(1.35);opacity:.9}68%{transform:translate(-50%,-50%) scale(1.9);opacity:.18}78%,100%{opacity:0}}
+@keyframes ciGlobalRegionAcquire{0%,43%{opacity:0;transform:scale(1.22)}58%{opacity:.25;transform:scale(1.15)}74%{opacity:.78;transform:scale(1.07)}88%,100%{opacity:1;transform:scale(1)}}
+@keyframes ciGlobalSpaceFade2{0%,42%{opacity:1}72%{opacity:.25}88%,100%{opacity:0}}
+@keyframes ciGlobalCopy2{0%{opacity:0;transform:translateX(-50%) translateY(6px)}10%,72%{opacity:1;transform:translateX(-50%) translateY(0)}88%,100%{opacity:0;transform:translateX(-50%) translateY(-3px)}}
+
+/* GLOBAL Earth refinement: replace the abstract continent blobs with a cleaner
+   command-globe texture treatment while retaining day/night and grid overlays. */
+.earth{background:
+ radial-gradient(circle at 34% 28%,rgba(132,205,225,.28),transparent 31%),
+ radial-gradient(circle at 50% 50%,#1d7088 0,#145267 55%,#092b39 79%,#05151d 100%)}
+.earth-land{opacity:.94;background:#687d5f;filter:drop-shadow(0 1px 1px rgba(4,12,8,.8))}
+.land-a{width:47%;height:29%;left:-1%;top:25%;border-radius:63% 37% 57% 43%/40% 54% 46% 60%;transform:rotate(-10deg);box-shadow:29px 42px 0 -17px #5b7258,65px 64px 0 -23px #708463}
+.land-b{width:31%;height:43%;right:13%;top:16%;border-radius:46% 54% 42% 58%/30% 45% 55% 70%;transform:rotate(13deg);box-shadow:-28px 94px 0 -18px #5f7659}
+.land-c{width:18%;height:12%;right:20%;bottom:14%;border-radius:62% 38% 58% 42%;transform:rotate(-7deg)}
+/* v0.11.5.13.1 // GLOBAL GLOBE FOUNDATION */
+#globalMenu .orbit{display:none!important}#globalMenu .earth-wrap{position:absolute;left:46%;top:51%;width:min(62vh,52vw);aspect-ratio:1;transform:translate(-50%,-50%);filter:drop-shadow(0 0 26px rgba(91,160,187,.24));touch-action:none;user-select:none}.global-globe-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none}.global-globe-canvas:active{cursor:grabbing}.global-globe-overlay{position:absolute;inset:0;pointer-events:none}.globe-oa-marker{position:absolute;transform:translate(-50%,-50%);z-index:8;border:0;background:transparent;color:#d7e7ea;display:flex;align-items:center;gap:5px;padding:4px;pointer-events:auto;white-space:nowrap;transition:opacity .12s}.globe-oa-marker i{width:8px;height:8px;border:1px solid #d8a83e;transform:rotate(45deg);background:rgba(216,168,62,.16);box-shadow:0 0 8px rgba(216,168,62,.28)}.globe-oa-marker span{font:700 8px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.08em;text-shadow:0 1px 3px #000}.globe-oa-marker.selected i{background:#d8a83e;box-shadow:0 0 12px rgba(216,168,62,.7)}.globe-oa-marker.selected span{color:#f2cf77}.globe-oa-marker.backside{opacity:0;pointer-events:none}.globe-sat{position:absolute;transform:translate(-50%,-50%);z-index:7;color:#8ed7e8;font:700 6px ui-monospace,monospace;letter-spacing:.08em;text-shadow:0 1px 3px #000;pointer-events:none}.globe-sat:before{content:"";display:inline-block;width:5px;height:5px;margin-right:3px;border:1px solid #8ed7e8;transform:rotate(45deg);box-shadow:0 0 6px rgba(142,215,232,.55)}.globe-sat.backside{opacity:.08}@media(max-width:760px){#globalMenu .earth-wrap{left:45%;width:min(68vh,58vw)}.globe-oa-marker span{font-size:7px}}
+/* v0.11.5.13.1 // GLOBE INTERACTION POLISH
+   Preserve circular globe/atmospheric language through the first descent stage.
+   The aperture expands beyond the viewport before the regional frame becomes rectangular. */
+.global-descent-aperture{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:min(78vw,78vh);
+  aspect-ratio:1;
+  transform:translate(-50%,-50%) scale(.72);
+  border-radius:50%;
+  overflow:hidden;
+  will-change:transform,border-radius;
+  box-shadow:0 0 0 1px rgba(143,218,235,.18),0 0 70px rgba(64,142,171,.18);
+}
+.global-descent-aperture .global-descent-earth,
+.global-descent-aperture .global-descent-atmo{
+  width:100%;
+  height:100%;
+}
+.global-descent-aperture .global-descent-region{
+  inset:-8%;
+}
+.global-descent.run .global-descent-aperture{
+  animation:ciGlobalApertureExpand 3s cubic-bezier(.20,.64,.20,1) both;
+}
+@keyframes ciGlobalApertureExpand{
+  0%{
+    transform:translate(-50%,-50%) scale(.72);
+    border-radius:50%;
+  }
+  46%{
+    transform:translate(-50%,-50%) scale(1.08);
+    border-radius:50%;
+  }
+  72%{
+    transform:translate(-50%,-50%) scale(1.72);
+    border-radius:50%;
+  }
+  88%{
+    transform:translate(-50%,-50%) scale(2.35);
+    border-radius:48%;
+  }
+  100%{
+    transform:translate(-50%,-50%) scale(2.8);
+    border-radius:42%;
+  }
+}
+/* Override the old earth element's viewport-relative centering inside the aperture. */
+.global-descent-aperture .global-descent-earth,
+.global-descent-aperture .global-descent-atmo{
+  left:50%;
+  top:50%;
+}
+@media(max-width:760px){
+  .global-descent-aperture{width:min(86vw,86vh)}
+}
+
+/* v0.11.5.13.1 // ORBITAL ENVIRONMENT FOUNDATION */
+#orbitalScene{overflow:hidden;background:
+ radial-gradient(ellipse at 48% 52%,rgba(13,42,57,.34) 0,rgba(4,15,22,.18) 36%,rgba(1,7,11,.72) 74%,#010508 100%)!important}
+.global-space-canvas,.global-dust-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.global-space-canvas{z-index:0}.global-dust-canvas{z-index:1;mix-blend-mode:screen}
+#globalMenu .earth-wrap{z-index:4}
+#globalMenu .global-globe-canvas{filter:drop-shadow(0 0 12px rgba(81,178,210,.16))}
+#globalMenu .global-globe-overlay{z-index:6}
+#globalDescent{display:none!important}
+
+/* v0.11.5.13.1 // DYNAMIC ATMOSPHERE
+   Command-screen clouds sit between the OA background and all title/menu content. */
+.command-home:before{z-index:0}
+.command-home:after{z-index:1}
+.command-home-shell{z-index:3!important}
+.command-home .command-atmosphere{display:none}
+.command-home{isolation:isolate}
+.command-home-shell:before{content:"";position:fixed;inset:-18%;z-index:-1;pointer-events:none;
+ background:
+ radial-gradient(ellipse at 18% 32%,rgba(221,235,236,.075) 0 7%,transparent 18%),
+ radial-gradient(ellipse at 46% 58%,rgba(221,235,236,.055) 0 8%,transparent 21%),
+ radial-gradient(ellipse at 76% 24%,rgba(221,235,236,.06) 0 6%,transparent 19%),
+ radial-gradient(ellipse at 88% 72%,rgba(221,235,236,.045) 0 8%,transparent 22%);
+ filter:blur(18px);opacity:.72;mix-blend-mode:screen;
+ animation:ciCommandCloudDrift 42s linear infinite alternate;transform:translate3d(-3%,1%,0) scale(1.06)}
+@keyframes ciCommandCloudDrift{
+  0%{transform:translate3d(-5%,2%,0) scale(1.06)}
+  50%{transform:translate3d(1%,-1%,0) scale(1.09)}
+  100%{transform:translate3d(6%,1%,0) scale(1.07)}
+}
+@media(prefers-reduced-motion:reduce){.command-home-shell:before{animation:none}}
+
+/* v0.11.5.13.1 // GLOBAL OPERATIONS HUB */
+.global-activities{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}.global-activities .global-panel-kicker{grid-column:1/-1;margin-bottom:0}.global-activities button{margin:0!important;min-height:34px}#globalMenu .global-note{margin-top:10px}#globalDescent{display:none!important}
+/* GLOBAL is now the operational gateway; legacy peer buttons remain in DOM for compatibility. */
+#mainMenu #campaignBtn,#mainMenu #arcadeBtn,#mainMenu #tutorialBtn{display:none!important}
+
+/* v0.11.5.13.1 // GLOBAL EARTH FOUNDATION */
+#globalDescent{display:none!important}
+#globalMenu .earth-wrap{overflow:visible}
+
+#mapWrap.oa-arctic{background-image:linear-gradient(rgba(2,7,10,.06),rgba(2,7,10,.06)),url('assets/maps/oa-arctic-overscan.png')!important;background-size:cover!important;background-position:center center!important;background-repeat:no-repeat!important}
+
+/* v0.11.5.13.1 // GLOBAL CONTEXT ROUTING: geography is chosen once in GLOBAL. */
+.global-context-campaign [data-campaign-oa],.global-context-arcade [data-arcade-oa]{display:none!important}
+
+/* v0.11.5.13 // CONTINUOUS GLOBE PROJECTION */
+#globalEarthWrap{position:relative}
+.global-surface-canvas,.global-globe-canvas{position:absolute;inset:0;width:100%;height:100%}
+.global-surface-canvas{z-index:1;pointer-events:none}
+.global-globe-canvas{z-index:2;background:transparent!important}
+.global-globe-overlay{z-index:3}
+
+/* v0.11.5.13 // GLOBE ORIENTATION + GEO-PIN */
+.global-globe-reset{width:100%;margin:8px 0 10px!important}
+.globe-oa-marker{transform:translate(-50%,-50%);position:absolute}
+
+/* v0.11.5.13 // GLOBAL FIELD REFINEMENT */
+#globalMenu .global-center{position:relative!important;display:flex!important;align-items:center!important;justify-content:center!important;min-width:0!important}
+#globalEarthWrap{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;margin:auto!important;transform:none!important}
+#globalMenu .global-globe-reset{
+ position:absolute!important;left:18px!important;bottom:18px!important;right:auto!important;top:auto!important;
+ z-index:12!important;width:auto!important;min-width:164px!important;margin:0!important;pointer-events:auto!important
+}
+
+/* v0.11.5.13 // GLOBAL GLOBE COMPOSITION CORRECTION */
+#globalMenu .global-stage{align-items:stretch!important}
+#globalMenu .orbital-scene{position:relative!important;overflow:visible!important;min-height:0!important}
+#globalMenu #globalEarthWrap{
+ position:absolute!important;left:50%!important;top:50%!important;
+ width:min(66vh,58vw)!important;max-width:none!important;aspect-ratio:1!important;
+ transform:translate(-50%,-50%)!important;margin:0!important;
+ overflow:visible!important;filter:drop-shadow(0 0 28px rgba(91,160,187,.22))!important
+}
+#globalMenu #globalEarthWrap .global-surface-canvas,
+#globalMenu #globalEarthWrap .global-globe-canvas,
+#globalMenu #globalEarthWrap .global-globe-overlay{
+ overflow:visible!important
+}
+#globalMenu .global-surface-canvas,#globalMenu .global-globe-canvas{background:transparent!important}
+#globalMenu .global-globe-reset{left:18px!important;bottom:18px!important}
+
+/* v0.11.5.13 // TRUE ZOOM HEADROOM
+   The prior square was the canvas bitmap boundary, not CSS overflow.
+   Canvases are now physically oversized and centered over the logical globe wrapper. */
+#globalMenu #globalEarthWrap .global-surface-canvas,
+#globalMenu #globalEarthWrap .global-globe-canvas{
+ position:absolute!important;left:50%!important;top:50%!important;
+ width:172%!important;height:172%!important;
+ transform:translate(-50%,-50%)!important;
+ max-width:none!important;max-height:none!important;
+ overflow:visible!important
+}
+#globalMenu #globalEarthWrap .global-globe-overlay{
+ position:absolute!important;left:50%!important;top:50%!important;
+ width:172%!important;height:172%!important;
+ transform:translate(-50%,-50%)!important;
+ overflow:visible!important
+}
+
+/* v0.11.5.13 // STRATEGIC OA CALLOUTS */
+#globalMenu .globe-oa-marker{width:0!important;height:0!important;min-width:0!important;padding:0!important;margin:0!important;border:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important;color:#fff!important;transform:none!important}
+#globalMenu .globe-oa-marker .oa-anchor{position:absolute;left:-5px;top:-5px;width:8px;height:8px;border:1.5px solid #d9aa18;background:rgba(5,12,14,.9);transform:rotate(45deg);box-shadow:0 0 7px rgba(217,170,24,.28)}
+#globalMenu .globe-oa-marker .oa-leader{position:absolute;left:5px;top:-1px;width:72px;height:1px;pointer-events:none}
+#globalMenu .globe-oa-marker .oa-leader-diag{position:absolute;left:0;top:0;width:25px;height:1px;background:#d9aa18;transform:rotate(-32deg);transform-origin:left center}
+#globalMenu .globe-oa-marker .oa-leader-run{position:absolute;left:21px;top:-13px;width:51px;height:1px;background:#d9aa18}
+#globalMenu .globe-oa-marker .oa-callout-text{position:absolute;left:79px;top:-21px;white-space:nowrap;color:#f1f4f3!important;background:none!important;border:0!important;padding:0!important;font:700 10px/1.1 var(--mono,monospace);letter-spacing:.08em;text-shadow:0 1px 3px #000}
+#globalMenu .globe-oa-marker.callout-left .oa-leader{left:-77px;transform:scaleX(-1)}
+#globalMenu .globe-oa-marker.callout-left .oa-callout-text{left:auto;right:79px;text-align:right}
+#globalMenu .globe-oa-marker:hover .oa-anchor{background:#d9aa18;box-shadow:0 0 10px rgba(217,170,24,.6)}
+#globalMenu .globe-oa-marker:hover .oa-callout-text{color:#fff7d6!important}
+
+/* v0.11.5.13 // CONTINUOUS OA CALLOUT + DEEP-SPACE MOOD */
+#globalMenu .globe-oa-marker .oa-leader{
+ position:absolute!important;left:4px!important;top:-1px!important;width:82px!important;height:28px!important;
+ pointer-events:none!important;transform:none!important
+}
+#globalMenu .globe-oa-marker .oa-leader-diag{
+ position:absolute!important;left:0!important;top:0!important;width:82px!important;height:28px!important;
+ background:none!important;transform:none!important;transform-origin:initial!important
+}
+#globalMenu .globe-oa-marker .oa-leader-diag:before{
+ content:"";position:absolute;left:0;top:0;width:18px;height:1px;background:#d9aa18;
+ box-shadow:64px -15px 0 #d9aa18
+}
+#globalMenu .globe-oa-marker .oa-leader-diag:after{
+ content:"";position:absolute;left:16px;top:-7px;width:52px;height:1px;background:#d9aa18;
+ transform:rotate(-17deg);transform-origin:left center
+}
+#globalMenu .globe-oa-marker .oa-leader-run{display:none!important}
+#globalMenu .globe-oa-marker .oa-callout-text{left:91px!important;top:-22px!important}
+#globalMenu .globe-oa-marker.callout-left .oa-leader{left:-86px!important;transform:scaleX(-1)!important}
+#globalMenu .globe-oa-marker.callout-left .oa-callout-text{left:auto!important;right:91px!important}
+
+/* RESET is a deliberate gold command control, not a subdued utility. */
+#globalMenu .global-globe-reset{
+ border:1px solid #d9aa18!important;color:#e8bc32!important;background:rgba(4,10,13,.78)!important;
+ box-shadow:0 0 14px rgba(217,170,24,.10),inset 0 0 0 1px rgba(217,170,24,.05)!important;
+ letter-spacing:.13em!important
+}
+#globalMenu .global-globe-reset:hover{background:rgba(217,170,24,.08)!important;color:#ffe18a!important}
+
+/* v0.11.5.13 // FINAL GLOBAL PRESENTATION PASS
+   OA callout = geographic diamond -> continuous elbow leader -> white name. */
+#globalMenu .globe-oa-marker{
+ background:none!important;border:0!important;outline:0!important;box-shadow:none!important;
+ border-radius:0!important
+}
+#globalMenu .globe-oa-marker .oa-anchor{
+ left:-5px!important;top:-5px!important;width:8px!important;height:8px!important;
+ border:1.5px solid #d9aa18!important;background:#071014!important;border-radius:0!important
+}
+#globalMenu .globe-oa-marker .oa-leader{
+ position:absolute!important;left:5px!important;top:0!important;width:88px!important;height:24px!important;
+ background:none!important;border:0!important;box-shadow:none!important;transform:none!important
+}
+#globalMenu .globe-oa-marker .oa-leader-diag{
+ position:absolute!important;left:0!important;top:0!important;width:30px!important;height:1px!important;
+ background:#d9aa18!important;transform:rotate(-28deg)!important;transform-origin:left center!important
+}
+#globalMenu .globe-oa-marker .oa-leader-diag:before,
+#globalMenu .globe-oa-marker .oa-leader-diag:after{display:none!important;content:none!important}
+#globalMenu .globe-oa-marker .oa-leader-run{
+ display:block!important;position:absolute!important;left:26px!important;top:-14px!important;
+ width:62px!important;height:1px!important;background:#d9aa18!important;border:0!important
+}
+#globalMenu .globe-oa-marker .oa-callout-text{
+ left:99px!important;top:-20px!important;background:none!important;border:0!important;box-shadow:none!important;
+ padding:0!important;color:#f3f5f4!important
+}
+#globalMenu .globe-oa-marker.callout-left .oa-leader{
+ left:-93px!important;transform:scaleX(-1)!important
+}
+#globalMenu .globe-oa-marker.callout-left .oa-callout-text{
+ left:auto!important;right:99px!important;text-align:right!important
+}
+
+/* v0.11.5.13 // SINGLE CONTINUOUS OA LEADER
+   One SVG polyline: pinned diamond -> diagonal elbow -> horizontal run -> label. */
+#globalMenu .globe-oa-marker .oa-leader,
+#globalMenu .globe-oa-marker .oa-leader-diag,
+#globalMenu .globe-oa-marker .oa-leader-run{display:none!important}
+#globalMenu .globe-oa-marker .oa-leader-svg{
+ display:block!important;position:absolute!important;left:5px!important;top:-14px!important;
+ width:96px!important;height:28px!important;overflow:visible!important;pointer-events:none!important
+}
+#globalMenu .globe-oa-marker .oa-leader-svg polyline{
+ fill:none!important;stroke:#d9aa18!important;stroke-width:1.25!important;
+ stroke-linecap:square!important;stroke-linejoin:miter!important;vector-effect:non-scaling-stroke
+}
+#globalMenu .globe-oa-marker .oa-callout-text{
+ left:107px!important;top:-19px!important;background:none!important;border:0!important;box-shadow:none!important
+}
+#globalMenu .globe-oa-marker.callout-left .oa-leader-svg{
+ left:-101px!important;transform:scaleX(-1)!important;transform-origin:center!important
+}
+#globalMenu .globe-oa-marker.callout-left .oa-callout-text{
+ left:auto!important;right:107px!important;text-align:right!important
+}
