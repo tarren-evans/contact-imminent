@@ -1199,7 +1199,7 @@ button:not(:disabled):active{transform:translateY(1px)}
  #globalMenu .global-perf button{height:22px!important;min-height:22px!important}
 }
 
-/* v0.11.6.4 // Subtle deep-space asset + protected live globe presentation + Collection Planning safe-area containment
+/* v0.11.6.5 // Subtle deep-space asset + protected live globe presentation + Collection Planning safe-area containment
    v0.11.6.1 accidentally hid the WebGL surface canvas after restoring the live renderer. */
 .global-surface-canvas{display:block!important}
 .global-planning{padding-top:max(8px,env(safe-area-inset-top));padding-right:max(18px,env(safe-area-inset-right));padding-bottom:max(8px,env(safe-area-inset-bottom));padding-left:max(18px,env(safe-area-inset-left));overflow:hidden}
