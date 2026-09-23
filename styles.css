@@ -1199,7 +1199,7 @@ button:not(:disabled):active{transform:translateY(1px)}
  #globalMenu .global-perf button{height:22px!important;min-height:22px!important}
 }
 
-/* v0.11.6.0 // GLOBAL pre-render architecture + Collection Planning safe-area containment */
+/* v0.11.6.1 // Lean live globe + Collection Planning safe-area containment */
 .global-surface-canvas{display:none!important}
 .global-planning{padding-top:max(8px,env(safe-area-inset-top));padding-right:max(18px,env(safe-area-inset-right));padding-bottom:max(8px,env(safe-area-inset-bottom));padding-left:max(18px,env(safe-area-inset-left));overflow:hidden}
 .planning-card{box-sizing:border-box;max-width:calc(100vw - max(36px, env(safe-area-inset-left)) - max(36px, env(safe-area-inset-right)));max-height:calc(100vh - max(16px, env(safe-area-inset-top)) - max(16px, env(safe-area-inset-bottom)));overflow:hidden}
