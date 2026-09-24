@@ -1,15 +1,15 @@
-const CACHE='contact-imminent-v0.11.6.9';
+const CACHE='contact-imminent-v0.11.6.10';
 const CORE=[
   './',
   './index.html',
-  './styles.css?v=0.11.6.9',
-  './game.js?v=0.11.6.9',
+  './styles.css?v=0.11.6.10',
+  './game.js?v=0.11.6.10',
   './manifest.webmanifest',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
   './assets/icons/icon-maskable-512.png',
   './assets/icons/apple-touch-icon.png',
-  './assets/maps/global-deep-space.png',
+  './assets/maps/global-deep-space.webp',
   './assets/maps/global-notional-earth-surface.jpg'
 ];
 
