@@ -1199,7 +1199,7 @@ button:not(:disabled):active{transform:translateY(1px)}
  #globalMenu .global-perf button{height:22px!important;min-height:22px!important}
 }
 
-/* v0.11.6.8 // Subtle deep-space asset + protected live globe presentation + Collection Planning safe-area containment
+/* v0.11.6.9 // Subtle deep-space asset + protected live globe presentation + Collection Planning safe-area containment
    v0.11.6.1 accidentally hid the WebGL surface canvas after restoring the live renderer. */
 .global-surface-canvas{display:block!important}
 .global-planning{padding-top:max(8px,env(safe-area-inset-top));padding-right:max(18px,env(safe-area-inset-right));padding-bottom:max(8px,env(safe-area-inset-bottom));padding-left:max(18px,env(safe-area-inset-left));overflow:hidden}
@@ -1208,7 +1208,7 @@ button:not(:disabled):active{transform:translateY(1px)}
 .planning-body{min-width:0;overflow:hidden}.planning-map{min-width:0}.planning-side{min-width:0;overflow-y:auto;overscroll-behavior:contain}
 @media(max-height:520px) and (orientation:landscape){.global-planning{padding-right:max(24px,env(safe-area-inset-right));padding-left:max(24px,env(safe-area-inset-left))}.planning-card{width:calc(100vw - max(48px, env(safe-area-inset-left)) - max(48px, env(safe-area-inset-right)));height:calc(100vh - max(18px, env(safe-area-inset-top)) - max(18px, env(safe-area-inset-bottom)));max-width:none;max-height:none}.planning-body{grid-template-columns:minmax(0,1fr) minmax(205px,27vw)}.planning-head{padding-left:10px;padding-right:10px}.planning-head button{margin-right:0!important}}
 
-/* v0.11.6.8 // Collection Planning render warmup: keep exact OA raster elements decoded and painted during boot. */
+/* v0.11.6.9 // Collection Planning render warmup: keep exact OA raster elements decoded and painted during boot. */
 .planning-warm-deck{position:absolute;left:0;bottom:0;width:64px;height:10px;overflow:hidden;opacity:.001;pointer-events:none}
 .planning-warm-deck .planning-map-raster{position:relative!important;display:inline-block!important;width:10px!important;height:8px!important;object-fit:cover!important;opacity:1!important}
 .planning-map>.planning-map-raster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:0;pointer-events:none}
