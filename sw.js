@@ -1,4 +1,4 @@
-const VERSION='0.11.6.14';
+const VERSION='0.11.6.15';
 const CACHE=`contact-imminent-v${VERSION}`;
 const CORE=[
   './',
@@ -30,12 +30,8 @@ const CORE=[
   './assets/maps/oa-arctic-basemap.png'
 ];
 
-self.addEventListener('message',e=>{
-  if(e.data&&e.data.type==='SKIP_WAITING') self.skipWaiting();
-});
 
 self.addEventListener('install',e=>{
-  self.skipWaiting();
   e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)));
 });
 
