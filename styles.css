@@ -1209,7 +1209,7 @@ button:not(:disabled):active{transform:translateY(1px)}
 @media(max-height:520px) and (orientation:landscape){.global-planning{padding-right:max(24px,env(safe-area-inset-right));padding-left:max(24px,env(safe-area-inset-left))}.planning-card{width:calc(100vw - max(48px, env(safe-area-inset-left)) - max(48px, env(safe-area-inset-right)));height:calc(100vh - max(18px, env(safe-area-inset-top)) - max(18px, env(safe-area-inset-bottom)));max-width:none;max-height:none}.planning-body{grid-template-columns:minmax(0,1fr) minmax(205px,27vw)}.planning-head{padding-left:10px;padding-right:10px}.planning-head button{margin-right:0!important}}
 
 
-/* v0.11.6.32 // OA VERDANT route-network foundation. Visual overlay only; no Campaign 03 progression logic. */
+/* v0.11.6.33 // OA VERDANT route-network foundation. Visual overlay only; no Campaign 03 progression logic. */
 .verdant-route-network{display:none}
 #mapWrap.oa-verdant .verdant-route-network{display:block}
 .verdant-route-segment{fill:none;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;filter:drop-shadow(0 1px 2px rgba(0,0,0,.9));pointer-events:none}
@@ -1222,7 +1222,7 @@ button:not(:disabled):active{transform:translateY(1px)}
 .verdant-route-node.type-logistics circle{stroke:#72c98b}.verdant-route-node.type-crossing circle{stroke:#e64b45}.verdant-route-node.type-port circle,.verdant-route-node.type-coastal circle{stroke:#b685d6}
 
 
-/* v0.11.6.32 // Persistent developer-access controls. */
+/* v0.11.6.33 // Persistent developer-access controls. */
 .dev-access-group{grid-column:1/-1;border-top:1px solid rgba(220,229,232,.16);padding-top:14px;margin-top:4px}
 .dev-access-copy{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
 .dev-access-copy>b{font-size:12px;letter-spacing:.12em;color:#dce5e8}
@@ -1235,11 +1235,11 @@ button:not(:disabled):active{transform:translateY(1px)}
 .dev-mode-active .dev-access-toggle>b{color:#f1ca65}
 .dev-access-message{min-height:14px;margin-top:6px;font:700 9px ui-monospace,monospace;letter-spacing:.1em;color:#e65d58}
 
-/* v0.11.6.32 // developer campaign routing */
+/* v0.11.6.33 // developer campaign routing */
 .dev-route-banner{margin:8px 0 12px;padding:7px 9px;border:1px solid rgba(216,168,62,.34);font:700 9px ui-monospace,monospace;letter-spacing:.12em;color:#f1ca65;background:rgba(216,168,62,.05)}
 body:not(.dev-mode-active) .dev-route-banner{display:none}
 
-/* v0.11.6.32 VERDANT smart-route collection */
+/* v0.11.6.33 VERDANT smart-route collection */
 #mapWrap.oa-verdant .verdant-smart-route{pointer-events:none;transition:opacity .28s,filter .28s;opacity:.08}
 #mapWrap.oa-verdant .verdant-smart-route.state-unassessed{opacity:.06;filter:saturate(.25)}
 #mapWrap.oa-verdant .verdant-smart-route.state-suspected{opacity:.38;filter:saturate(.75)}
@@ -1249,7 +1249,7 @@ body:not(.dev-mode-active) .dev-route-banner{display:none}
 #mapWrap.oa-verdant .verdant-smart-label.state-suspected{opacity:.45}#mapWrap.oa-verdant .verdant-smart-label.state-probable{opacity:.72}#mapWrap.oa-verdant .verdant-smart-label.state-confirmed{opacity:1}
 .verdant-route-status{font-size:10px;letter-spacing:.08em;color:#dce5e8;margin-top:4px}
 
-/* v0.11.6.32 VERDANT spatial collection + registration lock.
+/* v0.11.6.33 VERDANT spatial collection + registration lock.
    VERDANT raster now lives inside the same 900x650 SVG coordinate system as routes/ISR. */
 #mapWrap.oa-verdant{background-image:none!important;background:#071014!important}
 #terrainBase #verdantRaster{opacity:.92;pointer-events:none}
@@ -1258,4 +1258,4 @@ body:not(.dev-mode-active) .dev-route-banner{display:none}
 #mapWrap.oa-verdant .verdant-smart-route.state-probable{opacity:.72;filter:saturate(1.12) drop-shadow(0 0 2px rgba(220,232,235,.4))}
 #mapWrap.oa-verdant .verdant-smart-route.state-confirmed{opacity:.98;filter:saturate(1.38) drop-shadow(0 0 4px rgba(220,232,235,.72))}
 
-/* v0.11.6.32 VERDANT unified map-space: raster, routes, collection cells, grid and ISR share one SVG transform. */
+/* v0.11.6.33 VERDANT unified map-space: raster, routes, collection cells, grid and ISR share one SVG transform. */
