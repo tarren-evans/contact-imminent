@@ -1,4 +1,4 @@
-const VERSION='0.11.6.13';
+const VERSION='0.11.6.14';
 const CACHE=`contact-imminent-v${VERSION}`;
 const CORE=[
   './',
@@ -11,7 +11,23 @@ const CORE=[
   './assets/icons/icon-maskable-512.png',
   './assets/icons/apple-touch-icon.png',
   './assets/maps/global-deep-space.png',
-  './assets/maps/global-notional-earth-surface.jpg'
+  './assets/maps/global-notional-earth-surface.jpg',
+
+  // Tactical OA visual worlds
+  './assets/maps/oa-kestrel-overscan.png',
+  './assets/maps/oa-vantage-overscan.png',
+  './assets/maps/oa-verdant-overscan.png',
+  './assets/maps/oa-mirage-overscan.png',
+  './assets/maps/oa-tempest-overscan.png',
+  './assets/maps/oa-arctic-overscan.png',
+
+  // Global/descent OA basemaps
+  './assets/maps/oa-kestrel-basemap.png',
+  './assets/maps/oa-vantage-basemap.png',
+  './assets/maps/oa-verdant-basemap.png',
+  './assets/maps/oa-mirage-basemap.png',
+  './assets/maps/oa-tempest-basemap.png',
+  './assets/maps/oa-arctic-basemap.png'
 ];
 
 self.addEventListener('message',e=>{
