@@ -1,4 +1,4 @@
-const VERSION='0.11.6.35';
+const VERSION='0.11.6.45';
 const CACHE=`contact-imminent-v${VERSION}`;
 const CORE=[
   './',

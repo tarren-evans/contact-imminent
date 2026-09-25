@@ -1174,6 +1174,7 @@ button:not(:disabled):active{transform:translateY(1px)}
   text-align:center!important;line-height:1.05!important;padding:0 8px!important;
   box-sizing:border-box!important;
 }
+#globalMenu #globalPlanNAI.hidden{display:none!important;}
 
 @media (max-height:520px){
  #globalMenu .global-panel{padding:5px 8px!important}
@@ -1209,7 +1210,7 @@ button:not(:disabled):active{transform:translateY(1px)}
 @media(max-height:520px) and (orientation:landscape){.global-planning{padding-right:max(24px,env(safe-area-inset-right));padding-left:max(24px,env(safe-area-inset-left))}.planning-card{width:calc(100vw - max(48px, env(safe-area-inset-left)) - max(48px, env(safe-area-inset-right)));height:calc(100vh - max(18px, env(safe-area-inset-top)) - max(18px, env(safe-area-inset-bottom)));max-width:none;max-height:none}.planning-body{grid-template-columns:minmax(0,1fr) minmax(205px,27vw)}.planning-head{padding-left:10px;padding-right:10px}.planning-head button{margin-right:0!important}}
 
 
-/* v0.11.6.36 // OA VERDANT route-network foundation. Visual overlay only; no Campaign 03 progression logic. */
+/* v0.11.6.45 // OA VERDANT route-network foundation. Visual overlay only; no Campaign 03 progression logic. */
 .verdant-route-network{display:none}
 #mapWrap.oa-verdant .verdant-route-network{display:block}
 .verdant-route-segment{fill:none;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;filter:drop-shadow(0 1px 2px rgba(0,0,0,.9));pointer-events:none}
@@ -1222,7 +1223,7 @@ button:not(:disabled):active{transform:translateY(1px)}
 .verdant-route-node.type-logistics circle{stroke:#72c98b}.verdant-route-node.type-crossing circle{stroke:#e64b45}.verdant-route-node.type-port circle,.verdant-route-node.type-coastal circle{stroke:#b685d6}
 
 
-/* v0.11.6.36 // Persistent developer-access controls. */
+/* v0.11.6.45 // Persistent developer-access controls. */
 .dev-access-group{grid-column:1/-1;border-top:1px solid rgba(220,229,232,.16);padding-top:14px;margin-top:4px}
 .dev-access-copy{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
 .dev-access-copy>b{font-size:12px;letter-spacing:.12em;color:#dce5e8}
@@ -1235,11 +1236,11 @@ button:not(:disabled):active{transform:translateY(1px)}
 .dev-mode-active .dev-access-toggle>b{color:#f1ca65}
 .dev-access-message{min-height:14px;margin-top:6px;font:700 9px ui-monospace,monospace;letter-spacing:.1em;color:#e65d58}
 
-/* v0.11.6.36 // developer campaign routing */
+/* v0.11.6.45 // developer campaign routing */
 .dev-route-banner{margin:8px 0 12px;padding:7px 9px;border:1px solid rgba(216,168,62,.34);font:700 9px ui-monospace,monospace;letter-spacing:.12em;color:#f1ca65;background:rgba(216,168,62,.05)}
 body:not(.dev-mode-active) .dev-route-banner{display:none}
 
-/* v0.11.6.36 VERDANT smart-route collection */
+/* v0.11.6.45 VERDANT smart-route collection */
 #mapWrap.oa-verdant .verdant-smart-route{pointer-events:none;transition:opacity .28s,filter .28s;opacity:.08}
 #mapWrap.oa-verdant .verdant-smart-route.state-unassessed{opacity:.06;filter:saturate(.25)}
 #mapWrap.oa-verdant .verdant-smart-route.state-suspected{opacity:.38;filter:saturate(.75)}
@@ -1249,7 +1250,7 @@ body:not(.dev-mode-active) .dev-route-banner{display:none}
 #mapWrap.oa-verdant .verdant-smart-label.state-suspected{opacity:.45}#mapWrap.oa-verdant .verdant-smart-label.state-probable{opacity:.72}#mapWrap.oa-verdant .verdant-smart-label.state-confirmed{opacity:1}
 .verdant-route-status{font-size:10px;letter-spacing:.08em;color:#dce5e8;margin-top:4px}
 
-/* v0.11.6.36 VERDANT spatial collection + registration lock.
+/* v0.11.6.45 VERDANT spatial collection + registration lock.
    VERDANT raster now lives inside the same 900x650 SVG coordinate system as routes/ISR. */
 #mapWrap.oa-verdant{background-image:none!important;background:#071014!important}
 #terrainBase #verdantRaster{opacity:.92;pointer-events:none}
@@ -1258,4 +1259,204 @@ body:not(.dev-mode-active) .dev-route-banner{display:none}
 #mapWrap.oa-verdant .verdant-smart-route.state-probable{opacity:.72;filter:saturate(1.12) drop-shadow(0 0 2px rgba(220,232,235,.4))}
 #mapWrap.oa-verdant .verdant-smart-route.state-confirmed{opacity:.98;filter:saturate(1.38) drop-shadow(0 0 4px rgba(220,232,235,.72))}
 
-/* v0.11.6.36 VERDANT unified map-space: raster, routes, collection cells, grid and ISR share one SVG transform. */
+/* v0.11.6.45 VERDANT unified map-space: raster, routes, collection cells, grid and ISR share one SVG transform. */
+
+/* v0.11.6.45 // RETRO CONTACT IMMINENT */
+.retro-objectives-hidden{display:none!important}
+body.retro-mode #mapWrap{background:#0b1014!important}
+body.retro-mode #map .mapbg{fill:#0b1014!important}
+body.retro-mode #terrainBase,body.retro-mode #geometricGrid,body.retro-mode #terrainFeatures,body.retro-mode #verdantRaster,body.retro-mode #strategicPriorityNAI,body.retro-mode #verdantRouteNetwork,body.retro-mode #passiveRanges,body.retro-mode #passiveNAIs,body.retro-mode #ewoEffects,body.retro-mode #lastKnownPositions{display:none!important}
+body:not(.retro-mode) #retroGrid{display:none}
+body.retro-mode #retroGrid{display:block}
+body.retro-mode #retroGrid .retro-minor{stroke:currentColor;stroke-opacity:.05;stroke-width:1}
+body.retro-mode #retroGrid .retro-major{stroke:currentColor;stroke-opacity:.12;stroke-width:1}
+body.retro-mode #intelHistory,body.retro-mode #patternIndicators,body.retro-mode #networkAssociations,body.retro-mode #passiveIsrPanel,body.retro-mode #intelDrop,body.retro-mode #intelFusionBadge,body.retro-mode #hostileCollectionWarning{display:none!important}
+
+/* v0.11.6.45 // RETRO orbital station */
+.globe-retro-station{position:absolute;transform:translate(-50%,-50%);z-index:10;border:0;background:transparent;color:#ff4fd8;font:800 8px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.09em;text-shadow:0 0 7px rgba(255,79,216,.8),0 1px 3px #000;pointer-events:auto;white-space:nowrap;padding:8px;display:flex;align-items:center;gap:6px}.globe-retro-station i{position:relative;display:inline-block;width:18px;height:10px;border:2px solid #ff4fd8;background:rgba(255,79,216,.12);box-shadow:0 0 12px rgba(255,79,216,.75)}.globe-retro-station i:before,.globe-retro-station i:after{content:"";position:absolute;top:3px;width:8px;border-top:2px solid #ff4fd8}.globe-retro-station i:before{right:100%;margin-right:3px}.globe-retro-station i:after{left:100%;margin-left:3px}.globe-retro-station.selected{color:#ff9bea}.globe-retro-station.selected i{background:rgba(255,79,216,.34);box-shadow:0 0 18px rgba(255,79,216,1)}.globe-retro-station.backside{opacity:.10;pointer-events:none}@media(max-width:760px){.globe-retro-station{font-size:7px}.globe-retro-station i{width:16px;height:9px}}
+
+/* v0.11.6.45 RETRO endless arcade */
+.globe-retro-station{background:transparent!important;border:0!important;box-shadow:none!important;padding:2px!important;gap:8px!important}.globe-retro-station span{display:inline-block;background:transparent!important;border:0!important;padding:0!important}
+body.retro-mode #banner{top:50%;transform:translateY(-50%)}
+body.retro-mode #bannerText{background:rgba(13,20,24,.82)}
+.retro-survive-green{color:#55d67a!important}.retro-survive-yellow{color:#e0d84b!important}.retro-survive-orange{color:#ef9b3d!important}.retro-survive-red{color:#ff5b55!important}
+
+/* v0.11.6.45 // unified compact tasking interface
+   Presentation only: preserves existing panel footprints, controls and routing. */
+#campaignMenu .campaignpanel,
+#arcadeBriefing .arcadepanel,
+[id^="briefing01"] .menupanel,
+#briefing02 .menupanel{
+  position:relative;
+  border:1px solid rgba(116,151,142,.58)!important;
+  border-top-color:rgba(178,207,198,.82)!important;
+  background:linear-gradient(180deg,rgba(8,19,18,.985),rgba(6,14,14,.985))!important;
+  box-shadow:0 14px 40px rgba(0,0,0,.28),inset 0 1px 0 rgba(211,232,224,.035)!important;
+}
+#campaignMenu .campaignpanel::before,
+#arcadeBriefing .arcadepanel::before,
+[id^="briefing01"] .menupanel::before,
+#briefing02 .menupanel::before{
+  content:"";position:absolute;left:12px;right:12px;top:-1px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(150,201,184,.78),transparent);pointer-events:none
+}
+#campaignMenu .menu-kicker,#arcadeBriefing .menu-kicker,
+[id^="briefing01"] .menu-kicker,#briefing02 .menu-kicker{
+  color:#7f9e94!important;letter-spacing:.2em!important
+}
+#campaignMenu .menu-title,#arcadeBriefing .menu-title,
+[id^="briefing01"] .menu-title,#briefing02 .menu-title{
+  color:#edf3f0!important;text-shadow:0 0 16px rgba(152,197,181,.08)
+}
+/* Campaign rows read as compact tasking records rather than stacked cards. */
+#campaignMenu .campaign-section-title,
+#campaignMenu .campaign-section-title.vantage-title,
+#campaignMenu .campaign-section-title.verdant-title,
+#campaignMenu .campaign-section-title.mirage-title,
+#campaignMenu .campaign-section-title.tempest-title{
+  color:#91aaa2!important;text-align:left!important;border-bottom:1px solid rgba(116,151,142,.24);
+  padding:0 2px 4px!important;letter-spacing:.14em!important
+}
+#campaignMenu .mission-row{
+  border:0!important;border-left:2px solid rgba(112,139,131,.30)!important;border-bottom:1px solid rgba(80,105,98,.28)!important;
+  border-radius:0!important;background:rgba(8,18,17,.48)!important;padding-left:10px!important;padding-right:9px!important;
+  box-shadow:none!important;color:#748780!important
+}
+#campaignMenu .mission-row.available{
+  border-left-color:#8db8aa!important;background:linear-gradient(90deg,rgba(22,51,44,.55),rgba(8,18,17,.28))!important;color:#e2ece8!important
+}
+#campaignMenu .mission-row.available:hover{background:linear-gradient(90deg,rgba(28,64,55,.66),rgba(10,22,20,.34))!important}
+#campaignMenu .mission-row span{color:#8ca098!important;opacity:.82!important}
+#campaignMenu .mission-row.available span{color:#a9c3ba!important}
+#campaignMenu .mission-row:disabled span{color:#64756f!important}
+#campaignMenu #vantagePreviewBtn,#campaignMenu #verdantPreviewBtn,#campaignMenu #miragePreviewBtn,#campaignMenu #tempestPreviewBtn,
+#campaignMenu #campaignBack{
+  border-radius:2px!important;border-color:rgba(94,126,116,.48)!important;background:rgba(8,18,17,.55)!important
+}
+#campaignMenu #vantagePreviewBtn:hover,#campaignMenu #verdantPreviewBtn:hover,#campaignMenu #miragePreviewBtn:hover,#campaignMenu #tempestPreviewBtn:hover,
+#campaignMenu #campaignBack:hover{background:rgba(18,40,35,.72)!important}
+#campaignMenu .menu-version{color:#627a72!important}
+/* Arcade uses the same tasking language without increasing its footprint. */
+#arcadeBriefing .brief-copy{color:#b8c8c2!important}
+#arcadeBriefing .objectives,
+#arcadeBriefing .arcade-intel-assists{
+  border:0!important;border-left:2px solid rgba(119,155,144,.45)!important;border-bottom:1px solid rgba(78,104,96,.30)!important;
+  border-radius:0!important;background:rgba(8,18,17,.46)!important
+}
+#arcadeBriefing .objectives>div,#arcadeBriefing .arcade-intel-title{color:#9fb8af!important}
+#arcadeBriefing .arcade-intel-title b{color:#dbe8e3!important}
+#arcadeBriefing .arcade-intel-buttons{gap:3px!important}
+#arcadeBriefing .arcade-intel-buttons button{
+  border-radius:2px!important;border-color:rgba(88,119,109,.44)!important;background:rgba(8,17,16,.68)!important;color:#93a79f!important
+}
+#arcadeBriefing .arcade-intel-buttons button.selected{
+  border-color:#8db8aa!important;color:#e2ece8!important;background:rgba(20,48,41,.68)!important;box-shadow:inset 0 -2px 0 rgba(141,184,170,.72)!important
+}
+#arcadeBriefing #arcadeBegin,
+[id^="briefing01"] .menu-primary,#briefing02 .menu-primary{
+  border-radius:2px!important;border-color:#769e91!important;background:linear-gradient(90deg,rgba(24,61,51,.92),rgba(14,39,33,.92))!important;color:#edf4f1!important
+}
+#arcadeBriefing #arcadeBack,
+[id^="briefing01"] .menu-secondary,#briefing02 .menu-secondary{
+  border-radius:2px!important;border-color:rgba(88,119,109,.42)!important;background:rgba(8,17,16,.62)!important
+}
+/* Mission briefings inherit the same restrained tasking-card treatment. */
+[id^="briefing01"] .objectives,#briefing02 .objectives{
+  border:0!important;border-left:2px solid rgba(119,155,144,.45)!important;border-bottom:1px solid rgba(78,104,96,.30)!important;
+  border-radius:0!important;background:rgba(8,18,17,.46)!important
+}
+
+/* v0.11.6.45 // UNIFIED COMMAND INTERFACE
+   Presentation-only pass. Uses the Settings / Global Picture command-gold language
+   across compact modal/tasking surfaces without increasing their established footprint. */
+.gameoverlay:not(.global-overlay) .menupanel{
+  position:relative;
+  border:1px solid rgba(112,137,128,.50)!important;
+  border-top-color:rgba(176,195,187,.68)!important;
+  border-radius:0!important;
+  background:linear-gradient(180deg,rgba(6,16,15,.985),rgba(5,13,13,.985))!important;
+  box-shadow:0 14px 38px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.025)!important;
+}
+.gameoverlay:not(.global-overlay) .menupanel::before{
+  content:"";position:absolute;left:0;right:0;top:-1px;height:1px;
+  background:linear-gradient(90deg,transparent 0,rgba(216,168,62,.72) 50%,transparent 100%);pointer-events:none
+}
+.gameoverlay:not(.global-overlay) .menu-kicker{color:#83978f!important;letter-spacing:.18em!important}
+.gameoverlay:not(.global-overlay) .menu-title{color:#eef3f1!important;text-shadow:none!important}
+.gameoverlay:not(.global-overlay) .menu-sub{color:#8ca098!important}
+.gameoverlay:not(.global-overlay) .menu-version{color:#667a73!important;letter-spacing:.16em!important}
+.gameoverlay:not(.global-overlay) .brief-copy{color:#b9c7c2!important}
+
+/* Shared command controls: quiet neutral surfaces, gold for selected/primary state. */
+.gameoverlay:not(.global-overlay) .menupanel button{
+  border-radius:2px!important;border-color:rgba(96,119,111,.50)!important;
+  background:rgba(7,17,16,.68)!important;color:#cbd7d2!important;box-shadow:none!important
+}
+.gameoverlay:not(.global-overlay) .menupanel button:hover{background:rgba(17,31,28,.82)!important;border-color:rgba(135,154,147,.62)!important}
+.gameoverlay:not(.global-overlay) .menupanel button:disabled{color:#6e7c77!important;border-color:rgba(76,94,88,.32)!important;background:rgba(6,14,13,.42)!important;opacity:.62!important}
+.gameoverlay:not(.global-overlay) .menupanel .menu-primary{
+  border-color:rgba(216,168,62,.78)!important;color:#f0c75f!important;
+  background:linear-gradient(90deg,rgba(54,43,16,.42),rgba(21,25,20,.70))!important
+}
+.gameoverlay:not(.global-overlay) .menupanel .menu-primary:hover{background:linear-gradient(90deg,rgba(75,57,18,.54),rgba(28,31,22,.78))!important}
+.gameoverlay:not(.global-overlay) .menupanel .menu-secondary{background:rgba(7,16,15,.58)!important}
+
+/* Campaign tasking records use the same gold/white status hierarchy as Settings. */
+#campaignMenu .campaign-section-title,
+#campaignMenu .campaign-section-title.vantage-title,
+#campaignMenu .campaign-section-title.verdant-title,
+#campaignMenu .campaign-section-title.mirage-title,
+#campaignMenu .campaign-section-title.tempest-title{
+  color:#d8a83e!important;border-bottom-color:rgba(216,168,62,.25)!important
+}
+#campaignMenu .campaign-oa-tabs button.selected{
+  border-color:rgba(216,168,62,.82)!important;color:#f0c75f!important;
+  background:rgba(52,42,17,.34)!important;box-shadow:inset 0 -2px 0 rgba(216,168,62,.72)!important
+}
+#campaignMenu .campaign-oa-tabs button.selected span{color:#d8a83e!important}
+#campaignMenu .mission-row{
+  border:0!important;border-left:2px solid rgba(101,121,114,.28)!important;
+  border-bottom:1px solid rgba(83,101,95,.28)!important;border-radius:0!important;
+  background:rgba(7,16,15,.42)!important;color:#788982!important;box-shadow:none!important
+}
+#campaignMenu .mission-row.available{
+  border-left-color:rgba(216,168,62,.72)!important;color:#e4ece8!important;
+  background:linear-gradient(90deg,rgba(61,48,18,.30),rgba(7,16,15,.34))!important
+}
+#campaignMenu .mission-row.available:hover{background:linear-gradient(90deg,rgba(77,59,18,.40),rgba(11,21,18,.40))!important}
+#campaignMenu .mission-row span{color:#83958e!important}
+#campaignMenu .mission-row.available span{color:#d8a83e!important}
+#campaignMenu .dev-route-banner{border-color:rgba(216,168,62,.36)!important;color:#d8a83e!important;background:rgba(54,42,13,.18)!important}
+
+/* Briefing / condition blocks lose the legacy cyan-card appearance. */
+.gameoverlay:not(.global-overlay) .objectives,
+.gameoverlay:not(.global-overlay) .result-body,
+#arcadeBriefing .arcade-intel-assists{
+  border:0!important;border-left:2px solid rgba(216,168,62,.48)!important;
+  border-bottom:1px solid rgba(104,115,105,.28)!important;border-radius:0!important;
+  background:rgba(7,16,15,.42)!important
+}
+.gameoverlay:not(.global-overlay) .objectives>div,
+#arcadeBriefing .arcade-intel-title{color:#d8a83e!important}
+
+/* Arcade segmented controls now match Settings selectors instead of the old cyan treatment. */
+#arcadeBriefing .arcade-intel-title b{color:#d8a83e!important}
+#arcadeBriefing .arcade-intel-buttons button{
+  border-color:rgba(96,119,111,.50)!important;background:rgba(7,16,15,.66)!important;color:#aab9b3!important
+}
+#arcadeBriefing .arcade-intel-buttons button.selected{
+  border-color:#d8a83e!important;color:#f0c75f!important;background:rgba(55,43,14,.34)!important;
+  box-shadow:inset 0 -2px 0 rgba(216,168,62,.78)!important
+}
+#arcadeBriefing .arcade-intel-help{color:#71867e!important}
+
+/* Settings is the visual reference; normalize its controls with the same restrained geometry. */
+#settingsMenu .settingspanel select{border-radius:0!important;border-color:rgba(96,119,111,.50)!important;background:#091311!important}
+#settingsMenu .settings-group-title{color:#d8a83e!important;border-bottom-color:rgba(216,168,62,.25)!important}
+#settingsMenu .audio-setting{border-bottom-color:rgba(96,119,111,.36)!important}
+
+/* Pause, utilities, tutorial and after-action surfaces share the same command accent. */
+#pauseMenu .menu-kicker,#utilityMenu .menu-kicker,#tutorialBriefing .menu-kicker,
+#arcadeResult .menu-kicker,#campaignResult .menu-kicker,#commandProfileMenu .menu-kicker{color:#d8a83e!important}
+#pauseMenu .menupanel,#utilityMenu .menupanel,#tutorialBriefing .menupanel,
+#arcadeResult .menupanel,#campaignResult .menupanel,#commandProfileMenu .menupanel{border-top-color:rgba(216,168,62,.55)!important}
