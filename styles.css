@@ -1479,3 +1479,136 @@ body.cyber-compromised #mapWrap{animation:cyberSignalJitter 1.35s steps(1,end) i
 body.cyber-compromised #hud,body.cyber-compromised #objectiveTracker{animation:cyberHudJitter .93s steps(1,end) infinite}
 @keyframes cyberSignalJitter{0%,13%,17%,44%,48%,71%,75%,100%{filter:none}14%{filter:contrast(1.14) hue-rotate(8deg)}15%{filter:contrast(.92) hue-rotate(-10deg)}45%{filter:brightness(1.08) saturate(1.35)}72%{filter:contrast(1.2) brightness(.88)}}
 @keyframes cyberHudJitter{0%,22%,25%,61%,64%,100%{text-shadow:none}23%{text-shadow:2px 0 rgba(198,92,255,.8),-1px 0 rgba(77,163,255,.45)}62%{text-shadow:-2px 0 rgba(198,92,255,.7),1px 0 rgba(255,255,255,.25)}}
+
+
+/* v0.11.6.62 // COMMAND DECK UI */
+/* Battlefield state lives on the battlefield. Intelligence scrolls; decisions stay put. */
+.blue-health{pointer-events:none}.blue-health-bg{fill:#172229;stroke:#40515a;stroke-width:.7}.blue-health-fill{fill:#4da3ff;transition:width .2s linear,fill .2s linear}.blue-health-text{font-size:8px;font-weight:700;letter-spacing:.04em;paint-order:stroke;stroke:#071014;stroke-width:2px}
+#operationalStatus{display:flex;flex-direction:column;min-height:0}
+#operationalStatus #detail{display:flex;flex-direction:column;min-height:0}
+#operationalStatus #intelHistory{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding-right:3px;max-height:clamp(130px,34vh,330px)}
+.command-deck{position:sticky;bottom:0;z-index:8;margin:10px -6px -6px;padding:9px 6px 6px;border-top:1px solid rgba(216,168,62,.45);background:linear-gradient(180deg,rgba(13,20,24,.96),#0d1418 18%);box-shadow:0 -8px 18px rgba(5,9,12,.72)}
+.command-deck-title{margin:0 0 6px;color:#d8a83e;font-size:7px;letter-spacing:.16em}
+.command-deck #collect{width:100%;min-height:38px}.command-deck .twobtn{margin-top:6px}.command-deck button:not(:disabled){border-color:#53666f}
+.asset-rail{padding-top:10px!important}.asset-rail h2{color:#d8a83e!important;margin-bottom:8px!important}.asset-rail .passive-hint{max-height:2.8em;overflow:hidden}
+body.arcade-ui #operationalStatus #intelHistory{display:none}
+body.arcade-ui #operationalStatus #detail>p:not(#proximityRow):not(#observedRow){font-size:8px}
+body.arcade-ui .command-deck{margin-top:6px}
+@media(min-width:851px){aside{height:calc(100vh - 76px);overflow-y:auto;overscroll-behavior:contain}#operationalStatus #intelHistory{max-height:30vh}}
+@media(max-width:1000px),(max-height:700px){.blue-health-text{font-size:7px}.command-deck{padding-top:6px}.command-deck #collect,.command-deck #clear,.command-deck #intercept{min-height:32px!important}.command-deck-title{font-size:6.5px}#operationalStatus #intelHistory{max-height:25vh}}
+
+.isr-task{width:100%;min-height:34px;border:1px solid #4d83a6;background:rgba(77,163,255,.07);color:#8fc8ff;font-size:9px;letter-spacing:1px}.isr-task.deploying{background:rgba(77,163,255,.2);box-shadow:0 0 12px rgba(77,163,255,.15)}
+.asset-rail.passive-unavailable .passive-isr-kv,.asset-rail.passive-unavailable #passiveDeploy,.asset-rail.passive-unavailable #ewoSweep,.asset-rail.passive-unavailable #supplyUse,.asset-rail.passive-unavailable .passive-hint{display:none!important}
+@media(max-width:900px),(max-height:650px){.isr-task{min-height:29px;font-size:8px}}
+
+/* v0.11.6.62 // ZERO-SCROLL DUAL COMMAND COLUMNS
+   Live command interface is deliberately terse. Rich intelligence state remains in runtime,
+   but no dossier/nested scroller competes with time-critical actions. */
+aside{overflow:hidden!important;display:flex!important;flex-direction:column!important;min-height:0!important}
+#operationalStatus{flex:0 0 auto!important;min-height:0!important;overflow:visible!important}
+#operationalStatus #intelHistory,
+#operationalStatus #observedRow,
+#operationalStatus #dwellRow,
+#operationalStatus #proximityRow,
+#operationalStatus #dist,
+#operationalStatus #sense{display:none!important}
+#operationalStatus>h2{margin:0 0 5px!important}
+.op-status-grid{margin-bottom:5px!important}
+.track-idle-note{min-height:28px!important;margin:4px 0!important;padding:6px 8px!important;display:flex!important;align-items:center!important}
+#detail{margin:3px 0 0!important;padding:0!important}
+#detail h3{margin:3px 0!important;font-size:13px!important;line-height:1.1!important}
+#detail>p{margin:2px 0!important;font-size:10px!important;line-height:1.15!important}
+#prog{margin:4px 0!important}
+#prog .row{font-size:9px!important}
+.command-deck{margin:5px 0 0!important;padding:5px 0 0!important;border-top:1px solid var(--border)!important}
+.command-deck-title{font-size:8px!important;line-height:1!important;margin-bottom:4px!important;letter-spacing:.14em!important}
+.command-deck button,#collect,#clear,#intercept{height:34px!important;min-height:34px!important;padding:0 8px!important;margin:0!important;display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;font-size:10px!important;line-height:1!important;letter-spacing:.08em!important;box-sizing:border-box!important}
+.command-deck>#collect{width:100%!important;margin-bottom:4px!important}
+.command-deck .twobtn{display:grid!important;grid-template-columns:1fr 1fr!important;gap:5px!important;margin:0!important}
+.command-deck .twobtn[hidden]{display:grid!important}
+.command-deck .twobtn[hidden] button{visibility:hidden!important;pointer-events:none!important}
+
+/* Mission assets: same mechanics in Arcade and Campaign; compact 2x2 control surface. */
+#passiveIsrPanel{flex:0 0 auto!important;overflow:visible!important;margin:5px 0 0!important;padding:5px 0!important;border-top:1px solid var(--border)!important;border-bottom:1px solid var(--border)!important;display:grid!important;grid-template-columns:1fr 1fr!important;gap:4px 5px!important}
+#passiveIsrPanel>h2{grid-column:1/-1!important;margin:0 0 1px!important;font-size:9px!important;line-height:1!important}
+#passiveIsrPanel .passive-isr-kv{grid-column:1/-1!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:5px!important;margin:0 0 2px!important;padding:0!important;font-size:8px!important;line-height:1.05!important}
+#passiveIsrPanel #isrTask,#passiveIsrPanel #passiveDeploy,#passiveIsrPanel #ewoSweep,#passiveIsrPanel #supplyUse{width:100%!important;height:32px!important;min-height:32px!important;margin:0!important;padding:0 5px!important;display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;font-size:8.5px!important;line-height:1.05!important;letter-spacing:.04em!important;box-sizing:border-box!important}
+#passiveIsrPanel #isrTask{grid-column:1!important;grid-row:4!important}
+#passiveIsrPanel #passiveDeploy{grid-column:2!important;grid-row:4!important}
+#passiveIsrPanel #ewoSweep{grid-column:1!important;grid-row:5!important}
+#passiveIsrPanel #supplyUse{grid-column:2!important;grid-row:5!important}
+#passiveHint{display:none!important}
+
+/* Utilities are not part of the live command column. */
+#eventPanel,#devPanel{display:none!important}
+#commandControls{flex:0 0 auto!important;margin-top:auto!important;padding-top:5px!important}
+#commandControls button{height:32px!important;min-height:32px!important;display:flex!important;align-items:center!important;justify-content:center!important;line-height:1!important}
+
+/* Arcade is intentionally a no-dossier, no-scroll survival HUD. All four support assets remain. */
+body.arcade-ui aside{overflow:hidden!important}
+body.arcade-ui #operationalStatus #detail>p{display:none!important}
+body.arcade-ui #operationalStatus #detail>p#sense,
+body.arcade-ui #operationalStatus #detail>p#dist{display:none!important}
+body.arcade-ui #passiveIsrPanel{display:grid!important}
+
+/* Campaign uses the same zero-scroll command skeleton. It may show concise CLASS/MOTION state,
+   but never the historical intelligence dossier in the live sidebar. */
+body:not(.arcade-ui) #operationalStatus #detail>p{font-size:9.5px!important}
+
+@media(max-height:650px),(max-width:900px){
+  aside{padding-top:5px!important;padding-bottom:5px!important}
+  #operationalStatus>h2,#passiveIsrPanel>h2{font-size:8px!important}
+  .op-status-item span{font-size:7px!important}.op-status-item b{font-size:10px!important}
+  .track-idle-note{min-height:22px!important;padding:4px 6px!important;font-size:8px!important}
+  #detail h3{font-size:11px!important;margin:2px 0!important}
+  #detail>p{font-size:8.5px!important;margin:1px 0!important}
+  .command-deck{margin-top:3px!important;padding-top:3px!important}
+  .command-deck button,#collect,#clear,#intercept{height:29px!important;min-height:29px!important;font-size:9px!important}
+  #passiveIsrPanel{margin-top:3px!important;padding:4px 0!important;gap:3px 4px!important}
+  #passiveIsrPanel .passive-isr-kv{font-size:7px!important;margin-bottom:1px!important}
+  #passiveIsrPanel #isrTask,#passiveIsrPanel #passiveDeploy,#passiveIsrPanel #ewoSweep,#passiveIsrPanel #supplyUse{height:27px!important;min-height:27px!important;font-size:7.5px!important}
+  #commandControls{padding-top:3px!important}#commandControls button{height:28px!important;min-height:28px!important;font-size:8px!important}
+}
+
+
+/* v0.11.6.62 // FIXED ACTION STAGE + COMPACT ASSET RAIL
+   Collection progress and decision controls share one reserved footprint.
+   This prevents selection/collection state from vertically reflowing the command column. */
+.command-deck>.action-stage{position:relative!important;height:34px!important;min-height:34px!important;margin-top:0!important;overflow:hidden!important}
+.command-deck>.action-stage>#prog,
+.command-deck>.action-stage>#dec{position:absolute!important;inset:0!important;margin:0!important;width:100%!important;height:34px!important;box-sizing:border-box!important}
+.command-deck>.action-stage>#prog{display:flex!important;flex-direction:column!important;justify-content:center!important;padding:3px 2px!important}
+.command-deck>.action-stage>#prog[hidden]{display:none!important}
+.command-deck>.action-stage>#prog .row{font-size:8px!important;line-height:1!important}
+.command-deck>.action-stage>#prog .meter{margin:5px 0 0!important;height:5px!important}
+.command-deck>.action-stage>#dec{display:grid!important;grid-template-columns:1fr 1fr!important;gap:5px!important}
+.command-deck>.action-stage>#dec[hidden]{display:none!important}
+.command-deck>.action-stage>#dec button{width:100%!important;height:34px!important;min-height:34px!important}
+.command-deck>#collect{margin-bottom:4px!important}
+
+/* Campaign live context is intentionally terse: identity + classification only.
+   Mission complexity remains on-map and in mission assets rather than expanding the sidebar. */
+body:not(.arcade-ui) #operationalStatus #detail>.live-motion-row{display:none!important}
+
+/* Mission assets retain readable labels but give the constrained landscape viewport breathing room. */
+#passiveIsrPanel{padding-left:7px!important;padding-right:7px!important;column-gap:9px!important;row-gap:4px!important}
+#passiveIsrPanel #isrTask,#passiveIsrPanel #passiveDeploy,#passiveIsrPanel #ewoSweep,#passiveIsrPanel #supplyUse{height:27px!important;min-height:27px!important;padding:0 4px!important;font-size:8px!important}
+@media(max-height:650px),(max-width:900px){
+  .command-deck>.action-stage{height:29px!important;min-height:29px!important}
+  .command-deck>.action-stage>#prog,.command-deck>.action-stage>#dec{height:29px!important}
+  .command-deck>.action-stage>#dec button{height:29px!important;min-height:29px!important}
+  #passiveIsrPanel{padding-left:8px!important;padding-right:8px!important;column-gap:10px!important;row-gap:3px!important}
+  #passiveIsrPanel #isrTask,#passiveIsrPanel #passiveDeploy,#passiveIsrPanel #ewoSweep,#passiveIsrPanel #supplyUse{height:23px!important;min-height:23px!important;font-size:7.5px!important;padding:0 3px!important}
+}
+
+
+/* v0.11.6.62 // TACTICAL SPOT REPORT
+   Selected-entity identity leaves the command column and lives in a compact,
+   classification-colored map HUD beneath the dynamically-sized ISR status. */
+.tactical-hud-stack{position:absolute;left:calc(var(--map-safe-x) + 8px);top:calc(var(--map-safe-y) + 8px);display:flex;flex-direction:column;align-items:flex-start;gap:6px;max-width:42%;pointer-events:none!important;z-index:12}
+#mapWrap .tactical-hud-stack>.hud{position:relative!important;left:auto!important;top:auto!important;max-width:100%!important;width:auto!important;box-sizing:border-box!important}
+.spot-report{--spot-color:#dce5e8;min-width:150px;max-width:230px;padding:7px 9px;border:1px solid color-mix(in srgb,var(--spot-color) 68%,#29373e);border-left:3px solid var(--spot-color);border-radius:5px;background:rgba(7,15,19,.91);box-shadow:0 4px 14px rgba(0,0,0,.22);backdrop-filter:blur(3px);font-size:9px;line-height:1.35;letter-spacing:.055em;color:#aebdc3;pointer-events:none!important;box-sizing:border-box}
+.spot-report[hidden]{display:none!important}.spot-title{color:var(--spot-color);font-weight:800;letter-spacing:.09em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.spot-report b{color:var(--spot-color);font-weight:800}
+/* The SPOT owns entity identity now. Keep the live command column action-only in both modes. */
+#operationalStatus #detail>h3,#operationalStatus #detail>p{display:none!important}
+@media (min-width:681px) and (max-height:500px){.tactical-hud-stack{left:8px;top:8px;gap:4px;max-width:41%}.spot-report{min-width:132px;max-width:205px;padding:5px 7px;font-size:7.5px;line-height:1.28}}
