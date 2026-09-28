@@ -1481,7 +1481,7 @@ body.cyber-compromised #hud,body.cyber-compromised #objectiveTracker{animation:c
 @keyframes cyberHudJitter{0%,22%,25%,61%,64%,100%{text-shadow:none}23%{text-shadow:2px 0 rgba(198,92,255,.8),-1px 0 rgba(77,163,255,.45)}62%{text-shadow:-2px 0 rgba(198,92,255,.7),1px 0 rgba(255,255,255,.25)}}
 
 
-/* v0.11.6.62 // COMMAND DECK UI */
+/* v0.11.6.63 // COMMAND DECK UI */
 /* Battlefield state lives on the battlefield. Intelligence scrolls; decisions stay put. */
 .blue-health{pointer-events:none}.blue-health-bg{fill:#172229;stroke:#40515a;stroke-width:.7}.blue-health-fill{fill:#4da3ff;transition:width .2s linear,fill .2s linear}.blue-health-text{font-size:8px;font-weight:700;letter-spacing:.04em;paint-order:stroke;stroke:#071014;stroke-width:2px}
 #operationalStatus{display:flex;flex-direction:column;min-height:0}
@@ -1501,7 +1501,7 @@ body.arcade-ui .command-deck{margin-top:6px}
 .asset-rail.passive-unavailable .passive-isr-kv,.asset-rail.passive-unavailable #passiveDeploy,.asset-rail.passive-unavailable #ewoSweep,.asset-rail.passive-unavailable #supplyUse,.asset-rail.passive-unavailable .passive-hint{display:none!important}
 @media(max-width:900px),(max-height:650px){.isr-task{min-height:29px;font-size:8px}}
 
-/* v0.11.6.62 // ZERO-SCROLL DUAL COMMAND COLUMNS
+/* v0.11.6.63 // ZERO-SCROLL DUAL COMMAND COLUMNS
    Live command interface is deliberately terse. Rich intelligence state remains in runtime,
    but no dossier/nested scroller competes with time-critical actions. */
 aside{overflow:hidden!important;display:flex!important;flex-direction:column!important;min-height:0!important}
@@ -1571,7 +1571,7 @@ body:not(.arcade-ui) #operationalStatus #detail>p{font-size:9.5px!important}
 }
 
 
-/* v0.11.6.62 // FIXED ACTION STAGE + COMPACT ASSET RAIL
+/* v0.11.6.63 // FIXED ACTION STAGE + COMPACT ASSET RAIL
    Collection progress and decision controls share one reserved footprint.
    This prevents selection/collection state from vertically reflowing the command column. */
 .command-deck>.action-stage{position:relative!important;height:34px!important;min-height:34px!important;margin-top:0!important;overflow:hidden!important}
@@ -1602,7 +1602,7 @@ body:not(.arcade-ui) #operationalStatus #detail>.live-motion-row{display:none!im
 }
 
 
-/* v0.11.6.62 // TACTICAL SPOT REPORT
+/* v0.11.6.63 // TACTICAL SPOT REPORT
    Selected-entity identity leaves the command column and lives in a compact,
    classification-colored map HUD beneath the dynamically-sized ISR status. */
 .tactical-hud-stack{position:absolute;left:calc(var(--map-safe-x) + 8px);top:calc(var(--map-safe-y) + 8px);display:flex;flex-direction:column;align-items:flex-start;gap:6px;max-width:42%;pointer-events:none!important;z-index:12}
@@ -1612,3 +1612,20 @@ body:not(.arcade-ui) #operationalStatus #detail>.live-motion-row{display:none!im
 /* The SPOT owns entity identity now. Keep the live command column action-only in both modes. */
 #operationalStatus #detail>h3,#operationalStatus #detail>p{display:none!important}
 @media (min-width:681px) and (max-height:500px){.tactical-hud-stack{left:8px;top:8px;gap:4px;max-width:41%}.spot-report{min-width:132px;max-width:205px;padding:5px 7px;font-size:7.5px;line-height:1.28}}
+
+
+/* v0.11.6.63 // SPOT REPORT REPOSITION
+   Keep ISR status in its dynamic upper-left lane; independently anchor the
+   selected-track SPOT report to the map-safe lower-right corner. */
+#mapWrap>.spot-report{
+  position:absolute!important;
+  left:auto!important;
+  top:auto!important;
+  right:calc(var(--map-safe-x) + 8px)!important;
+  bottom:calc(var(--map-safe-y) + 8px)!important;
+  z-index:12!important;
+  pointer-events:none!important;
+}
+@media (min-width:681px) and (max-height:500px){
+  #mapWrap>.spot-report{right:8px!important;bottom:8px!important;}
+}
