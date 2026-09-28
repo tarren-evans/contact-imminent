@@ -1,4 +1,4 @@
-const VERSION='0.11.6.64';
+const VERSION='0.11.6.72';
 const CACHE=`contact-imminent-v${VERSION}`;
 const CORE=[
   './',
@@ -10,6 +10,11 @@ const CORE=[
   './assets/icons/icon-512.png',
   './assets/icons/icon-maskable-512.png',
   './assets/icons/apple-touch-icon.png',
+  './assets/brand/inactive-studios-primary.svg',
+  './assets/brand/inactive-studios-terminal.svg',
+  './assets/brand/inactive-studios-icon-segmented.svg',
+  './assets/brand/inactive-studios-icon-minimal.svg',
+  './assets/brand/contact-imminent-created-by-inactive-studios.png',
   './assets/maps/global-deep-space.png',
   './assets/maps/global-notional-earth-surface.jpg',
 

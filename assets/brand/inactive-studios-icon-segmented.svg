@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<rect width="512" height="512" fill="#0B0D0F"/>
+<style>
+.primary { font-family: "DejaVu Sans", Arial, sans-serif; font-weight: 700; letter-spacing: 13px; }
+.secondary { font-family: "DejaVu Sans", Arial, sans-serif; font-weight: 400; letter-spacing: 15px; }
+.status { font-family: "DejaVu Sans Mono", monospace; font-weight: 400; letter-spacing: 4px; }
+</style>
+<path d="M165,90 H90 V165 M90,347 V422 H165
+M347,90 H422 V165 M422,347 V422 H347"
+stroke="#F2F1ED" stroke-width="18" fill="none" stroke-linecap="square"/><rect x="236" y="158" width="40" height="72" rx="2" fill="#F2F1ED"/><rect x="236" y="236" width="40" height="40" rx="2" fill="#4A5B3A"/><rect x="236" y="282" width="40" height="72" rx="2" fill="#F2F1ED"/></svg>

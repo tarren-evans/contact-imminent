@@ -1481,7 +1481,7 @@ body.cyber-compromised #hud,body.cyber-compromised #objectiveTracker{animation:c
 @keyframes cyberHudJitter{0%,22%,25%,61%,64%,100%{text-shadow:none}23%{text-shadow:2px 0 rgba(198,92,255,.8),-1px 0 rgba(77,163,255,.45)}62%{text-shadow:-2px 0 rgba(198,92,255,.7),1px 0 rgba(255,255,255,.25)}}
 
 
-/* v0.11.6.64 // COMMAND DECK UI */
+/* v0.11.6.72 // COMMAND DECK UI */
 /* Battlefield state lives on the battlefield. Intelligence scrolls; decisions stay put. */
 .blue-health{pointer-events:none}.blue-health-bg{fill:#172229;stroke:#40515a;stroke-width:.7}.blue-health-fill{fill:#4da3ff;transition:width .2s linear,fill .2s linear}.blue-health-text{font-size:8px;font-weight:700;letter-spacing:.04em;paint-order:stroke;stroke:#071014;stroke-width:2px}
 #operationalStatus{display:flex;flex-direction:column;min-height:0}
@@ -1501,7 +1501,7 @@ body.arcade-ui .command-deck{margin-top:6px}
 .asset-rail.passive-unavailable .passive-isr-kv,.asset-rail.passive-unavailable #passiveDeploy,.asset-rail.passive-unavailable #ewoSweep,.asset-rail.passive-unavailable #supplyUse,.asset-rail.passive-unavailable .passive-hint{display:none!important}
 @media(max-width:900px),(max-height:650px){.isr-task{min-height:29px;font-size:8px}}
 
-/* v0.11.6.64 // ZERO-SCROLL DUAL COMMAND COLUMNS
+/* v0.11.6.72 // ZERO-SCROLL DUAL COMMAND COLUMNS
    Live command interface is deliberately terse. Rich intelligence state remains in runtime,
    but no dossier/nested scroller competes with time-critical actions. */
 aside{overflow:hidden!important;display:flex!important;flex-direction:column!important;min-height:0!important}
@@ -1571,7 +1571,7 @@ body:not(.arcade-ui) #operationalStatus #detail>p{font-size:9.5px!important}
 }
 
 
-/* v0.11.6.64 // FIXED ACTION STAGE + COMPACT ASSET RAIL
+/* v0.11.6.72 // FIXED ACTION STAGE + COMPACT ASSET RAIL
    Collection progress and decision controls share one reserved footprint.
    This prevents selection/collection state from vertically reflowing the command column. */
 .command-deck>.action-stage{position:relative!important;height:34px!important;min-height:34px!important;margin-top:0!important;overflow:hidden!important}
@@ -1602,7 +1602,7 @@ body:not(.arcade-ui) #operationalStatus #detail>.live-motion-row{display:none!im
 }
 
 
-/* v0.11.6.64 // TACTICAL SPOT REPORT
+/* v0.11.6.72 // TACTICAL SPOT REPORT
    Selected-entity identity leaves the command column and lives in a compact,
    classification-colored map HUD beneath the dynamically-sized ISR status. */
 .tactical-hud-stack{position:absolute;left:calc(var(--map-safe-x) + 8px);top:calc(var(--map-safe-y) + 8px);display:flex;flex-direction:column;align-items:flex-start;gap:6px;max-width:42%;pointer-events:none!important;z-index:12}
@@ -1614,7 +1614,7 @@ body:not(.arcade-ui) #operationalStatus #detail>.live-motion-row{display:none!im
 @media (min-width:681px) and (max-height:500px){.tactical-hud-stack{left:8px;top:8px;gap:4px;max-width:41%}.spot-report{min-width:132px;max-width:205px;padding:5px 7px;font-size:7.5px;line-height:1.28}}
 
 
-/* v0.11.6.64 // SPOT REPORT REPOSITION
+/* v0.11.6.72 // SPOT REPORT REPOSITION
    Keep ISR status in its dynamic upper-left lane; independently anchor the
    selected-track SPOT report to the map-safe lower-right corner. */
 #mapWrap>.spot-report{
@@ -1629,3 +1629,171 @@ body:not(.arcade-ui) #operationalStatus #detail>.live-motion-row{display:none!im
 @media (min-width:681px) and (max-height:500px){
   #mapWrap>.spot-report{right:8px!important;bottom:8px!important;}
 }
+
+
+/* v0.11.6.72 // INACTIVE STUDIOS BRAND INTEGRATION */
+.boot-studio-row{display:flex;align-items:center;gap:13px;margin-bottom:16px}.boot-studio-icon{width:48px;height:48px;object-fit:contain}.boot-studio-name{font:800 15px/1.1 monospace;letter-spacing:.22em;color:#f2f1ed}.boot-copy .boot-title{font-size:clamp(25px,4vw,54px);opacity:.92}.boot-copy .boot-kicker{color:#9ca3af}.boot-copy .boot-sub{color:#9ca3af}.boot-load i{background:#4a5b3a}.boot-pct{color:#9ca3af}
+.studio-reveal{position:fixed;inset:0;z-index:9998;background:#0b0d0f;display:grid;place-items:center;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .28s ease,visibility .28s ease;overflow:hidden}.studio-reveal.show{opacity:1;visibility:visible;pointer-events:auto}.studio-reveal.exit{opacity:0;visibility:hidden;pointer-events:none}.studio-reveal-logo{position:absolute;width:min(760px,78vw);height:auto;filter:drop-shadow(0 12px 34px rgba(0,0,0,.55));transition:opacity .18s ease}.studio-logo-terminal{opacity:1}.studio-logo-resolved{opacity:0}.studio-reveal.resolved .studio-logo-terminal{opacity:0}.studio-reveal.resolved .studio-logo-resolved{opacity:1}.studio-reveal-status{position:absolute;top:68%;font:700 clamp(10px,1.2vw,14px)/1 monospace;letter-spacing:.28em;color:#4a5b3a;opacity:0;transition:opacity .18s ease}.studio-reveal.resolved .studio-reveal-status{opacity:1}.studio-reveal-skip{position:absolute;bottom:5vh;font:600 9px/1 monospace;letter-spacing:.18em;color:#6b7280;opacity:.55}.studio-reveal-scan{position:absolute;left:0;right:0;height:2px;top:-5%;background:linear-gradient(90deg,transparent,#f2f1ed 35%,#4a5b3a 52%,#f2f1ed 68%,transparent);opacity:.25;box-shadow:0 0 20px #4a5b3a}.studio-reveal.show .studio-reveal-scan{animation:studioScan .95s ease-out 1}@keyframes studioScan{0%{top:12%;opacity:0}20%{opacity:.32}100%{top:88%;opacity:0}}
+.studio-attribution{margin-top:14px;display:flex;align-items:center;gap:10px;font:600 9px/1 monospace;letter-spacing:.18em;color:#6b7280}.studio-attribution b{color:#9ca3af;font-size:10px;letter-spacing:.2em}.studio-attribution:before{content:"";width:28px;height:2px;background:#4a5b3a;display:block}
+@media(max-width:700px){.boot-studio-icon{width:38px;height:38px}.boot-studio-name{font-size:12px}.studio-reveal-logo{width:88vw}.studio-reveal-status{top:64%}.studio-attribution{font-size:8px;gap:7px}.studio-attribution b{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.studio-reveal-scan{display:none}.studio-reveal,.studio-reveal-logo,.studio-reveal-status{transition:none!important}}
+
+
+/* v0.11.6.72 // Responsive Inactive Studios boot choreography */
+.boot-art>img{width:100%;height:100%;object-fit:cover;filter:saturate(.8) contrast(1.15) brightness(.58);transform:scale(1.04)}
+.boot-art .boot-studio-icon,.boot-art .boot-studio-corner img{filter:none;transform:none}
+.boot-studio-corner{position:absolute;right:max(18px,3.2vw);bottom:max(16px,3.2vh);display:flex;align-items:center;gap:9px;opacity:.58;z-index:3;pointer-events:none}
+.boot-studio-corner img{width:clamp(22px,2.4vw,34px)!important;height:clamp(22px,2.4vw,34px)!important;object-fit:contain!important}
+.boot-studio-corner span{font:700 clamp(7px,.72vw,10px)/1 monospace;letter-spacing:.18em;color:#c7c8c4;white-space:nowrap}
+.boot-splash{transition:opacity .8s ease,visibility .8s ease}
+
+.studio-reveal{background:#000;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .8s ease,visibility .8s ease}
+.studio-reveal.show{opacity:1;visibility:visible;pointer-events:auto}
+.studio-reveal .studio-reveal-logo,.studio-reveal .studio-reveal-status,.studio-reveal .studio-reveal-skip{opacity:0}
+.studio-reveal.hero .studio-logo-terminal{opacity:1}
+.studio-reveal.hero.resolved .studio-logo-terminal{opacity:0}
+.studio-reveal.hero.resolved .studio-logo-resolved{opacity:1}
+.studio-reveal.hero.resolved .studio-reveal-status{opacity:1}
+.studio-reveal.hero .studio-reveal-skip{opacity:.45}
+.studio-reveal-logo{width:min(74vw,760px);max-width:calc(100vw - 36px);max-height:42vh;object-fit:contain;transition:opacity .55s ease;filter:drop-shadow(0 12px 34px rgba(0,0,0,.55))}
+.studio-reveal-status{top:calc(50% + min(16vw,170px));font-size:clamp(8px,1.2vw,14px);transition:opacity .55s ease}
+.studio-reveal.exit{opacity:0;visibility:visible;pointer-events:none}
+.studio-reveal.show.hero .studio-reveal-scan{animation:studioScan 1.35s ease-out 1}
+
+@media(max-width:700px){
+  .boot-copy{left:7vw;right:7vw;bottom:15vh}
+  .boot-title{font-size:clamp(25px,9vw,44px)!important;letter-spacing:.14em!important}
+  .boot-sub{font-size:clamp(8px,2.4vw,11px);line-height:1.5;letter-spacing:.1em}
+  .boot-load-row{width:100%;max-width:430px}
+  .boot-studio-corner{right:16px;bottom:calc(14px + env(safe-area-inset-bottom));gap:7px;opacity:.5}
+  .boot-studio-corner img{width:24px!important;height:24px!important}
+  .boot-studio-corner span{font-size:7px;letter-spacing:.13em}
+  .studio-reveal-logo{width:min(88vw,620px);max-height:32vh}
+  .studio-reveal-status{top:62%;font-size:9px;letter-spacing:.22em}
+  .studio-reveal-skip{bottom:calc(4vh + env(safe-area-inset-bottom));font-size:7px;text-align:center;width:90%;left:5%;}
+}
+@media(max-width:430px){
+  .boot-studio-corner span{display:none}
+  .studio-reveal-logo{width:92vw;max-width:92vw}
+}
+@media(max-height:520px) and (orientation:landscape){
+  .boot-copy{left:5vw;bottom:10vh}
+  .boot-title{font-size:clamp(24px,7vh,42px)!important}
+  .boot-sub{margin-top:7px;font-size:8px}
+  .boot-load-row{margin-top:12px;width:min(420px,62vw)}
+  .boot-studio-corner{right:18px;bottom:12px}
+  .studio-reveal-logo{width:min(62vw,620px);max-height:50vh}
+  .studio-reveal-status{top:72%;}
+  .studio-reveal-skip{bottom:4vh}
+}
+
+
+/* v0.11.6.72 // Studio boot polish only: fixed hero geometry, cursor animation, title fade, safe-area studio bug */
+body.studio-boot-pending #mainMenu{opacity:0!important;visibility:visible!important;transition:opacity .9s ease!important}
+body.studio-title-reveal #mainMenu{opacity:1!important;transition:opacity .9s ease!important}
+.studio-reveal-logo-wrap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(74vw,760px);max-width:calc(100vw - 36px);max-height:42vh;aspect-ratio:1600/520;opacity:0;transition:opacity .85s ease;filter:drop-shadow(0 12px 34px rgba(0,0,0,.55))}
+.studio-reveal.hero .studio-reveal-logo-wrap{opacity:1}
+.studio-reveal-logo-wrap .studio-reveal-logo{position:absolute;inset:0;width:100%;height:100%;max-width:none;max-height:none;object-fit:contain;opacity:1!important;filter:none;transition:none}
+.studio-terminal-cursor{position:absolute;left:69.3%;top:43.5%;width:1.25%;height:4.2%;min-width:3px;min-height:3px;background:#f2f1ed;opacity:0;box-shadow:0 0 8px rgba(242,241,237,.18)}
+.studio-reveal.hero .studio-terminal-cursor{animation:inactiveCursorBlink 1s steps(1,end) infinite}
+@keyframes inactiveCursorBlink{0%,44%{opacity:1}45%,100%{opacity:0}}
+.studio-reveal-status{opacity:0!important;transition:opacity .7s ease!important}
+.studio-reveal.hero.active .studio-reveal-status{opacity:1!important}
+.studio-reveal.hero .studio-reveal-skip{opacity:.45}
+.command-studio-bug{position:fixed;right:max(16px,calc(env(safe-area-inset-right) + 12px));bottom:max(16px,calc(env(safe-area-inset-bottom) + 12px));width:clamp(22px,2.6vw,36px);height:clamp(22px,2.6vw,36px);object-fit:contain;opacity:.42;z-index:4;pointer-events:none;filter:none!important;transform:none!important}
+@media(max-width:700px){.studio-reveal-logo-wrap{width:min(88vw,620px);max-height:32vh}.command-studio-bug{width:24px;height:24px;right:max(12px,calc(env(safe-area-inset-right) + 10px));bottom:max(12px,calc(env(safe-area-inset-bottom) + 10px));opacity:.38}}
+@media(max-width:390px){.command-studio-bug{width:21px;height:21px;right:max(10px,calc(env(safe-area-inset-right) + 8px));bottom:max(10px,calc(env(safe-area-inset-bottom) + 8px))}}
+@media(max-height:520px) and (orientation:landscape){.studio-reveal-logo-wrap{width:min(62vw,620px);max-height:50vh}.command-studio-bug{width:21px;height:21px;right:max(10px,calc(env(safe-area-inset-right) + 8px));bottom:max(9px,calc(env(safe-area-inset-bottom) + 7px))}}
+@media(prefers-reduced-motion:reduce){body.studio-boot-pending #mainMenu,body.studio-title-reveal #mainMenu,.studio-reveal-logo-wrap,.studio-reveal-status{transition:none!important}.studio-terminal-cursor{animation:none!important;opacity:1!important}}
+
+
+/* v0.11.6.72 // Surgical studio intro repair: opaque handoff + typed lockup. */
+/* The app is never exposed while the loader/studio sequence is active. This prevents warmed map/canvas frames from bleeding through the loader fade. */
+body.studio-boot-pending #app{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+body.studio-title-reveal #app{opacity:1!important;visibility:visible!important;transition:opacity .9s ease!important}
+/* Black interstitial is immediately opaque underneath the loader; only its CONTENT fades in. */
+.studio-reveal{background:#000!important;opacity:0!important;visibility:hidden!important;transition:none!important}
+.studio-reveal.show{opacity:1!important;visibility:visible!important;pointer-events:auto!important}
+.studio-reveal.exit{opacity:1!important;visibility:visible!important;pointer-events:none!important}
+.studio-type-lockup{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:clamp(280px,58vw,760px);height:clamp(112px,18vw,210px);opacity:0;transition:opacity .8s ease;display:grid;place-items:center;filter:drop-shadow(0 12px 34px rgba(0,0,0,.5))}
+.studio-reveal.hero .studio-type-lockup{opacity:1}
+.studio-type-corner{position:absolute;width:clamp(18px,2.2vw,32px);height:clamp(18px,2.2vw,32px);border-color:#f2f1ed;border-style:solid;opacity:.9}
+.studio-type-corner.tl{left:0;top:0;border-width:3px 0 0 3px}.studio-type-corner.tr{right:0;top:0;border-width:3px 3px 0 0}.studio-type-corner.bl{left:0;bottom:0;border-width:0 0 3px 3px}.studio-type-corner.br{right:0;bottom:0;border-width:0 3px 3px 0}
+.studio-type-line{display:flex;align-items:center;justify-content:center;min-width:0;padding:0 clamp(28px,5vw,72px);font:800 clamp(20px,4.4vw,58px)/1.05 "Courier New",monospace;letter-spacing:clamp(.08em,.5vw,.18em);color:#f2f1ed;white-space:nowrap;text-align:center}
+.studio-type-cursor{display:inline-block;width:.095em;height:1.05em;margin-left:.13em;background:#f2f1ed;box-shadow:0 0 9px rgba(242,241,237,.18);opacity:1;animation:inactiveTypeCursor 1s steps(1,end) infinite;flex:0 0 auto}
+@keyframes inactiveTypeCursor{0%,46%{opacity:1}47%,100%{opacity:0}}
+.studio-reveal-skip{opacity:0!important;transition:opacity .6s ease!important}.studio-reveal.hero .studio-reveal-skip{opacity:.4!important}
+@media(max-width:700px){.studio-type-lockup{width:min(86vw,620px);height:clamp(105px,29vw,165px)}.studio-type-line{font-size:clamp(16px,5.3vw,31px);letter-spacing:.09em;padding:0 28px}}
+@media(max-width:360px){.studio-type-lockup{width:88vw}.studio-type-line{font-size:15px;letter-spacing:.07em;padding:0 24px}.studio-type-corner{width:18px;height:18px}}
+@media(max-height:520px) and (orientation:landscape){.studio-type-lockup{width:min(62vw,650px);height:min(38vh,165px)}.studio-type-line{font-size:clamp(18px,4.5vh,32px)}}
+@media(prefers-reduced-motion:reduce){.studio-type-lockup{transition:none!important}.studio-type-cursor{animation:none!important;opacity:1!important}}
+
+
+/* v0.11.6.72 // Studio intro final polish: brand-matched type, proportional scaling, deliberate title fade. */
+body.studio-title-reveal #app{visibility:visible!important;pointer-events:auto!important;animation:ciTitleFadeIn 1.35s cubic-bezier(.22,.61,.36,1) both!important}
+body.studio-title-reveal #mainMenu{opacity:1!important;visibility:visible!important;transition:none!important}
+@keyframes ciTitleFadeIn{0%{opacity:0}18%{opacity:0}100%{opacity:1}}
+.studio-type-lockup{width:min(82vw,880px)!important;height:auto!important;aspect-ratio:1600/520;max-height:48vh;opacity:0;transition:opacity 1s ease!important}
+.studio-type-corner{width:3.45%!important;height:16.9%!important;border-width:0!important}
+.studio-type-corner:before,.studio-type-corner:after{content:"";position:absolute;background:#f2f1ed}
+.studio-type-corner.tl{left:0;top:0}.studio-type-corner.tr{right:0;top:0}.studio-type-corner.bl{left:0;bottom:0}.studio-type-corner.br{right:0;bottom:0}
+.studio-type-corner.tl:before,.studio-type-corner.bl:before{left:0;width:100%;height:clamp(3px,.55vw,6px)}
+.studio-type-corner.tr:before,.studio-type-corner.br:before{right:0;width:100%;height:clamp(3px,.55vw,6px)}
+.studio-type-corner.tl:after,.studio-type-corner.tr:after{top:0;width:clamp(3px,.55vw,6px);height:100%}
+.studio-type-corner.bl:after,.studio-type-corner.br:after{bottom:0;width:clamp(3px,.55vw,6px);height:100%}
+.studio-type-corner.tl:before,.studio-type-corner.tr:before{top:0}.studio-type-corner.bl:before,.studio-type-corner.br:before{bottom:0}
+.studio-type-corner.tl:after,.studio-type-corner.bl:after{left:0}.studio-type-corner.tr:after,.studio-type-corner.br:after{right:0}
+.studio-type-copy{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;transform:translateY(1.5%);white-space:nowrap;color:#f2f1ed}
+.studio-type-primary{display:flex;align-items:center;justify-content:center;min-height:1.15em;font-family:"DejaVu Sans",Arial,sans-serif;font-weight:700;font-size:clamp(28px,5.75vw,82px);line-height:1;letter-spacing:.116em}
+.studio-type-secondary{display:flex;align-items:center;justify-content:center;min-height:1.2em;margin-top:clamp(9px,1.15vw,18px);font-family:"DejaVu Sans",Arial,sans-serif;font-weight:400;font-size:clamp(14px,2.2vw,32px);line-height:1;letter-spacing:.35em}
+.studio-type-cursor{display:inline-block;width:.085em;height:.92em;margin-left:.12em;background:#f2f1ed;box-shadow:0 0 8px rgba(242,241,237,.16);flex:0 0 auto;animation:none;opacity:1}
+.studio-cursor-secondary{height:.95em;width:.1em;margin-left:.18em;display:none}
+.studio-type-lockup.typing-secondary #studioCursorPrimary{display:none}
+.studio-type-lockup.typing-secondary #studioCursorSecondary{display:inline-block}
+.studio-type-lockup.typing-complete #studioCursorPrimary{display:none}
+.studio-type-lockup.typing-complete #studioCursorSecondary{display:inline-block;animation:inactiveTypeCursor .72s steps(1,end) infinite}
+@media(max-width:700px){.studio-type-lockup{width:min(90vw,620px)!important;max-height:42vh}.studio-type-primary{font-size:clamp(27px,7.1vw,50px);letter-spacing:.105em}.studio-type-secondary{font-size:clamp(13px,2.9vw,22px);letter-spacing:.31em;margin-top:10px}}
+@media(max-width:360px){.studio-type-lockup{width:92vw!important}.studio-type-primary{font-size:26px;letter-spacing:.09em}.studio-type-secondary{font-size:13px;letter-spacing:.27em}}
+@media(max-height:520px) and (orientation:landscape){.studio-type-lockup{width:min(66vw,650px)!important;max-height:56vh}.studio-type-primary{font-size:clamp(27px,8vh,48px)}.studio-type-secondary{font-size:clamp(13px,3.2vh,22px);margin-top:7px}}
+@media(prefers-reduced-motion:reduce){body.studio-title-reveal #app{animation:none!important;opacity:1!important}.studio-type-lockup{transition:none!important}.studio-type-lockup.typing-complete #studioCursorSecondary{animation:none!important;opacity:1!important}}
+
+
+/* v0.11.6.72 // Cinematic studio intro polish only. */
+/* Larger brand-matched hero type while preserving the approved bracket geometry. */
+.studio-type-primary{font-size:clamp(34px,6.55vw,96px)!important;letter-spacing:.105em!important}
+.studio-type-secondary{font-size:clamp(17px,2.55vw,38px)!important;letter-spacing:.33em!important;margin-top:clamp(10px,1.25vw,20px)!important}
+/* The insertion point remains a distinct vertical caret and keeps blinking during the entire hero fade. */
+.studio-type-lockup.typing-complete #studioCursorSecondary{display:inline-block!important;animation:inactiveTypeCursor .78s steps(1,end) infinite!important}
+/* Slower, softer studio fade. The title is not exposed until this opaque black interstitial completes. */
+.studio-type-lockup{transition:opacity 1.35s cubic-bezier(.22,.61,.36,1)!important}
+body.studio-title-reveal #app{animation:ciTitleFadeIn70 2.15s cubic-bezier(.22,.61,.36,1) both!important}
+@keyframes ciTitleFadeIn70{0%{opacity:0}24%{opacity:0}100%{opacity:1}}
+@media(max-width:700px){
+ .studio-type-primary{font-size:clamp(31px,8.45vw,58px)!important;letter-spacing:.095em!important}
+ .studio-type-secondary{font-size:clamp(15px,3.45vw,25px)!important;letter-spacing:.29em!important;margin-top:11px!important}
+}
+@media(max-width:360px){
+ .studio-type-primary{font-size:clamp(29px,8.2vw,34px)!important;letter-spacing:.08em!important}
+ .studio-type-secondary{font-size:clamp(14px,3.8vw,17px)!important;letter-spacing:.25em!important}
+}
+@media(max-height:520px) and (orientation:landscape){
+ .studio-type-primary{font-size:clamp(30px,9vh,54px)!important}
+ .studio-type-secondary{font-size:clamp(15px,3.7vh,24px)!important;margin-top:8px!important}
+}
+
+
+/* v0.11.6.72 // Deterministic studio caret: JavaScript owns ON/OFF timing. */
+.studio-type-cursor,.studio-type-lockup.typing-complete #studioCursorSecondary{animation:none!important;transition:none!important}
+
+
+/* v0.11.6.72 // Independent responsive DOM insertion point. */
+.studio-dom-caret{
+ position:absolute;left:50%;top:50%;z-index:6;display:block!important;
+ width:clamp(3px,.32vw,6px);height:48px;
+ background:#f2f1ed;box-shadow:0 0 9px rgba(242,241,237,.22);
+ opacity:0;visibility:visible!important;pointer-events:none;
+ transform:translateY(-50%);transition:none!important;animation:none!important;
+ will-change:left,top,height,opacity;
+}
+@media(max-width:700px){.studio-dom-caret{width:clamp(3px,.8vw,5px)}}
+@media(max-height:520px) and (orientation:landscape){.studio-dom-caret{width:clamp(3px,.55vh,5px)}}
