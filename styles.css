@@ -1797,3 +1797,10 @@ body.studio-title-reveal #app{animation:ciTitleFadeIn70 2.15s cubic-bezier(.22,.
 }
 @media(max-width:700px){.studio-dom-caret{width:clamp(3px,.8vw,5px)}}
 @media(max-height:520px) and (orientation:landscape){.studio-dom-caret{width:clamp(3px,.55vh,5px)}}
+
+
+/* v0.11.6.73 // Portrait-only, non-blocking landscape reminder. */
+.portrait-rotate-reminder{display:none;position:fixed;z-index:10050;left:50%;top:max(14px,calc(env(safe-area-inset-top) + 10px));transform:translateX(-50%);align-items:center;gap:10px;min-width:210px;padding:8px 12px;border:1px solid rgba(216,168,62,.58);background:rgba(5,10,13,.88);color:#e7ecee;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.12em;pointer-events:none;box-shadow:0 0 18px rgba(0,0,0,.34);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.portrait-rotate-reminder b{display:block;font-size:10px;color:#d8a83e;line-height:1.15}.portrait-rotate-reminder small{display:block;margin-top:3px;font-size:7px;color:#8fa0a6;line-height:1.15}.rotate-device-icon{font-size:25px;line-height:1;color:#dce5e8}.rotate-arrow{font-size:19px;line-height:1;color:#d8a83e}
+@media (orientation:portrait) and (max-width:900px){body:not(.studio-boot-pending) .portrait-rotate-reminder{display:flex}}
+@media (max-width:380px) and (orientation:portrait){.portrait-rotate-reminder{min-width:190px;padding:7px 10px;gap:8px}.portrait-rotate-reminder b{font-size:9px}.portrait-rotate-reminder small{font-size:6px}}
