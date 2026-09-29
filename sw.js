@@ -1,4 +1,4 @@
-const VERSION='0.11.6.73';
+const VERSION='0.11.6.87';
 const CACHE=`contact-imminent-v${VERSION}`;
 const CORE=[
   './',
@@ -32,7 +32,7 @@ const CORE=[
   './assets/maps/oa-verdant-basemap.png',
   './assets/maps/oa-mirage-basemap.png',
   './assets/maps/oa-tempest-basemap.png',
-  './assets/maps/oa-arctic-basemap.png','assets/routes/verdant/B-001.png','assets/routes/verdant/B-002.png','assets/routes/verdant/B-003.png','assets/routes/verdant/B-004.png','assets/routes/verdant/B-005.png','assets/routes/verdant/B-006.png','assets/routes/verdant/B-007.png','assets/routes/verdant/B-008.png','assets/routes/verdant/B-009.png','assets/routes/verdant/B-010.png','assets/routes/verdant/B-011.png','assets/routes/verdant/B-012.png','assets/routes/verdant/P-001.png','assets/routes/verdant/P-002.png','assets/routes/verdant/P-003.png','assets/routes/verdant/P-004.png','assets/routes/verdant/P-005.png','assets/routes/verdant/P-006.png','assets/routes/verdant/P-007.png','assets/routes/verdant/P-008.png'];
+  './assets/maps/oa-arctic-basemap.png','assets/routes/verdant/B-001.png','assets/routes/verdant/B-002.png','assets/routes/verdant/B-003.png','assets/routes/verdant/B-004.png','assets/routes/verdant/B-005.png','assets/routes/verdant/B-006.png','assets/routes/verdant/B-007.png','assets/routes/verdant/B-008.png','assets/routes/verdant/B-009.png','assets/routes/verdant/B-010.png','assets/routes/verdant/B-011.png','assets/routes/verdant/B-012.png','assets/routes/verdant/P-001.png','assets/routes/verdant/P-002.png','assets/routes/verdant/P-003.png','assets/routes/verdant/P-004.png','assets/routes/verdant/P-005.png','assets/routes/verdant/P-006.png','assets/routes/verdant/P-007.png','assets/routes/verdant/P-008.png','assets/audio/studio-key-1.ogg','assets/audio/studio-key-2.ogg','assets/audio/studio-key-3.ogg','assets/audio/studio-key-4.ogg','assets/audio/studio-key-5.ogg','assets/audio/studio-enter.ogg',];
 
 
 self.addEventListener('install',e=>{
