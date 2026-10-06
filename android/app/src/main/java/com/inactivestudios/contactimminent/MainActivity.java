@@ -8,6 +8,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.getcapacitor.BridgeActivity;
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.ump.ConsentInformation;
 import com.google.android.ump.ConsentRequestParameters;
 import com.google.android.ump.UserMessagingPlatform;
@@ -18,6 +19,7 @@ public class MainActivity extends BridgeActivity {
 
     private ConsentInformation consentInformation;
     private static volatile boolean consentInitializationComplete = false;
+    private boolean mobileAdsInitialized = false;
 
     public static boolean isConsentInitializationComplete() {
         return consentInitializationComplete;
@@ -26,6 +28,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         registerPlugin(PrivacyChoicesPlugin.class);
+        registerPlugin(AdsPlugin.class);
         super.onCreate(savedInstanceState);
         enableImmersiveMode();
         initializeConsent();
@@ -72,6 +75,10 @@ public class MainActivity extends BridgeActivity {
                                     + consentInformation.getPrivacyOptionsRequirementStatus()
                     );
 
+                    if (consentInformation.canRequestAds()) {
+                        initializeMobileAds();
+                    }
+
                     UserMessagingPlatform.loadAndShowConsentFormIfRequired(
                             this,
                             formError -> {
@@ -95,6 +102,10 @@ public class MainActivity extends BridgeActivity {
                                     );
                                 }
 
+                                if (consentInformation.canRequestAds()) {
+                                    initializeMobileAds();
+                                }
+
                                 enableImmersiveMode();
                             }
                     );
@@ -109,7 +120,25 @@ public class MainActivity extends BridgeActivity {
                                     + " - "
                                     + requestConsentError.getMessage()
                     );
+
+                    if (consentInformation.canRequestAds()) {
+                        initializeMobileAds();
+                    }
                 }
+        );
+    }
+
+    private synchronized void initializeMobileAds() {
+        if (mobileAdsInitialized) {
+            return;
+        }
+
+        mobileAdsInitialized = true;
+
+        MobileAds.initialize(
+                this,
+                initializationStatus ->
+                        Log.d(TAG, "Google Mobile Ads SDK initialized.")
         );
     }
 
