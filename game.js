@@ -1171,7 +1171,43 @@ let planningSuppressClick=false;
 const planningMapEl=$('#planningMap');if(planningMapEl){planningMapEl.addEventListener('pointermove',e=>{if(globalPlanningDrag>=0){planningSuppressClick=true;movePlanningDrag(e);}});planningMapEl.addEventListener('click',e=>{if(planningSuppressClick){planningSuppressClick=false;return;}if(e.target.closest?.('.planning-vertex'))return;placeGlobalNAI(e);});}window.addEventListener('pointerup',()=>{endPlanningDrag();setTimeout(()=>{planningSuppressClick=false},0)});window.addEventListener('pointercancel',()=>{endPlanningDrag();planningSuppressClick=false});
 
 
-let settingsReturn='main';function openSettings(from){settingsReturn=from||'main';$('#settingsMenu').classList.remove('hidden');if(settingsReturn==='pause')$('#pauseMenu').classList.add('hidden');else $('#mainMenu').classList.add('hidden');applyAudioSettings();refreshDevAccessUI()}function closeSettings(){$('#settingsMenu').classList.add('hidden');if(settingsReturn==='pause')$('#pauseMenu').classList.remove('hidden');else $('#mainMenu').classList.remove('hidden')}[['musicSlider','music'],['uiSlider','ui'],['sfxSlider','sfx']].forEach(([id,k])=>{const el=$('#'+id);if(el)el.addEventListener('input',e=>setAudioLevel(k,e.target.value))});[['gridOpacitySlider','gridOpacity'],['gridWeightSlider','gridWeight']].forEach(([id,k])=>$('#'+id)?.addEventListener('input',e=>saveVisualSetting(k,e.target.value)));$('#gridColorSelect')?.addEventListener('change',e=>saveVisualSetting('gridColor',e.target.value));$('#isrColorSelect')?.addEventListener('change',e=>saveVisualSetting('isrColor',e.target.value));$('#isrSymbolSelect')?.addEventListener('change',e=>saveVisualSetting('isrSymbol',e.target.value));$('#settingsBtn').addEventListener('click',()=>openSettings('main'));$('#commandProfileBtn')?.addEventListener('click',openCommandProfile);$('#commandProfileBack')?.addEventListener('click',closeCommandProfile);document.querySelectorAll('[data-isr-capability]').forEach(b=>b.addEventListener('click',()=>setISRCapability(b.dataset.isrCapability)));$('#pauseSettingsBtn').addEventListener('click',()=>openSettings('pause'));$('#settingsBack').addEventListener('click',closeSettings);
+async function openPrivacyChoices(){
+  const status=$('#privacyChoicesStatus');
+
+  try{
+    const capacitor=window.Capacitor;
+    const plugin=capacitor?.Plugins?.PrivacyChoices;
+
+    if(!plugin){
+      if(status)status.textContent='PRIVACY OPTIONS AVAILABLE IN ANDROID APP';
+      return;
+    }
+
+    if(status)status.textContent='CHECKING PRIVACY OPTIONS...';
+
+    const result=await plugin.getStatus();
+
+    if(!result?.initialized){
+      if(status)status.textContent='PRIVACY OPTIONS INITIALIZING - TRY AGAIN SHORTLY';
+      return;
+    }
+
+    if(!result?.required){
+      if(status)status.textContent='NO ADDITIONAL PRIVACY OPTIONS REQUIRED';
+      return;
+    }
+
+    if(status)status.textContent='OPENING PRIVACY OPTIONS...';
+
+    await plugin.show();
+
+    if(status)status.textContent='PRIVACY CHOICES UPDATED';
+  }catch(e){
+    console.error('Privacy Choices error',e);
+    if(status)status.textContent='PRIVACY OPTIONS UNAVAILABLE';
+  }
+}
+let settingsReturn='main';function openSettings(from){settingsReturn=from||'main';$('#settingsMenu').classList.remove('hidden');if(settingsReturn==='pause')$('#pauseMenu').classList.add('hidden');else $('#mainMenu').classList.add('hidden');applyAudioSettings();refreshDevAccessUI()}function closeSettings(){$('#settingsMenu').classList.add('hidden');if(settingsReturn==='pause')$('#pauseMenu').classList.remove('hidden');else $('#mainMenu').classList.remove('hidden')}[['musicSlider','music'],['uiSlider','ui'],['sfxSlider','sfx']].forEach(([id,k])=>{const el=$('#'+id);if(el)el.addEventListener('input',e=>setAudioLevel(k,e.target.value))});[['gridOpacitySlider','gridOpacity'],['gridWeightSlider','gridWeight']].forEach(([id,k])=>$('#'+id)?.addEventListener('input',e=>saveVisualSetting(k,e.target.value)));$('#gridColorSelect')?.addEventListener('change',e=>saveVisualSetting('gridColor',e.target.value));$('#isrColorSelect')?.addEventListener('change',e=>saveVisualSetting('isrColor',e.target.value));$('#isrSymbolSelect')?.addEventListener('change',e=>saveVisualSetting('isrSymbol',e.target.value));$('#privacyChoicesBtn')?.addEventListener('click',openPrivacyChoices);$('#settingsBtn').addEventListener('click',()=>openSettings('main'));$('#commandProfileBtn')?.addEventListener('click',openCommandProfile);$('#commandProfileBack')?.addEventListener('click',closeCommandProfile);document.querySelectorAll('[data-isr-capability]').forEach(b=>b.addEventListener('click',()=>setISRCapability(b.dataset.isrCapability)));$('#pauseSettingsBtn').addEventListener('click',()=>openSettings('pause'));$('#settingsBack').addEventListener('click',closeSettings);
 $('#devAccessUnlock')?.addEventListener('click',unlockDevAccess);
 $('#devAccessCode')?.addEventListener('keydown',e=>{if(e.key==='Enter')unlockDevAccess()});
 $('#devModeOn')?.addEventListener('click',()=>setDevMode(true));
