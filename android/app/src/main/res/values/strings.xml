@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Contact Imminent</string>
+    <string name="title_activity_main">Contact Imminent</string>
+    <string name="package_name">com.inactivestudios.contactimminent</string>
+    <string name="custom_url_scheme">com.inactivestudios.contactimminent</string>
+</resources>

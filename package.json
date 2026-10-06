@@ -1,0 +1,29 @@
+{
+  "name": "contact-imminent",
+  "version": "1.0.0",
+  "description": "",
+  "main": "game.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "stage:android": "node scripts/stage-android.cjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tarren-evans/contact-imminent.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/tarren-evans/contact-imminent/issues"
+  },
+  "homepage": "https://github.com/tarren-evans/contact-imminent#readme",
+  "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/core": "^8.5.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.2"
+  }
+}
