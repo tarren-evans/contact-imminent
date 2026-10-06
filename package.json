@@ -5,7 +5,8 @@
   "main": "game.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "stage:android": "node scripts/stage-android.cjs"
+    "stage:android": "node scripts/stage-android.cjs",
+    "android:sync": "npm run stage:android && npx cap sync android"
   },
   "repository": {
     "type": "git",
