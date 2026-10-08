@@ -1178,6 +1178,29 @@ button:not(:disabled):active{transform:translateY(1px)}
 }
 
 
+/* GLOBAL OA CLASSIFICATION // encrypted signal interference */
+#globalMenu .globe-oa-marker.oa-classified .oa-callout-text{
+    color:#d94b4b!important;
+    text-shadow:0 0 3px rgba(217,75,75,.30)!important;
+}
+
+#globalMenu .globe-oa-marker.oa-classified.oa-scrambling .oa-callout-text{
+    color:#ff7770!important;
+    text-shadow:
+        -2px 0 #7a151b,
+         2px 0 #ff9a66,
+         0 0 5px rgba(255,62,62,.65)!important;
+    animation:ciClassifiedScramble 120ms steps(2,end) infinite!important;
+    will-change:transform;
+}
+
+@keyframes ciClassifiedScramble{
+    0%   {transform:translate(0,0);filter:contrast(1)}
+    25%  {transform:translate(-1px,0);filter:contrast(1.5)}
+    50%  {transform:translate(2px,-1px);filter:contrast(2)}
+    75%  {transform:translate(-1px,1px);filter:contrast(1.4)}
+    100% {transform:translate(0,0);filter:contrast(1)}
+}
 /* v0.11.6.138 // STATIC DEEP SPACE + MOBILE UI REFINEMENT */
 #globalMenu .orbital-scene{
   background:#010307 url('assets/maps/global-deep-space.png') center center/cover no-repeat!important;
@@ -2353,4 +2376,36 @@ body.studio-title-glitch-in #mainMenu::after{background:linear-gradient(90deg,tr
     margin-top:8px!important;
     font-size:8px!important;
   }
+}
+
+/* COMMAND HOME // classified operational-area directory */
+.command-worldline [data-home-oa].oa-classified{
+    color:#d94b4b!important;
+    text-shadow:0 0 3px rgba(217,75,75,.30)!important;
+}
+
+.command-worldline [data-home-oa].oa-classified.oa-scrambling{
+    color:#ff7770!important;
+    text-shadow:
+        -2px 0 #7a151b,
+         2px 0 #ff9a66,
+         0 0 5px rgba(255,62,62,.65)!important;
+    animation:ciHomeClassifiedScramble 120ms steps(2,end) infinite!important;
+    will-change:transform;
+}
+
+@keyframes ciHomeClassifiedScramble{
+    0%   {transform:translate(0,0);filter:contrast(1)}
+    25%  {transform:translate(-1px,0);filter:contrast(1.5)}
+    50%  {transform:translate(2px,-1px);filter:contrast(2)}
+    75%  {transform:translate(-1px,1px);filter:contrast(1.4)}
+    100% {transform:translate(0,0);filter:contrast(1)}
+}
+
+@media(prefers-reduced-motion:reduce){
+    .command-worldline [data-home-oa].oa-classified.oa-scrambling{
+        animation:none!important;
+        transform:none!important;
+        filter:none!important;
+    }
 }

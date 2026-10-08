@@ -144,7 +144,7 @@ function unlockDevAccess(){
 function setDevMode(on){
  if(!devAccessUnlocked)return;
  devMode=!!on;localStorage.setItem(DEV_MODE_KEY,devMode?'1':'0');
- refreshDevAccessState();cpNotice('DEVELOPER MODE',devMode?'PROGRESSION LOCKS BYPASSED':'STANDARD ACCESS RESTORED','intel');sound('click');
+ refreshDevAccessState();refreshGlobalOAStatus();if(globalSelectedOA&&document.querySelector('#globalMenu:not(.hidden)'))selectGlobalOA(globalSelectedOA);cpNotice('DEVELOPER MODE',devMode?'PROGRESSION LOCKS BYPASSED':'STANDARD ACCESS RESTORED','intel');sound('click');
 }
 const ISR_CAPABILITY_KEY='ci-isr-capability';let isrCapability=localStorage.getItem(ISR_CAPABILITY_KEY)||'STANDARD';
 function isrCapabilityUnlocked(k){if(k==='STANDARD')return true;if(k==='WIDE')return localStorage.getItem('ci-c01-complete')==='1';if(k==='RAPID')return localStorage.getItem('ci-c02-complete')==='1';return false}
@@ -1074,7 +1074,7 @@ function cpVerdantHexAspect(){
 window.ciVerdantHexAspect=cpVerdantHexAspect;
 window.addEventListener('resize',()=>requestAnimationFrame(cpVerdantHexAspect),{passive:true});
 window.visualViewport?.addEventListener('resize',()=>requestAnimationFrame(cpVerdantHexAspect),{passive:true});
-function cpSetOAVisual(oa){const w=$('#mapWrap'),brand=document.querySelector('.brand-block small'),map=$('#map');if(!w)return;const retroDisplay=oa==='RETRO';activeOA=['VANTAGE','VERDANT','MIRAGE','TEMPEST','ARCTIC'].includes(oa)?oa:'KESTREL';['vantage','verdant','mirage','tempest'].forEach(k=>w.classList.toggle('oa-'+k,activeOA===k.toUpperCase()));if(map)map.setAttribute('preserveAspectRatio',activeOA==='VERDANT'?'none':'xMidYMid meet');if(brand)brand.textContent=retroDisplay?'v0.11.6.138 // OA RETRO // BLANK CANVAS // RETRO CONTACT IMMINENT':'v0.11.6.138 // OA '+activeOA+' // GEOMETRIC GRID';initBlue();if(activeOA!=='MIRAGE'){if($('#mirageSites'))$('#mirageSites').textContent='';if($('#mirageTraffic'))$('#mirageTraffic').textContent='';if($('#miragePopulation'))$('#miragePopulation').textContent='';}cpVerdantRaster();cpRenderStrategicPriorityNAI();cpRenderVerdantRoutes();requestAnimationFrame(()=>{window.ciPhysicalPhoneMapFit?.();cpVerdantHexAspect();requestAnimationFrame(()=>{window.ciPhysicalPhoneMapFit?.();cpVerdantHexAspect()})});}
+function cpSetOAVisual(oa){const w=$('#mapWrap'),brand=document.querySelector('.brand-block small'),map=$('#map');if(!w)return;const retroDisplay=oa==='RETRO';activeOA=['VANTAGE','VERDANT','MIRAGE','TEMPEST','ARCTIC'].includes(oa)?oa:'KESTREL';['vantage','verdant','mirage','tempest','arctic'].forEach(k=>w.classList.toggle('oa-'+k,activeOA===k.toUpperCase()));if(map)map.setAttribute('preserveAspectRatio',activeOA==='VERDANT'?'none':'xMidYMid meet');if(brand)brand.textContent=retroDisplay?'v0.11.6.138 // OA RETRO // BLANK CANVAS // RETRO CONTACT IMMINENT':'v0.11.6.138 // OA '+activeOA+' // GEOMETRIC GRID';initBlue();if(activeOA!=='MIRAGE'){if($('#mirageSites'))$('#mirageSites').textContent='';if($('#mirageTraffic'))$('#mirageTraffic').textContent='';if($('#miragePopulation'))$('#miragePopulation').textContent='';}cpVerdantRaster();cpRenderStrategicPriorityNAI();cpRenderVerdantRoutes();requestAnimationFrame(()=>{window.ciPhysicalPhoneMapFit?.();cpVerdantHexAspect();requestAnimationFrame(()=>{window.ciPhysicalPhoneMapFit?.();cpVerdantHexAspect()})});}
 
 
 function cpRefreshVerdant(){for(let n=1;n<=5;n++){const id='03-0'+n,st=$('#mission03'+String(n).padStart(2,'0')+'Status');if(st)st.textContent=localStorage.getItem('ci-c03-0'+n+'-complete')==='1'?'COMPLETE // REPLAY':'AVAILABLE';}}
@@ -1338,10 +1338,22 @@ function tutorialBeginNow(){musicSetMode('mission');campaignMission='TUTORIAL';c
 function tutorialAdvance(event){if(campaignMission!=='TUTORIAL')return;if(tutorialStep===1&&event==='acquire')tutorialGuide(2,'2 // MOVE ISR-01','Tap near the UNKNOWN to order ISR-01. Put the contact inside the collection footprint.');else if(tutorialStep===2&&event==='order')tutorialGuide(3,'3 // COLLECT','Select the UNKNOWN and press COLLECT. Complete collection to identify it.');else if(tutorialStep===3&&event==='classified')tutorialGuide(4,'4 // DISPOSITION','This contact is FRIENDLY. Press CLEAR. Threats are INTERCEPTED.');else if(tutorialStep===4&&event==='decision'){intelDropActive=true;intelDropOffered=true;intelDropExpires=performance.now()+3600000;$('#intelDrop').classList.remove('hidden');tutorialGuide(5,'5 // INTEL REPORTING','Use all three report options: MITIGATE, EXPLOIT and SUPPLY. The panel will remain available until each has been demonstrated.');}else if(tutorialStep===5&&event==='intel'){if(tutorialIntelSeen.size<3){intelDropActive=true;intelDropExpires=performance.now()+3600000;$('#intelDrop').classList.remove('hidden');tutorialGuide(5,'5 // INTEL REPORTING',`Reporting demonstrated ${tutorialIntelSeen.size}/3. Use the remaining MITIGATE, EXPLOIT or SUPPLY option.`);}else{intelDropActive=false;$('#intelDrop').classList.add('hidden');passiveCredits=9999;tutorialGuide(6,'6 // PASSIVE ISR','Deploy one Passive ISR node from the right rail, then place it on the map.');ui(true)}}else if(tutorialStep===6&&event==='passive'){tutorialGuide(7,'7 // BUILD AN NAI','Deploy two more nodes near the first. Three nodes within four hexes must form an NAI.');}else if(tutorialStep===7&&event==='nai'){for(const pos of [[760,500],[720,155],[190,520]]){spawn(false);const q=T[T.length-1];if(q){q.type='UNKNOWN';q.truth='HOSTILE';q.x=pos[0];q.y=pos[1];q.vx=0;q.vy=0;}}tutorialGuide(8,'8 // EWO SWEEP','Buy EWO SWEEP, then select an origin on the map and fire the radial collection wave. Three training UNKNOWNs have been added for the sweep.');ui(true);}else if(tutorialStep===8&&event==='ewo'){supplyPackages=1;trainingPrime();tutorialGuide(9,'9 // BLUFOR SUPPLY','Two BLUFOR sites are degraded in red. Activate SUPPLY, then select a red base directly on the map.');ui(true)}else if(tutorialStep===9&&event==='supply-target'){tutorialGuide(10,'10 // RECONSTITUTION','Repair is underway. Watch the site exposure fall and wait for the site to return blue/OPERATIONAL.');}else if(tutorialStep===10&&event==='repair-complete'){tutorialGuide(11,'11 // SUPPORT ECONOMY','Normal play earns ISR Credits from correct decisions and interrupted collection. Passive ISR is persistent; EWO is a repeatable tactical purchase.',true)} }
 function tutorialSupportNext(){if(campaignMission!=='TUTORIAL')return;if(tutorialStep===11){tutorialGuide(12,'TRAINING COMPLETE','Core command, collection, reporting, Passive ISR, NAI, EWO and BLUFOR reconstitution complete.',true)}else if(tutorialStep>=12){clearTutorialState();cpShowMenu()}}
 function arcadeHide(){const a=$('#arcadeBriefing'),r=$('#arcadeResult');if(a)a.classList.add('hidden');if(r)r.classList.add('hidden')}
-function arcadeOAAllowed(){return ['KESTREL','VANTAGE',...((devAccessActive()||localStorage.getItem('ci-c03-05-complete')==='1')?['VERDANT']:[]),...((devAccessActive()||localStorage.getItem('ci-c04-05-complete')==='1')?['MIRAGE']:[])]}
-function setArcadeOA(oa){const allowed=arcadeOAAllowed();arcadeOA=allowed.includes(oa)?oa:'KESTREL';localStorage.setItem(ARCADE_OA_KEY,arcadeOA);document.querySelectorAll('[data-arcade-oa]').forEach(b=>{const unlocked=allowed.includes(b.dataset.arcadeOa);b.hidden=!unlocked;b.disabled=!unlocked;b.classList.toggle('selected',b.dataset.arcadeOa===arcadeOA)});let l=$('#arcadeOALabel');if(l)l.textContent=arcadeOA;const k=$('#arcadeOAKicker');if(k)k.textContent='ARCADE // OA '+arcadeOA}
-function arcadeBegin(){missionTransition('ARCADE // OA '+arcadeOA,'ENDLESS OPERATION // LOADING',arcadeBeginNow)}
-function arcadeBeginNow(){musicSetMode('mission');cpSetOAVisual(arcadeOA);campaignMission='ARCADE';campaignIds=0;campaignCorrect=0;campaignThreatResolved=0;campaignNonThreatResolved=0;campaignCollectionInterrupted=0;campaignCompromise=0;campaignFinished=false;arcadeStreak=0;arcadeBestStreak=0;arcadeCorrect=0;arcadeWrong=0;arcadeThreatLevel=1;cpIntelDropReset();arcadeHide();cpHideCampaignOverlays();window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();arcadeStart=performance.now();last=performance.now()}
+function arcadeOAAllowed(){
+    const requirements={
+        KESTREL:'ci-c01-complete',
+        VANTAGE:'ci-c02-complete',
+        VERDANT:'ci-c03-05-complete',
+        MIRAGE:'ci-c04-05-complete',
+        TEMPEST:'ci-c05-05-complete',
+        ARCTIC:'ci-c06-05-complete'
+    };
+    return Object.keys(requirements).filter(oa=>
+        devAccessActive()||localStorage.getItem(requirements[oa])==='1'
+    );
+}
+function setArcadeOA(oa){const allowed=arcadeOAAllowed();arcadeOA=allowed.includes(oa)?oa:(allowed[0]||'KESTREL');localStorage.setItem(ARCADE_OA_KEY,arcadeOA);document.querySelectorAll('[data-arcade-oa]').forEach(b=>{const unlocked=allowed.includes(b.dataset.arcadeOa);b.hidden=!unlocked;b.disabled=!unlocked;b.classList.toggle('selected',b.dataset.arcadeOa===arcadeOA)});let l=$('#arcadeOALabel');if(l)l.textContent=arcadeOA;const k=$('#arcadeOAKicker');if(k)k.textContent='ARCADE // OA '+arcadeOA}
+function arcadeBegin(){if(!arcadeOAAllowed().includes(arcadeOA))return;missionTransition('ARCADE // OA '+arcadeOA,'ENDLESS OPERATION // LOADING',arcadeBeginNow)}
+function arcadeBeginNow(){if(!arcadeOAAllowed().includes(arcadeOA))return;musicSetMode('mission');cpSetOAVisual(arcadeOA);campaignMission='ARCADE';campaignIds=0;campaignCorrect=0;campaignThreatResolved=0;campaignNonThreatResolved=0;campaignCollectionInterrupted=0;campaignCompromise=0;campaignFinished=false;arcadeStreak=0;arcadeBestStreak=0;arcadeCorrect=0;arcadeWrong=0;arcadeThreatLevel=1;cpIntelDropReset();arcadeHide();cpHideCampaignOverlays();window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();arcadeStart=performance.now();last=performance.now()}
 function arcadeFinish(reason){if(campaignMission!=='ARCADE'||campaignFinished)return;campaignFinished=true;playAsset(missionFailAudio,.95,'sfx');banner('ARCADE FAILURE // '+reason,2600);running=false;stopCollect();window.CP_MENU=true;const w=$('#hostileCollectionWarning');if(w)w.classList.add('hidden');const elapsed=Math.max(0,Math.floor((performance.now()-(arcadeStart||start))/1000)),acc=(arcadeCorrect+arcadeWrong)?Math.round(arcadeCorrect*100/(arcadeCorrect+arcadeWrong)):100;$('#arcadeResultTitle').textContent=reason;$('#arcadeResultBody').innerHTML='OA '+activeOA+' // ARCADE AAR<br><br>SCORE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+Math.max(0,Math.round(score))+'<br>SURVIVAL TIME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+String(Math.floor(elapsed/60)).padStart(2,'0')+':'+String(elapsed%60).padStart(2,'0')+'<br>THREAT LEVEL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+arcadeThreatLevel+'<br>CONTACTS RESOLVED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+resolved+'<br>THREATS INTERCEPTED&nbsp;&nbsp;&nbsp;&nbsp;'+ints+'<br>COLLECTION INTERRUPTED&nbsp;&nbsp;'+campaignCollectionInterrupted+'<br>DECISION ACCURACY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+acc+'%<br>LONGEST STREAK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+arcadeBestStreak+'<br>SITES DEGRADED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+cpDegradedCount()+' / 5<br>FINAL OE COMPROMISE&nbsp;&nbsp;&nbsp;&nbsp;'+Math.round(campaignCompromise)+'%';$('#arcadeResult').classList.remove('hidden');$('#arcadeResult').classList.add('loss-flash')}
 function arcadeMenu(){clearTutorialState();musicSetMode('menu');setArcadeOA(arcadeOA);cpHideCampaignOverlays();$('#mainMenu').classList.add('hidden');$('#arcadeResult').classList.add('hidden');$('#arcadeBriefing').classList.remove('hidden');refreshArcadeIntelAssist();window.CP_MENU=true}
 function cpShowMenu(){
@@ -1384,9 +1396,92 @@ function closeCommandProfile(){$('#commandProfileMenu').classList.add('hidden');
 // v0.10.0 // GLOBAL FOUNDATION PROTOTYPE
 let globalSelectedOA=null;
 const GLOBAL_OA={KESTREL:'MOUNTAIN-COAST // FOUNDATION',VANTAGE:'URBAN-INDUSTRIAL // NETWORK',VERDANT:'TROPICAL RIVER-COAST // PREVIEW',MIRAGE:'ARID ROUTE-LOGISTICS // PREVIEW',TEMPEST:'MARITIME ARCHIPELAGO // PREVIEW',ARCTIC:'POLARIS // POLAR ARCHIPELAGO / ICE / MOUNTAIN CORRIDORS',RETRO:'LEGACY SIMULATION // CONTACT IMMINENT // NO TERRAIN'};
-function openGlobal(){window.CP_MENU=true;document.body.classList.remove('retro-mode');$('#objectiveTracker')?.classList.remove('retro-objectives-hidden');globalSelectedOA=null;$('#mainMenu').classList.add('hidden');$('#globalMenu').classList.remove('hidden');document.querySelectorAll('[data-global-oa]').forEach(b=>b.classList.remove('selected'));$('#globalOAName').textContent='NO OA SELECTED';$('#globalOADetail').textContent='Select an operational-area marker on the globe to inspect the regional picture.';$('#globalCampaign').style.display='';$('#globalArcade').style.display='';$('#globalTraining').style.display='';$('#globalPlanNAI').style.display='';$('#globalCampaign').disabled=true;$('#globalArcade').disabled=true;$('#globalTraining').disabled=true;$('#globalPlanNAI').disabled=true;}
+/* GLOBAL OA IDENTITY CLASSIFICATION
+   Display-only progression; existing activity unlocks remain unchanged. */
+function globalOAIdentityRevealed(oa){
+    if(oa==='KESTREL'||oa==='RETRO'||devAccessActive())return true;
+    const prerequisites={
+        VANTAGE:'ci-c01-complete',
+        VERDANT:'ci-c02-complete',
+        MIRAGE:'ci-c03-05-complete',
+        TEMPEST:'ci-c04-05-complete',
+        ARCTIC:'ci-c05-05-complete'
+    };
+    return !!prerequisites[oa]&&localStorage.getItem(prerequisites[oa])==='1';
+}
+function globalOADisplayName(oa){
+    return globalOAIdentityRevealed(oa)
+        ?(oa==='ARCTIC'?'POLARIS':oa)
+        :'[REDACTED]';
+}
+/* GLOBAL PICTURE // dynamic intelligence classification status */
+/* COMMAND HOME // independent classified-signal interference */
+const homeOAScrambleState={};
+function homeOAScrambledName(oa,now){
+    if(globalOAIdentityRevealed(oa)){
+        delete homeOAScrambleState[oa];
+        return globalOADisplayName(oa);
+    }
+    let s=homeOAScrambleState[oa];
+    if(!s){
+        s={next:now+4000+Math.random()*5000,end:0,frame:0};
+        homeOAScrambleState[oa]=s;
+    }
+    if(now>=s.next){
+        s.end=now+300+Math.random()*300;
+        s.frame=Math.floor(Math.random()*GLOBAL_OA_SCRAMBLE_FRAMES.length);
+        s.next=s.end+4000+Math.random()*5000;
+    }
+    if(now<s.end)return GLOBAL_OA_SCRAMBLE_FRAMES[s.frame];
+    return '[REDACTED]';
+}
+
+/* COMMAND HOME // campaign-aware operational-area classification */
+function refreshHomeOAClassification(now=performance.now()){
+    const names={
+        KESTREL:'KESTREL',
+        VANTAGE:'VANTAGE',
+        VERDANT:'VERDANT',
+        MIRAGE:'MIRAGE',
+        TEMPEST:'TEMPEST',
+        ARCTIC:'POLARIS'
+    };
+    const numbers={
+        KESTREL:'01',
+        VANTAGE:'02',
+        VERDANT:'03',
+        MIRAGE:'04',
+        TEMPEST:'05',
+        ARCTIC:'06'
+    };
+    document.querySelectorAll('[data-home-oa]').forEach(el=>{
+        const oa=el.getAttribute('data-home-oa');
+        if(!Object.prototype.hasOwnProperty.call(names,oa))return;
+        const classified=!globalOAIdentityRevealed(oa);
+        const label=classified?homeOAScrambledName(oa,now):names[oa];
+        const expected='OA '+numbers[oa]+' // '+label;
+        if(el.textContent!==expected)el.textContent=expected;
+        el.classList.toggle('oa-classified',classified);
+        el.classList.toggle(
+            'oa-scrambling',
+            classified&&label.includes('[')&&!label.includes('[REDACTED]')
+        );
+    });
+}
+function refreshGlobalOAStatus(){
+    const el=document.getElementById('globalOAStatus');
+    if(!el)return;
+    const areas=['KESTREL','VANTAGE','VERDANT','MIRAGE','TEMPEST','ARCTIC'];
+    const confirmed=areas.filter(oa=>globalOAIdentityRevealed(oa)).length;
+    const classified=areas.length-confirmed;
+    el.textContent=String(confirmed).padStart(2,'0')+
+        ' CONFIRMED / '+
+        String(classified).padStart(2,'0')+
+        ' CLASSIFIED';
+}
+function openGlobal(){refreshGlobalOAStatus();window.CP_MENU=true;document.body.classList.remove('retro-mode');$('#objectiveTracker')?.classList.remove('retro-objectives-hidden');globalSelectedOA=null;$('#mainMenu').classList.add('hidden');$('#globalMenu').classList.remove('hidden');document.querySelectorAll('[data-global-oa]').forEach(b=>b.classList.remove('selected'));$('#globalOAName').textContent='NO OA SELECTED';$('#globalOADetail').textContent='Select an operational-area marker on the globe to inspect the regional picture.';$('#globalCampaign').style.display='';$('#globalArcade').style.display='';$('#globalTraining').style.display='';$('#globalPlanNAI').style.display='';$('#globalCampaign').disabled=true;$('#globalArcade').disabled=true;$('#globalTraining').disabled=true;$('#globalPlanNAI').disabled=true;}
 function closeGlobal(){$('#globalMenu').classList.add('hidden');$('#mainMenu').classList.remove('hidden');rotateCommandBackground();}
-function selectGlobalOA(oa){globalSelectedOA=oa;document.querySelectorAll('[data-global-oa]').forEach(b=>b.classList.toggle('selected',b.dataset.globalOa===oa));const num=GLOBAL_OA_NUM[oa]||'--';$('#globalOAName').textContent=oa==='RETRO'?'R0 // RETRO STATION // CONTACT IMMINENT':'OA '+num+' // '+(oa==='ARCTIC'?'POLARIS':oa);$('#globalOADetail').textContent=(GLOBAL_OA[oa]||oa)+' // REGIONAL PICTURE AVAILABLE';const retro=oa==='RETRO',campaignReady=['KESTREL','VANTAGE'].includes(oa)||(devAccessActive()&&['VERDANT','MIRAGE','TEMPEST','ARCTIC'].includes(oa)),arcadeReady=oa==='RETRO'||arcadeOAAllowed().includes(oa);$('#globalCampaign').style.display=retro?'none':'';$('#globalTraining').style.display=retro?'none':'';$('#globalPlanNAI').style.display=retro?'none':'';$('#globalPlanNAI').classList.toggle('hidden',retro);$('#globalArcade').style.display='';$('#globalCampaign').disabled=!campaignReady;$('#globalArcade').disabled=!arcadeReady;$('#globalTraining').disabled=false;$('#globalPlanNAI').disabled=retro;refreshGlobalTaskingDetail(oa);}
+function selectGlobalOA(oa){globalSelectedOA=oa;document.querySelectorAll('[data-global-oa]').forEach(b=>b.classList.toggle('selected',b.dataset.globalOa===oa));const num=GLOBAL_OA_NUM[oa]||'--';$('#globalOAName').textContent=oa==='RETRO'?'R0 // RETRO STATION // CONTACT IMMINENT':'OA '+num+' // '+globalOADisplayName(oa);$('#globalOADetail').textContent=globalOAIdentityRevealed(oa)?(GLOBAL_OA[oa]||oa)+' // REGIONAL PICTURE AVAILABLE':'REGIONAL INTELLIGENCE // CLASSIFIED';const retro=oa==='RETRO',campaignReady=oa==='KESTREL'||(oa==='VANTAGE'&&globalOAIdentityRevealed(oa))||(devAccessActive()&&['VERDANT','MIRAGE','TEMPEST','ARCTIC'].includes(oa)),arcadeReady=oa==='RETRO'||arcadeOAAllowed().includes(oa);$('#globalCampaign').style.display=retro?'none':'';$('#globalTraining').style.display=retro?'none':'';$('#globalPlanNAI').style.display=retro?'none':'';$('#globalPlanNAI').classList.toggle('hidden',retro);$('#globalArcade').style.display='';$('#globalCampaign').disabled=!campaignReady;$('#globalArcade').disabled=!arcadeReady;$('#globalTraining').disabled=false;$('#globalPlanNAI').disabled=retro;refreshGlobalTaskingDetail(oa);}
 
 let globalActivityContext=false;
 function cpRetroGrid(){const g=$('#retroGrid');if(!g)return;g.textContent='';const ns='http://www.w3.org/2000/svg';for(let x=45;x<900;x+=45){let l=document.createElementNS(ns,'line');l.setAttribute('x1',x);l.setAttribute('y1','0');l.setAttribute('x2',x);l.setAttribute('y2','650');l.setAttribute('class',x%225===0?'retro-major':'retro-minor');g.appendChild(l)}for(let y=45;y<650;y+=45){let l=document.createElementNS(ns,'line');l.setAttribute('x1','0');l.setAttribute('y1',y);l.setAttribute('x2','900');l.setAttribute('y2',y);l.setAttribute('class',y%225===0?'retro-major':'retro-minor');g.appendChild(l)}}
@@ -1427,7 +1522,7 @@ function globalUfoVisibility(now){
 }
 let globalGlobe={yaw:-18,pitch:0,zoom:1,drag:false,pointer:null,lastX:0,lastY:0,moved:false,lastT:performance.now(),orbitT:0};
 function globeRad(d){return d*Math.PI/180} function globeVec(lat,lon){const a=globeRad(lat),o=globeRad(lon);return{x:Math.cos(a)*Math.sin(o),y:-Math.sin(a),z:Math.cos(a)*Math.cos(o)}} function globeRotate(v){let y=globeRad(globalGlobe.yaw),p=globeRad(globalGlobe.pitch),cy=Math.cos(y),sy=Math.sin(y),cp=Math.cos(p),sp=Math.sin(p),x=v.x*cy+v.z*sy,z=-v.x*sy+v.z*cy;return{x,y:v.y*cp-z*sp,z:v.y*sp+z*cp}} function globeProject(lat,lon,cx,cy,r){const q=globeRotate(globeVec(lat,lon));return{x:cx+q.x*r,y:cy+q.y*r,z:q.z}}
-function initGlobalGlobe(){const c=$('#globalGlobeCanvas'),ov=$('#globalGlobeOverlay');if(!c||!ov||c.dataset.ready)return;c.dataset.ready='1';Object.keys(GLOBAL_OA_GEO).forEach(oa=>{const b=document.createElement('button');b.className='globe-oa-marker';b.dataset.oa=oa;b.innerHTML='<i class="oa-anchor"></i><svg class="oa-leader-svg" viewBox="0 0 96 28" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,14 30,2 96,2"/></svg><span class="oa-callout-text">'+GLOBAL_OA_NUM[oa]+' '+(oa==='ARCTIC'?'POLARIS':oa)+'</span>';let markerGesture=null;
+function initGlobalGlobe(){const c=$('#globalGlobeCanvas'),ov=$('#globalGlobeOverlay');if(!c||!ov||c.dataset.ready)return;c.dataset.ready='1';Object.keys(GLOBAL_OA_GEO).forEach(oa=>{const b=document.createElement('button');b.className='globe-oa-marker';b.dataset.oa=oa;b.innerHTML='<i class="oa-anchor"></i><svg class="oa-leader-svg" viewBox="0 0 96 28" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,14 30,2 96,2"/></svg><span class="oa-callout-text">'+GLOBAL_OA_NUM[oa]+' '+globalOADisplayName(oa)+'</span>';let markerGesture=null;
 b.addEventListener('pointerdown',e=>{
     if(e.button!==0)return;
     markerGesture={id:e.pointerId,x:e.clientX,y:e.clientY,lastX:e.clientX,lastY:e.clientY,moved:false};
@@ -1478,11 +1573,45 @@ const GLOBAL_EARTH_TEXTURE_SRC='assets/maps/global-notional-earth-surface.jpg';
 let globalSurfaceGL=null;
 function initGlobalSurfaceGL(){if(globalSurfaceGL)return globalSurfaceGL;const c=$('#globalSurfaceCanvas');if(!c)return null;const gl=c.getContext('webgl',{alpha:true,antialias:true,premultipliedAlpha:false});if(!gl)return null;const vs=`attribute vec3 aPos;attribute vec2 aUV;uniform float uYaw;uniform float uPitch;uniform float uScale;varying vec2 vUV;varying float vZ;void main(){float cy=cos(uYaw),sy=sin(uYaw),cp=cos(uPitch),sp=sin(uPitch);vec3 q=vec3(aPos.x*cy+aPos.z*sy,aPos.y,-aPos.x*sy+aPos.z*cy);q=vec3(q.x,q.y*cp+q.z*sp,-q.y*sp+q.z*cp);vUV=aUV;vZ=q.z;gl_Position=vec4(q.x*uScale,q.y*uScale,-q.z*.5,1.0);}`;const fs=`precision mediump float;uniform sampler2D uTex;varying vec2 vUV;varying float vZ;void main(){if(vZ<-0.002)discard;vec4 c=texture2D(uTex,vUV);gl_FragColor=vec4(c.rgb,1.0);}`;function sh(type,src){const x=gl.createShader(type);gl.shaderSource(x,src);gl.compileShader(x);return x}const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,vs));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(pr);const verts=[],idx=[],latN=64,lonN=128;for(let iy=0;iy<=latN;iy++){const lat=Math.PI/2-iy*Math.PI/latN,cl=Math.cos(lat),yy=-Math.sin(lat);for(let ix=0;ix<=lonN;ix++){const lon=-Math.PI+ix*Math.PI*2/lonN;verts.push(cl*Math.sin(lon),yy,cl*Math.cos(lon),ix/lonN,iy/latN)}}for(let iy=0;iy<latN;iy++)for(let ix=0;ix<lonN;ix++){let p=iy*(lonN+1)+ix,q=p+lonN+1;idx.push(p,q,p+1,p+1,q,q+1)}const vb=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,vb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(verts),gl.STATIC_DRAW);const ib=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(idx),gl.STATIC_DRAW);const tex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tex);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);const img=new Image();img.onload=()=>{gl.bindTexture(gl.TEXTURE_2D,tex);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,0);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,img);globalSurfaceGL.ready=true};img.src=GLOBAL_EARTH_TEXTURE_SRC;globalSurfaceGL={c,gl,pr,vb,ib,tex,count:idx.length,ready:false};return globalSurfaceGL}
 function drawGlobalSurfaceGL(W,H,r){const o=initGlobalSurfaceGL();if(!o)return;const {c,gl,pr,vb,ib,tex}=o;if(c.width!==W||c.height!==H){c.width=W;c.height=H}gl.viewport(0,0,W,H);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);if(!o.ready)return;gl.useProgram(pr);gl.bindBuffer(gl.ARRAY_BUFFER,vb);const ap=gl.getAttribLocation(pr,'aPos'),au=gl.getAttribLocation(pr,'aUV');gl.enableVertexAttribArray(ap);gl.vertexAttribPointer(ap,3,gl.FLOAT,false,20,0);gl.enableVertexAttribArray(au);gl.vertexAttribPointer(au,2,gl.FLOAT,false,20,12);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib);gl.uniform1f(gl.getUniformLocation(pr,'uYaw'),globeRad(globalGlobe.yaw));gl.uniform1f(gl.getUniformLocation(pr,'uPitch'),globeRad(globalGlobe.pitch));gl.uniform1f(gl.getUniformLocation(pr,'uScale'),r/(Math.min(W,H)/2));gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tex);gl.uniform1i(gl.getUniformLocation(pr,'uTex'),0);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.drawElements(gl.TRIANGLES,o.count,gl.UNSIGNED_SHORT,0)}
+/* Classified OA label interference: visual-only, independent per OA. */
+const globalOAScrambleState={};
+const GLOBAL_OA_SCRAMBLE_FRAMES=[
+    '[01011010]',
+    '[R3D@CT3D]',
+    '[????1101]',
+    '[X0R-7F2A]',
+    '[1010?011]'
+];
+function globalOAScrambledName(oa,now){
+    if(globalOAIdentityRevealed(oa)){
+        delete globalOAScrambleState[oa];
+        return globalOADisplayName(oa);
+    }
+    let s=globalOAScrambleState[oa];
+    if(!s){
+        s={next:now+4000+Math.random()*5000,end:0,frame:0};
+        globalOAScrambleState[oa]=s;
+    }
+    if(now>=s.next){
+        s.end=now+300+Math.random()*300;
+        s.frame=Math.floor(Math.random()*GLOBAL_OA_SCRAMBLE_FRAMES.length);
+        s.next=s.end+4000+Math.random()*5000;
+    }
+    if(now<s.end)return GLOBAL_OA_SCRAMBLE_FRAMES[s.frame];
+    return '[REDACTED]';
+}
 function drawGlobalGlobe(now){drawGlobalSpace(now);const c=$('#globalGlobeCanvas'),wrap=$('#globalEarthWrap'),ov=$('#globalGlobeOverlay');if(!c||!wrap||!ov)return;initGlobalGlobe();const rect=wrap.getBoundingClientRect(),dpr=GLOBAL_RENDER_DPR,logical=Math.max(2,Math.round(Math.min(rect.width,rect.height)*dpr)),pad=1.72,W=Math.round(logical*pad),H=Math.round(logical*pad);if(c.width!==W||c.height!==H){c.width=W;c.height=H}const ctx=c.getContext('2d'),cx=W/2,cy=H/2,r=logical*.40*globalGlobe.zoom;ctx.clearRect(0,0,W,H);drawGlobalSurfaceGL(W,H,r);
  // Lightweight atmosphere + terminator only. No city lights, cloud fields, storms, or aurora in this isolation build.
  ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.clip();const sunX=cx+r*.58,sunY=cy-r*.10,term=ctx.createRadialGradient(sunX,sunY,r*.10,sunX,sunY,r*1.30);term.addColorStop(0,'rgba(118,194,214,.035)');term.addColorStop(.48,'rgba(4,14,20,.025)');term.addColorStop(.64,'rgba(0,4,10,.30)');term.addColorStop(.82,'rgba(0,2,7,.62)');term.addColorStop(1,'rgba(0,1,5,.78)');ctx.fillStyle=term;ctx.fillRect(cx-r,cy-r,r*2,r*2);ctx.restore();let atm=ctx.createRadialGradient(cx,cy,r*.91,cx,cy,r*1.075);atm.addColorStop(0,'rgba(85,181,215,0)');atm.addColorStop(.72,'rgba(93,191,224,.075)');atm.addColorStop(.9,'rgba(116,211,238,.16)');atm.addColorStop(1,'rgba(116,211,238,0)');ctx.beginPath();ctx.arc(cx,cy,r*1.08,0,Math.PI*2);ctx.fillStyle=atm;ctx.fill();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='rgba(143,218,235,.42)';ctx.lineWidth=1.5*dpr;ctx.stroke();
- const rate=Number(getComputedStyle(document.documentElement).getPropertyValue('--global-rate')||1.5),dt=Math.min(.05,(now-globalGlobe.lastT)/1000);globalGlobe.lastT=now;if(!globalGlobe.drag)globalGlobe.yaw-=dt*.8;globalGlobe.orbitT+=dt*rate;const ovRect=ov.getBoundingClientRect(),sx=ovRect.width/W,sy=ovRect.height/H;Object.entries(GLOBAL_OA_GEO).forEach(([oa,ll])=>{let q=globeProject(ll.lat,ll.lon,cx,cy,r),el=ov.querySelector('[data-oa="'+oa+'"]');if(el){el.style.left=(q.x*sx)+'px';el.style.top=(q.y*sy)+'px';el.classList.toggle('callout-left',q.x<cx);el.classList.toggle('callout-right',q.x>=cx);el.classList.toggle('backside',q.z<=0);el.classList.toggle('selected',globalSelectedOA===oa)}});GLOBAL_ORBITS.forEach((o,i)=>{let ll=globeOrbitLatLon(o,globalGlobe.orbitT),q=globeProject(ll.lat,ll.lon,cx,cy,r),el=ov.querySelector('.globe-sat-'+i);if(el){el.style.left=(q.x*sx)+'px';el.style.top=(q.y*sy)+'px';el.classList.toggle('backside',q.z<=0)}});{let ll=globeOrbitLatLon(GLOBAL_UNK_ORBIT,globalGlobe.orbitT),q=globeProject(ll.lat,ll.lon,cx,cy,r),el=ov.querySelector('.globe-unk-contact');if(el){el.style.left=(q.x*sx)+'px';el.style.top=(q.y*sy)+'px';el.classList.toggle('backside',q.z<=0)}}{let ll=globeOrbitLatLon(GLOBAL_UFO_ORBIT,globalGlobe.orbitT*1.37),q=globeProject(ll.lat,ll.lon,cx,cy,r),el=ov.querySelector('.globe-ufo-contact');if(el){const active=globalUfoVisibility(now);el.style.left=(q.x*sx)+'px';el.style.top=(q.y*sy)+'px';el.classList.toggle('backside',q.z<=0);el.classList.toggle('active',active)}}{let ll=globeOrbitLatLon(GLOBAL_RETRO_ORBIT,globalGlobe.orbitT),q=globeProject(ll.lat,ll.lon,cx,cy,r),el=ov.querySelector('.globe-retro-station');if(el){el.style.left=(q.x*sx)+'px';el.style.top=(q.y*sy)+'px';el.classList.toggle('backside',q.z<=0);el.classList.toggle('selected',globalSelectedOA==='RETRO')}}}
-function globalGlobeFrame(now){const visible=!$('#globalMenu')?.classList.contains('hidden');if(visible&&(!GLOBAL_FRAME_MS||now-globalLastFrame>=GLOBAL_FRAME_MS)){globalLastFrame=now;drawGlobalGlobe(now)}requestAnimationFrame(globalGlobeFrame)} requestAnimationFrame(globalGlobeFrame);
+ const rate=Number(getComputedStyle(document.documentElement).getPropertyValue('--global-rate')||1.5),dt=Math.min(.05,(now-globalGlobe.lastT)/1000);globalGlobe.lastT=now;if(!globalGlobe.drag)globalGlobe.yaw-=dt*.8;globalGlobe.orbitT+=dt*rate;const ovRect=ov.getBoundingClientRect(),sx=ovRect.width/W,sy=ovRect.height/H;Object.entries(GLOBAL_OA_GEO).forEach(([oa,ll])=>{let q=globeProject(ll.lat,ll.lon,cx,cy,r),el=ov.querySelector('[data-oa="'+oa+'"]');if(el){const label=el.querySelector('.oa-callout-text');if(label){const expected=GLOBAL_OA_NUM[oa]+' '+globalOAScrambledName(oa,now);if(label.textContent!==expected)label.textContent=expected;const classified=!globalOAIdentityRevealed(oa);el.classList.toggle('oa-classified',classified);el.classList.toggle('oa-scrambling',classified&&expected.includes('[')&&!expected.includes('[REDACTED]'));}el.style.left=(q.x*sx)+'px';el.style.top=(q.y*sy)+'px';el.classList.toggle('callout-left',q.x<cx);el.classList.toggle('callout-right',q.x>=cx);el.classList.toggle('backside',q.z<=0);el.classList.toggle('selected',globalSelectedOA===oa)}});GLOBAL_ORBITS.forEach((o,i)=>{let ll=globeOrbitLatLon(o,globalGlobe.orbitT),q=globeProject(ll.lat,ll.lon,cx,cy,r),el=ov.querySelector('.globe-sat-'+i);if(el){el.style.left=(q.x*sx)+'px';el.style.top=(q.y*sy)+'px';el.classList.toggle('backside',q.z<=0)}});{let ll=globeOrbitLatLon(GLOBAL_UNK_ORBIT,globalGlobe.orbitT),q=globeProject(ll.lat,ll.lon,cx,cy,r),el=ov.querySelector('.globe-unk-contact');if(el){el.style.left=(q.x*sx)+'px';el.style.top=(q.y*sy)+'px';el.classList.toggle('backside',q.z<=0)}}{let ll=globeOrbitLatLon(GLOBAL_UFO_ORBIT,globalGlobe.orbitT*1.37),q=globeProject(ll.lat,ll.lon,cx,cy,r),el=ov.querySelector('.globe-ufo-contact');if(el){const active=globalUfoVisibility(now);el.style.left=(q.x*sx)+'px';el.style.top=(q.y*sy)+'px';el.classList.toggle('backside',q.z<=0);el.classList.toggle('active',active)}}{let ll=globeOrbitLatLon(GLOBAL_RETRO_ORBIT,globalGlobe.orbitT),q=globeProject(ll.lat,ll.lon,cx,cy,r),el=ov.querySelector('.globe-retro-station');if(el){el.style.left=(q.x*sx)+'px';el.style.top=(q.y*sy)+'px';el.classList.toggle('backside',q.z<=0);el.classList.toggle('selected',globalSelectedOA==='RETRO')}}}
+let homeOALastFrame=0;
+function globalGlobeFrame(now){
+    const home=document.getElementById('mainMenu');
+    if(home&&!home.classList.contains('hidden')&&now-homeOALastFrame>=100){
+        homeOALastFrame=now;
+        refreshHomeOAClassification(now);
+    }
+    const visible=!$('#globalMenu')?.classList.contains('hidden');if(visible&&(!GLOBAL_FRAME_MS||now-globalLastFrame>=GLOBAL_FRAME_MS)){globalLastFrame=now;drawGlobalGlobe(now)}requestAnimationFrame(globalGlobeFrame)} requestAnimationFrame(globalGlobeFrame);
 const GLOBAL_DESCENT_IMAGE={KESTREL:'assets/maps/oa-kestrel-overscan.png',VANTAGE:'assets/maps/oa-vantage-overscan.png',VERDANT:'assets/maps/oa-verdant-overscan.png',MIRAGE:'assets/maps/oa-mirage-overscan.png',TEMPEST:'assets/maps/oa-tempest-overscan.png',ARCTIC:'assets/maps/oa-arctic-basemap.png'};
 const GLOBAL_MAP_IMAGE={KESTREL:'assets/maps/oa-kestrel-basemap.png',VANTAGE:'assets/maps/oa-vantage-basemap.png',VERDANT:'assets/maps/oa-verdant-basemap.png',MIRAGE:'assets/maps/oa-mirage-basemap.png',TEMPEST:'assets/maps/oa-tempest-basemap.png',ARCTIC:'assets/maps/oa-arctic-basemap.png'};
 function resetGlobalOAEntryOverlays(){['#mainMenu','#globalMenu','#globalPlanning','#campaignMenu'].forEach(sel=>$(sel)?.classList.add('hidden'));}
@@ -1503,7 +1632,7 @@ function onSeg(a,b,c){return Math.min(a.x,b.x)-1e-9<=c.x&&c.x<=Math.max(a.x,b.x)
 function segCross(a,b,c,d){const o1=orient(a,b,c),o2=orient(a,b,d),o3=orient(c,d,a),o4=orient(c,d,b),eps=1e-9;if(((o1>eps&&o2<-eps)||(o1<-eps&&o2>eps))&&((o3>eps&&o4<-eps)||(o3<-eps&&o4>eps)))return true;if(Math.abs(o1)<=eps&&onSeg(a,b,c))return true;if(Math.abs(o2)<=eps&&onSeg(a,b,d))return true;if(Math.abs(o3)<=eps&&onSeg(c,d,a))return true;if(Math.abs(o4)<=eps&&onSeg(c,d,b))return true;return false;}
 function planningSelfIntersects(){const p=globalPlanningPoints,n=p.length;if(n<4)return false;for(let i=0;i<n;i++){const i2=(i+1)%n;for(let j=i+1;j<n;j++){const j2=(j+1)%n;if(i===j||i2===j||j2===i)continue;if(segCross(p[i],p[i2],p[j],p[j2]))return true;}}return false;}
 function planningValid(){return globalPlanningPoints.length>=3&&globalPlanningPoints.length<=4&&!planningSelfIntersects()&&planningAreaFraction()>0.00005&&planningAreaFraction()<=GLOBAL_NAI_MAX_AREA;}
-function refreshGlobalTaskingDetail(oa){const p=readGlobalNAIs()[oa];if(!p)return;$('#globalOADetail').textContent=GLOBAL_OA[oa]+' // PRIORITY NAI TASKED // '+(p.points?.length||0)+'-POINT AREA // REGIONAL PICTURE AVAILABLE';}
+function refreshGlobalTaskingDetail(oa){const p=readGlobalNAIs()[oa];if(!p)return;$('#globalOADetail').textContent=globalOAIdentityRevealed(oa)?GLOBAL_OA[oa]+' // PRIORITY NAI TASKED // '+(p.points?.length||0)+'-POINT AREA // REGIONAL PICTURE AVAILABLE':'REGIONAL INTELLIGENCE // CLASSIFIED';}
 function openGlobalPlanning(){if(!globalSelectedOA)return;openGlobalPlanningDirect();}
 function openGlobalPlanningDirect(){if(!globalSelectedOA)return;const oa=globalSelectedOA,saved=readGlobalNAIs()[oa];globalPlanningPoints=(saved?.points||[]).map(p=>({x:p.x,y:p.y}));globalPlanningCommitted=!!saved?.committed;globalPlanningDrag=-1;$('#planningOAName').textContent='OA '+({'KESTREL':'01','VANTAGE':'02','VERDANT':'03','MIRAGE':'04','TEMPEST':'05','ARCTIC':'06'}[oa])+' // '+(oa==='ARCTIC'?'POLARIS':oa);$('#planningMap').style.backgroundImage="linear-gradient(rgba(4,10,13,.08),rgba(4,10,13,.08)),url('"+GLOBAL_MAP_IMAGE[oa]+"')";$('#globalPlanning').classList.remove('hidden');renderGlobalPlanning();}
 function closeGlobalPlanning(){$('#globalPlanning').classList.add('hidden');globalPlanningDrag=-1;}
