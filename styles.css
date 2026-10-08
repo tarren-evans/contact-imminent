@@ -702,9 +702,6 @@ button:not(:disabled):active{transform:translateY(1px)}
 #mapWrap.oa-vantage{
   background-image:linear-gradient(rgba(4,10,13,.08),rgba(4,10,13,.08)),url('assets/maps/oa-vantage-overscan.png')!important;
 }
-.vantage-preview-hud{position:absolute;z-index:55;left:18px;top:18px;display:flex;align-items:center;gap:14px;padding:10px 12px;background:rgba(6,13,17,.9);border:1px solid rgba(216,168,62,.58);backdrop-filter:blur(4px);pointer-events:auto}
-.vantage-preview-hud.hidden{display:none!important}.vantage-preview-hud div{display:flex;flex-direction:column;gap:3px}.vantage-preview-hud b{font-size:12px;letter-spacing:.14em;color:#edf2f3}.vantage-preview-hud span{font-size:9px;letter-spacing:.1em;color:#aebdc2}.vantage-preview-hud button{min-height:36px;padding:7px 10px;font-size:9px;white-space:nowrap}
-@media (max-width:680px){.vantage-preview-hud{left:8px;top:8px;right:8px;flex-wrap:wrap}.vantage-preview-hud button{width:100%}}
 
 /* v0.7.1 Campaign 02 // NETWORK */
 .campaign-section-title{margin:7px 0 4px;font-size:8px;letter-spacing:.13em;color:#9fb2ba}.campaign-section-title.vantage-title{color:#d8a83e}.campaignpanel{max-height:94%;overflow:auto}.campaignpanel .campaign-list{gap:3px}.campaignpanel .mission-row{min-height:28px;padding:5px 9px}.c02-list{margin-bottom:5px}.arcade-oa-select{margin-bottom:7px}.arcade-oa-select .arcade-intel-buttons{grid-template-columns:repeat(4,minmax(0,1fr))}#networkAssociations{border-top:1px solid rgba(216,168,62,.22);margin-top:6px;padding-top:6px}
@@ -714,7 +711,7 @@ button:not(:disabled):active{transform:translateY(1px)}
 #campaignMenu .campaignpanel{overflow:hidden!important}.campaign-pane .campaign-list{margin:5px 0 7px!important}
 .settingspanel{width:min(720px,calc(100vw - 24px))!important;max-height:calc(100dvh - 16px)!important;overflow:auto}.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.settings-group{min-width:0}.settings-group-title{font-size:9px;letter-spacing:.16em;color:var(--gold);padding:5px 0;border-bottom:1px solid var(--border)}.isr-config-title{margin-top:9px}.setting-select{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:9px;letter-spacing:.08em}.setting-select select{background:#0d151a;color:var(--text);border:1px solid var(--border);padding:6px;font:9px ui-monospace,monospace}.danger-action{border-color:rgba(255,91,85,.55)!important}.utility-menu-panel{width:min(620px,calc(100vw - 20px))!important;max-height:calc(100dvh - 16px)!important;overflow:auto}.utility-menu-panel #eventPanel,.utility-menu-panel #devPanel{display:block!important;margin:8px 0;border:1px solid var(--border)}.utility-menu-panel #eventPanel summary,.utility-menu-panel #devPanel summary{padding:8px}.utility-menu-panel .utility-body,.utility-menu-panel .devBody{max-height:180px;overflow:auto}
 .tutorial-guide{left:50%!important;top:auto!important;bottom:14px!important;transform:translateX(-50%);width:min(520px,62vw)!important;max-height:34%!important;padding:9px 12px!important}.tutorial-guide b{margin:2px 0 4px!important}.tutorial-guide p{font-size:9px!important;line-height:1.25!important}.tutorial-kicker{font-size:7px!important}.tutorial-guide button{min-height:30px!important;height:30px!important;margin-top:5px!important}
-@media(max-width:1000px),(max-height:700px){#campaignMenu .campaignpanel{width:min(520px,72vw)!important;max-height:calc(100dvh - 10px)!important;padding:8px 12px!important}.campaign-oa-tabs{margin:4px 0 5px}.campaign-oa-tabs button{min-height:30px;height:30px}.campaign-pane .campaign-section-title{margin:3px 0!important;font-size:7px!important}.campaign-pane .mission-row{height:27px!important;min-height:27px!important;margin:2px 0!important}.campaign-pane #vantagePreviewBtn{height:29px!important;min-height:29px!important;margin:3px 0!important}#campaignBack{height:29px!important;min-height:29px!important;margin:3px 0!important}.settingspanel{width:min(660px,88vw)!important;padding:8px 12px!important}.audio-setting{padding:4px 0!important}.settings-group-title{padding:3px 0}.setting-select{padding:5px 0}.tutorial-guide{bottom:8px!important;width:min(500px,58vw)!important;max-height:30%!important}}
+@media(max-width:1000px),(max-height:700px){#campaignMenu .campaignpanel{width:min(520px,72vw)!important;max-height:calc(100dvh - 10px)!important;padding:8px 12px!important}.campaign-oa-tabs{margin:4px 0 5px}.campaign-oa-tabs button{min-height:30px;height:30px}.campaign-pane .campaign-section-title{margin:3px 0!important;font-size:7px!important}.campaign-pane .mission-row{height:27px!important;min-height:27px!important;margin:2px 0!important}#campaignBack{height:29px!important;min-height:29px!important;margin:3px 0!important}.settingspanel{width:min(660px,88vw)!important;padding:8px 12px!important}.audio-setting{padding:4px 0!important}.settings-group-title{padding:3px 0}.setting-select{padding:5px 0}.tutorial-guide{bottom:8px!important;width:min(500px,58vw)!important;max-height:30%!important}}
 @media(max-width:720px){.settings-grid{grid-template-columns:1fr}.settingspanel{width:min(420px,88vw)!important}}
 
 /* v0.7.2.1 // presentation/settings hotfix
@@ -792,8 +789,8 @@ button:not(:disabled):active{transform:translateY(1px)}
 /* v0.10.0 // OA MIRAGE + TEMPEST preview foundation — presentation only. */
 #mapWrap.oa-mirage{background-image:linear-gradient(rgba(4,10,13,.08),rgba(4,10,13,.08)),url('assets/maps/oa-mirage-overscan.png')!important;background-position:center center!important;background-size:cover!important}
 #mapWrap.oa-tempest{background-image:linear-gradient(rgba(4,10,13,.08),rgba(4,10,13,.08)),url('assets/maps/oa-tempest-overscan.png')!important;background-position:center center!important;background-size:cover!important}
-.campaign-section-title.mirage-title{color:#d6b47c}.mirage-preview-hud{border-color:rgba(214,180,124,.64)}
-.campaign-section-title.tempest-title{color:#78c7d8}.tempest-preview-hud{border-color:rgba(120,199,216,.64)}
+.campaign-section-title.mirage-title{color:#d6b47c}
+.campaign-section-title.tempest-title{color:#78c7d8}
 .campaign-oa-tabs{grid-template-columns:repeat(5,1fr)!important}
 .command-worldline{flex-wrap:wrap}.command-worldline span{white-space:nowrap}
 @media(max-width:1000px),(max-height:700px){.campaign-oa-tabs{gap:3px!important}.campaign-oa-tabs button{padding:4px 5px!important;font-size:7px!important}.campaign-oa-tabs span{font-size:6px!important}.command-worldline{gap:4px!important}.command-worldline span{font-size:6px!important}}
@@ -1038,6 +1035,48 @@ button:not(:disabled):active{transform:translateY(1px)}
  overflow:visible!important
 }
 
+/* GLOBAL OA TOUCH TARGET // ALL SIX OPERATIONAL AREAS
+   Preserve the geographic origin and existing callout geometry. */
+#globalMenu .globe-oa-marker{
+    touch-action:none!important;
+    cursor:pointer!important;
+}
+#globalMenu .globe-oa-marker::before{
+    content:""!important;
+    position:absolute!important;
+    left:-24px!important;
+    top:-24px!important;
+    width:48px!important;
+    height:48px!important;
+    background:transparent!important;
+    border:0!important;
+    border-radius:50%!important;
+    pointer-events:auto!important;
+}
+/* GLOBAL OA SELECTION FEEDBACK // ALL SIX OPERATIONAL AREAS
+   Decorative reticle; geographic marker geometry remains unchanged. */
+#globalMenu .globe-oa-marker.selected::after{
+    content:""!important;
+    position:absolute!important;
+    left:-15px!important;
+    top:-15px!important;
+    width:28px!important;
+    height:28px!important;
+    box-sizing:border-box!important;
+    border:1px solid rgba(241,202,101,.85)!important;
+    border-radius:50%!important;
+    background:transparent!important;
+    box-shadow:0 0 12px rgba(217,170,24,.28)!important;
+    pointer-events:none!important;
+}
+#globalMenu .globe-oa-marker.selected .oa-anchor{
+    background:#d9aa18!important;
+    box-shadow:0 0 12px rgba(217,170,24,.8)!important;
+}
+#globalMenu .globe-oa-marker.selected .oa-callout-text{
+    color:#f1ca65!important;
+    text-shadow:0 0 9px rgba(217,170,24,.45)!important;
+}
 /* v0.11.6.138 // STRATEGIC OA CALLOUTS */
 #globalMenu .globe-oa-marker{width:0!important;height:0!important;min-width:0!important;padding:0!important;margin:0!important;border:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important;color:#fff!important;transform:none!important}
 #globalMenu .globe-oa-marker .oa-anchor{position:absolute;left:-5px;top:-5px;width:8px;height:8px;border:1.5px solid #d9aa18;background:rgba(5,12,14,.9);transform:rotate(45deg);box-shadow:0 0 7px rgba(217,170,24,.28)}
@@ -1329,11 +1368,11 @@ body.retro-mode #bannerText{background:rgba(13,20,24,.82)}
 #campaignMenu .mission-row span{color:#8ca098!important;opacity:.82!important}
 #campaignMenu .mission-row.available span{color:#a9c3ba!important}
 #campaignMenu .mission-row:disabled span{color:#64756f!important}
-#campaignMenu #vantagePreviewBtn,#campaignMenu #verdantPreviewBtn,#campaignMenu #miragePreviewBtn,#campaignMenu #tempestPreviewBtn,
+#campaignMenu #verdantPreviewBtn,
 #campaignMenu #campaignBack{
   border-radius:2px!important;border-color:rgba(94,126,116,.48)!important;background:rgba(8,18,17,.55)!important
 }
-#campaignMenu #vantagePreviewBtn:hover,#campaignMenu #verdantPreviewBtn:hover,#campaignMenu #miragePreviewBtn:hover,#campaignMenu #tempestPreviewBtn:hover,
+#campaignMenu #verdantPreviewBtn:hover,
 #campaignMenu #campaignBack:hover{background:rgba(18,40,35,.72)!important}
 #campaignMenu .menu-version{color:#627a72!important}
 /* Arcade uses the same tasking language without increasing its footprint. */
@@ -1353,7 +1392,7 @@ body.retro-mode #bannerText{background:rgba(13,20,24,.82)}
   border-color:#8db8aa!important;color:#e2ece8!important;background:rgba(20,48,41,.68)!important;box-shadow:inset 0 -2px 0 rgba(141,184,170,.72)!important
 }
 #arcadeBriefing #arcadeBegin,
-[id^="briefing01"] .menu-primary,#briefing02 .menu-primary{
+[id^="briefing01"] .menu-primary{
   border-radius:2px!important;border-color:#769e91!important;background:linear-gradient(90deg,rgba(24,61,51,.92),rgba(14,39,33,.92))!important;color:#edf4f1!important
 }
 #arcadeBriefing #arcadeBack,
