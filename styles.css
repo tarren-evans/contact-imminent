@@ -2378,6 +2378,16 @@ body.studio-title-glitch-in #mainMenu::after{background:linear-gradient(90deg,tr
   }
 }
 
+/* OA IDENTIFICATION // confirmed operational areas */
+#globalMenu .globe-oa-marker:not(.oa-classified) .oa-callout-text{
+    color:#39FF88!important;
+    text-shadow:0 0 4px rgba(57,255,136,.22)!important;
+}
+
+.command-worldline [data-home-oa]:not(.oa-classified){
+    color:#39FF88!important;
+    text-shadow:0 0 4px rgba(57,255,136,.22)!important;
+}
 /* COMMAND HOME // classified operational-area directory */
 .command-worldline [data-home-oa].oa-classified{
     color:#d94b4b!important;
