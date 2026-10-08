@@ -2004,7 +2004,7 @@ body.studio-title-glitch-in #mainMenu::after{background:linear-gradient(90deg,tr
 .globe-unk-contact i{display:block;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:14px solid #050607;filter:drop-shadow(0 0 2px rgba(220,240,235,.7))}
 .globe-unk-contact span{position:absolute;left:19px;top:1px;color:rgba(225,235,232,.78);font:8px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.14em;text-shadow:0 1px 2px #000}
 .globe-ufo-contact{opacity:0}
-.globe-ufo-contact.active{opacity:.78}
+.globe-ufo-contact.active{opacity:calc(.78 * var(--ufo-fade,1))}
 .globe-ufo-contact.active.backside{opacity:0}
 .globe-ufo-contact i{display:block;width:22px;height:6px;border:1px solid rgba(224,235,232,.76);border-radius:50%;background:linear-gradient(180deg,rgba(230,240,238,.62),rgba(12,16,17,.88));box-shadow:0 0 4px rgba(190,230,220,.25)}
 .globe-ufo-contact i::before{content:"";position:absolute;width:8px;height:4px;left:7px;top:-4px;border:1px solid rgba(224,235,232,.62);border-bottom:0;border-radius:8px 8px 0 0;background:rgba(12,16,17,.82)}

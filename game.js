@@ -1512,13 +1512,37 @@ const GLOBAL_OA_DISPLAY={KESTREL:'KESTREL',VANTAGE:'VANTAGE',VERDANT:'VERDANT',M
 const GLOBAL_OA_NUM={KESTREL:'01',VANTAGE:'02',VERDANT:'03',MIRAGE:'04',TEMPEST:'05',ARCTIC:'06',RETRO:'R0'};
 const GLOBAL_ORBITS=[{inc:52,raan:-28,phase:15,period:24},{inc:67,raan:66,phase:142,period:34},{inc:31,raan:154,phase:254,period:19}];const GLOBAL_RETRO_ORBIT={inc:43,raan:112,phase:205,period:42};
 const GLOBAL_UNK_ORBIT={inc:58,raan:-74,phase:318,period:27};
-const GLOBAL_UFO_ORBIT={inc:23,raan:31,phase:77,period:11};
-let globalUfoWindow={visible:false,nextAt:0,hideAt:0};
-function globalUfoVisibility(now){
- if(!globalUfoWindow.nextAt)globalUfoWindow.nextAt=now+7000+Math.random()*9000;
- if(!globalUfoWindow.visible&&now>=globalUfoWindow.nextAt){globalUfoWindow.visible=true;globalUfoWindow.hideAt=now+4500+Math.random()*3500}
- if(globalUfoWindow.visible&&now>=globalUfoWindow.hideAt){globalUfoWindow.visible=false;globalUfoWindow.nextAt=now+16000+Math.random()*28000}
- return globalUfoWindow.visible;
+/* GLOBAL ANOMALY // rare background UFO flyby */
+let globalUfoWindow={
+    elapsed:0,
+    nextAt:60000+Math.random()*120000,
+    active:false,
+    startAt:0,
+    duration:0,
+    direction:1,
+    elevation:0,
+    slope:0
+};
+
+function globalUfoVisibility(dt){
+    const s=globalUfoWindow;
+    s.elapsed+=Math.max(0,dt)*1000;
+
+    if(!s.active&&s.elapsed>=s.nextAt){
+        s.active=true;
+        s.startAt=s.elapsed;
+        s.duration=2000+Math.random()*2000;
+        s.direction=Math.random()<.5?1:-1;
+        s.elevation=(Math.random()-.5)*.55;
+        s.slope=(Math.random()-.5)*.35;
+    }
+
+    if(s.active&&s.elapsed-s.startAt>=s.duration){
+        s.active=false;
+        s.nextAt=s.elapsed+60000+Math.random()*120000;
+    }
+
+    return s.active;
 }
 let globalGlobe={yaw:-18,pitch:0,zoom:1,drag:false,pointer:null,lastX:0,lastY:0,moved:false,lastT:performance.now(),orbitT:0};
 function globeRad(d){return d*Math.PI/180} function globeVec(lat,lon){const a=globeRad(lat),o=globeRad(lon);return{x:Math.cos(a)*Math.sin(o),y:-Math.sin(a),z:Math.cos(a)*Math.cos(o)}} function globeRotate(v){let y=globeRad(globalGlobe.yaw),p=globeRad(globalGlobe.pitch),cy=Math.cos(y),sy=Math.sin(y),cp=Math.cos(p),sp=Math.sin(p),x=v.x*cy+v.z*sy,z=-v.x*sy+v.z*cy;return{x,y:v.y*cp-z*sp,z:v.y*sp+z*cp}} function globeProject(lat,lon,cx,cy,r){const q=globeRotate(globeVec(lat,lon));return{x:cx+q.x*r,y:cy+q.y*r,z:q.z}}
@@ -1603,7 +1627,22 @@ function globalOAScrambledName(oa,now){
 function drawGlobalGlobe(now){drawGlobalSpace(now);const c=$('#globalGlobeCanvas'),wrap=$('#globalEarthWrap'),ov=$('#globalGlobeOverlay');if(!c||!wrap||!ov)return;initGlobalGlobe();const rect=wrap.getBoundingClientRect(),dpr=GLOBAL_RENDER_DPR,logical=Math.max(2,Math.round(Math.min(rect.width,rect.height)*dpr)),pad=1.72,W=Math.round(logical*pad),H=Math.round(logical*pad);if(c.width!==W||c.height!==H){c.width=W;c.height=H}const ctx=c.getContext('2d'),cx=W/2,cy=H/2,r=logical*.40*globalGlobe.zoom;ctx.clearRect(0,0,W,H);drawGlobalSurfaceGL(W,H,r);
  // Lightweight atmosphere + terminator only. No city lights, cloud fields, storms, or aurora in this isolation build.
  ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.clip();const sunX=cx+r*.58,sunY=cy-r*.10,term=ctx.createRadialGradient(sunX,sunY,r*.10,sunX,sunY,r*1.30);term.addColorStop(0,'rgba(118,194,214,.035)');term.addColorStop(.48,'rgba(4,14,20,.025)');term.addColorStop(.64,'rgba(0,4,10,.30)');term.addColorStop(.82,'rgba(0,2,7,.62)');term.addColorStop(1,'rgba(0,1,5,.78)');ctx.fillStyle=term;ctx.fillRect(cx-r,cy-r,r*2,r*2);ctx.restore();let atm=ctx.createRadialGradient(cx,cy,r*.91,cx,cy,r*1.075);atm.addColorStop(0,'rgba(85,181,215,0)');atm.addColorStop(.72,'rgba(93,191,224,.075)');atm.addColorStop(.9,'rgba(116,211,238,.16)');atm.addColorStop(1,'rgba(116,211,238,0)');ctx.beginPath();ctx.arc(cx,cy,r*1.08,0,Math.PI*2);ctx.fillStyle=atm;ctx.fill();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='rgba(143,218,235,.42)';ctx.lineWidth=1.5*dpr;ctx.stroke();
- const rate=Number(getComputedStyle(document.documentElement).getPropertyValue('--global-rate')||1.5),dt=Math.min(.05,(now-globalGlobe.lastT)/1000);globalGlobe.lastT=now;if(!globalGlobe.drag)globalGlobe.yaw-=dt*.8;globalGlobe.orbitT+=dt*rate;const ovRect=ov.getBoundingClientRect(),sx=ovRect.width/W,sy=ovRect.height/H;Object.entries(GLOBAL_OA_GEO).forEach(([oa,ll])=>{let q=globeProject(ll.lat,ll.lon,cx,cy,r),el=ov.querySelector('[data-oa="'+oa+'"]');if(el){const label=el.querySelector('.oa-callout-text');if(label){const expected=GLOBAL_OA_NUM[oa]+' '+globalOAScrambledName(oa,now);if(label.textContent!==expected)label.textContent=expected;const classified=!globalOAIdentityRevealed(oa);el.classList.toggle('oa-classified',classified);el.classList.toggle('oa-scrambling',classified&&expected.includes('[')&&!expected.includes('[REDACTED]'));}el.style.left=(q.x*sx)+'px';el.style.top=(q.y*sy)+'px';el.classList.toggle('callout-left',q.x<cx);el.classList.toggle('callout-right',q.x>=cx);el.classList.toggle('backside',q.z<=0);el.classList.toggle('selected',globalSelectedOA===oa)}});GLOBAL_ORBITS.forEach((o,i)=>{let ll=globeOrbitLatLon(o,globalGlobe.orbitT),q=globeProject(ll.lat,ll.lon,cx,cy,r),el=ov.querySelector('.globe-sat-'+i);if(el){el.style.left=(q.x*sx)+'px';el.style.top=(q.y*sy)+'px';el.classList.toggle('backside',q.z<=0)}});{let ll=globeOrbitLatLon(GLOBAL_UNK_ORBIT,globalGlobe.orbitT),q=globeProject(ll.lat,ll.lon,cx,cy,r),el=ov.querySelector('.globe-unk-contact');if(el){el.style.left=(q.x*sx)+'px';el.style.top=(q.y*sy)+'px';el.classList.toggle('backside',q.z<=0)}}{let ll=globeOrbitLatLon(GLOBAL_UFO_ORBIT,globalGlobe.orbitT*1.37),q=globeProject(ll.lat,ll.lon,cx,cy,r),el=ov.querySelector('.globe-ufo-contact');if(el){const active=globalUfoVisibility(now);el.style.left=(q.x*sx)+'px';el.style.top=(q.y*sy)+'px';el.classList.toggle('backside',q.z<=0);el.classList.toggle('active',active)}}{let ll=globeOrbitLatLon(GLOBAL_RETRO_ORBIT,globalGlobe.orbitT),q=globeProject(ll.lat,ll.lon,cx,cy,r),el=ov.querySelector('.globe-retro-station');if(el){el.style.left=(q.x*sx)+'px';el.style.top=(q.y*sy)+'px';el.classList.toggle('backside',q.z<=0);el.classList.toggle('selected',globalSelectedOA==='RETRO')}}}
+ const rate=Number(getComputedStyle(document.documentElement).getPropertyValue('--global-rate')||1.5),dt=Math.min(.05,(now-globalGlobe.lastT)/1000);globalGlobe.lastT=now;if(!globalGlobe.drag)globalGlobe.yaw-=dt*.8;globalGlobe.orbitT+=dt*rate;const ovRect=ov.getBoundingClientRect(),sx=ovRect.width/W,sy=ovRect.height/H;Object.entries(GLOBAL_OA_GEO).forEach(([oa,ll])=>{let q=globeProject(ll.lat,ll.lon,cx,cy,r),el=ov.querySelector('[data-oa="'+oa+'"]');if(el){const label=el.querySelector('.oa-callout-text');if(label){const expected=GLOBAL_OA_NUM[oa]+' '+globalOAScrambledName(oa,now);if(label.textContent!==expected)label.textContent=expected;const classified=!globalOAIdentityRevealed(oa);el.classList.toggle('oa-classified',classified);el.classList.toggle('oa-scrambling',classified&&expected.includes('[')&&!expected.includes('[REDACTED]'));}el.style.left=(q.x*sx)+'px';el.style.top=(q.y*sy)+'px';el.classList.toggle('callout-left',q.x<cx);el.classList.toggle('callout-right',q.x>=cx);el.classList.toggle('backside',q.z<=0);el.classList.toggle('selected',globalSelectedOA===oa)}});GLOBAL_ORBITS.forEach((o,i)=>{let ll=globeOrbitLatLon(o,globalGlobe.orbitT),q=globeProject(ll.lat,ll.lon,cx,cy,r),el=ov.querySelector('.globe-sat-'+i);if(el){el.style.left=(q.x*sx)+'px';el.style.top=(q.y*sy)+'px';el.classList.toggle('backside',q.z<=0)}});{let ll=globeOrbitLatLon(GLOBAL_UNK_ORBIT,globalGlobe.orbitT),q=globeProject(ll.lat,ll.lon,cx,cy,r),el=ov.querySelector('.globe-unk-contact');if(el){el.style.left=(q.x*sx)+'px';el.style.top=(q.y*sy)+'px';el.classList.toggle('backside',q.z<=0)}}{const el=ov.querySelector('.globe-ufo-contact');if(el){
+    const active=globalUfoVisibility(dt),s=globalUfoWindow;
+    if(active){
+        const progress=Math.min(1,(s.elapsed-s.startAt)/s.duration);
+        const fade=Math.max(0,Math.min(1,(1-progress)/.30));
+        el.style.setProperty('--ufo-fade',String(fade));
+        const travel=(progress*2-1)*1.65*s.direction;
+        const height=s.elevation+s.slope*(progress*2-1);
+        const x=cx+travel*r,y=cy+height*r;
+        const behind=(travel*travel+height*height)<1.015;
+        el.style.left=(x*sx)+'px';
+        el.style.top=(y*sy)+'px';
+        el.classList.toggle('backside',behind);
+    }
+    el.classList.toggle('active',active);
+}}{let ll=globeOrbitLatLon(GLOBAL_RETRO_ORBIT,globalGlobe.orbitT),q=globeProject(ll.lat,ll.lon,cx,cy,r),el=ov.querySelector('.globe-retro-station');if(el){el.style.left=(q.x*sx)+'px';el.style.top=(q.y*sy)+'px';el.classList.toggle('backside',q.z<=0);el.classList.toggle('selected',globalSelectedOA==='RETRO')}}}
 let homeOALastFrame=0;
 function globalGlobeFrame(now){
     const home=document.getElementById('mainMenu');
