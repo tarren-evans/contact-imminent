@@ -1138,7 +1138,7 @@ function mirageFinish0402(){const rk=$('#resultKicker');if(rk)rk.textContent='CA
 function mirageFinish0403(){const rk=$('#resultKicker');if(rk)rk.textContent='CAMPAIGN 04 // OA MIRAGE';campaignFinished=true;running=false;stopCollect();window.CP_MENU=true;A.dest=null;A.mode='IDLE';localStorage.setItem('ci-c04-03-complete','1');cpRefreshMirage();const v=mirageMissionValues();$('#resultTitle').textContent='POSTURE // MISSION COMPLETE';$('#resultBody').innerHTML='OA MIRAGE // 04-03 POSTURE<br>BASELINE DEVIATIONS ESTABLISHED<br><br>ANOMALIES // '+v[0]+' / 3<br>CORROBORATED // '+v[1]+' / 2<br>TRACKS // '+v[2]+' / 5<br>SCORE // '+Math.max(0,Math.round(score));$('#resultContinue').classList.remove('hidden');$('#resultRetry').classList.add('hidden');$('#campaignResult').classList.remove('hidden');outcomeFeedback(true);ui(true)}
 function mirageFinish0404(){const rk=$('#resultKicker');if(rk)rk.textContent='CAMPAIGN 04 // OA MIRAGE';campaignFinished=true;running=false;stopCollect();window.CP_MENU=true;A.dest=null;A.mode='IDLE';localStorage.setItem('ci-c04-04-complete','1');cpRefreshMirage();const v=mirageMissionValues();$('#resultTitle').textContent='INDICATIONS // MISSION COMPLETE';$('#resultBody').innerHTML='OA MIRAGE // 04-04 INDICATIONS<br>CORRELATED INDICATORS DEVELOPED<br><br>INDICATORS // '+v[0]+' / 3<br>CORROBORATED // '+v[1]+' / 2<br>TRACKS // '+v[2]+' / 6<br>SCORE // '+Math.max(0,Math.round(score));$('#resultContinue').classList.remove('hidden');$('#resultRetry').classList.add('hidden');$('#campaignResult').classList.remove('hidden');outcomeFeedback(true);ui(true)}
 function mirageWarningReady(){if(mirageAssessment)return;mirageEnding=false;const evidence=mirageTraffic.filter(t=>t.indicatorDeveloped&&t.indicator).slice(0,3);const summary=$('#mirageEvidenceSummary');if(summary){['mirageEvidence1','mirageEvidence2','mirageEvidence3'].forEach((id,i)=>{const el=$('#'+id),t=evidence[i];if(el)el.textContent=t?(t.indicator+' // '+(t.indicatorCorroborated?'CORROBORATED':'OBSERVED')+(t.indicatorCorroborated?' // '+((mirageMissionConfig().associations||{})[t.id]||'ASSOCIATED SITE'):'') ):'INDICATOR // PENDING'});summary.hidden=false}cpNotice('ASSESSMENT REQUIRED','MULTIPLE INDICATORS EXCEED BASELINE // ISSUE ANALYTIC JUDGMENT','intel');const a=$('#mirageAssessment');if(a)a.hidden=false;ui(true)}
-function mirageSubmitAssessment(level){if(campaignMission!=='04-05'||mirageAssessment)return;mirageAssessment=level;const correct=level==='WARNING';score+=correct?100:-40;campaignFinished=true;running=false;stopCollect();window.CP_MENU=true;A.dest=null;A.mode='IDLE';if(correct)localStorage.setItem('ci-c04-05-complete','1');cpRefreshMirage();const v=mirageMissionValues();$('#mirageAssessment').hidden=true;const es=$('#mirageEvidenceSummary');if(es)es.hidden=true;const rk=$('#resultKicker');if(rk)rk.textContent='CAMPAIGN 04 // OA MIRAGE';$('#resultTitle').textContent=correct?'WARNING // CAMPAIGN COMPLETE':'WARNING // REASSESS';const reasoning=correct?'MULTIPLE INDEPENDENT INDICATORS, CORROBORATED INFRASTRUCTURE ASSOCIATIONS, AND DEPARTURE FROM ESTABLISHED BASELINE SUPPORT WARNING OF HOSTILE PREPARATION.':'ASSESSMENT NOT SUPPORTED. THREE INDEPENDENT INDICATORS EXCEED THE ESTABLISHED BASELINE AND TWO ARE CORROBORATED THROUGH ASSESSED INFRASTRUCTURE RELATIONSHIPS. THIS CONVERGENCE SUPPORTS WARNING RATHER THAN '+level+'.';$('#resultBody').innerHTML='OA MIRAGE // 04-05 WARNING<br>ASSESSMENT // '+level+'<br>CONFIDENCE // '+(correct?'HIGH':'LOW')+'<br><br>INDICATORS // '+v[0]+' / 3<br>CORROBORATED // '+v[1]+' / 2<br>TRACKS // '+v[2]+' / 6<br><br>'+reasoning+'<br>SCORE // '+Math.max(0,Math.round(score));$('#resultContinue').classList.toggle('hidden',!correct);$('#resultRetry').classList.toggle('hidden',correct);$('#campaignResult').classList.remove('hidden');outcomeFeedback(correct);ui(true)}
+function mirageSubmitAssessment(level){if(campaignMission!=='04-05'||mirageAssessment)return;mirageAssessment=level;const correct=level==='WARNING';score+=correct?100:-40;campaignFinished=true;running=false;stopCollect();window.CP_MENU=true;A.dest=null;A.mode='IDLE';if(correct){localStorage.setItem('ci-c04-05-complete','1');progressionCollectUnlocks();}cpRefreshMirage();const v=mirageMissionValues();$('#mirageAssessment').hidden=true;const es=$('#mirageEvidenceSummary');if(es)es.hidden=true;const rk=$('#resultKicker');if(rk)rk.textContent='CAMPAIGN 04 // OA MIRAGE';$('#resultTitle').textContent=correct?'WARNING // CAMPAIGN COMPLETE':'WARNING // REASSESS';const reasoning=correct?'MULTIPLE INDEPENDENT INDICATORS, CORROBORATED INFRASTRUCTURE ASSOCIATIONS, AND DEPARTURE FROM ESTABLISHED BASELINE SUPPORT WARNING OF HOSTILE PREPARATION.':'ASSESSMENT NOT SUPPORTED. THREE INDEPENDENT INDICATORS EXCEED THE ESTABLISHED BASELINE AND TWO ARE CORROBORATED THROUGH ASSESSED INFRASTRUCTURE RELATIONSHIPS. THIS CONVERGENCE SUPPORTS WARNING RATHER THAN '+level+'.';$('#resultBody').innerHTML='OA MIRAGE // 04-05 WARNING<br>ASSESSMENT // '+level+'<br>CONFIDENCE // '+(correct?'HIGH':'LOW')+'<br><br>INDICATORS // '+v[0]+' / 3<br>CORROBORATED // '+v[1]+' / 2<br>TRACKS // '+v[2]+' / 6<br><br>'+reasoning+'<br>SCORE // '+Math.max(0,Math.round(score));$('#resultContinue').classList.toggle('hidden',!correct);$('#resultRetry').classList.toggle('hidden',correct);$('#campaignResult').classList.remove('hidden');outcomeFeedback(correct);ui(true)}
 function cpRefreshMirage(){const done1=localStorage.getItem('ci-c04-01-complete')==='1',done2=localStorage.getItem('ci-c04-02-complete')==='1',done3=localStorage.getItem('ci-c04-03-complete')==='1',done4=localStorage.getItem('ci-c04-04-complete')==='1',done5=localStorage.getItem('ci-c04-05-complete')==='1';[['0401',true,done1],['0402',done1||devAccessActive(),done2],['0403',done2||devAccessActive(),done3],['0404',done3||devAccessActive(),done4],['0405',done4||devAccessActive(),done5]].forEach(([n,available,done])=>{const st=$('#mission'+n+'Status'),b=$('#mission'+n);if(st)st.textContent=done?'COMPLETE // REPLAY':available?'AVAILABLE':'LOCKED';if(b){b.disabled=!available;b.classList.toggle('available',available)}})}
 function cpBrief0401(){$('#campaignMenu').classList.add('hidden');$('#briefing0401').classList.remove('hidden')}
 function cpBrief0402(){$('#campaignMenu').classList.add('hidden');$('#briefing0402').classList.remove('hidden')}
@@ -1300,7 +1300,7 @@ function cpFinish0105(reason){
  const pass=(reason==='SUCCESS'&&campaignCorrect>=16&&campaignCollectionInterrupted>=5&&integrity>=80&&campaignCompromise<50);
  let title,lead;
  if(campaignCompromise>=60||reason==='COMPROMISE'){title='OE COMPROMISED';lead='THRESHOLD EXCEEDED';}
- else if(pass){title='CONDITIONS HAVE BEEN SET';lead='CAMPAIGN 01 // OA KESTREL COMPLETE';localStorage.setItem('ci-c01-complete','1');cpRefreshCampaign();}
+ else if(pass){title='CONDITIONS HAVE BEEN SET';lead='CAMPAIGN 01 // OA KESTREL COMPLETE';localStorage.setItem('ci-c01-complete','1');progressionCollectUnlocks();cpRefreshCampaign();}
  else{title='CONDITIONS NOT SET';lead='FINAL OPERATION OBJECTIVES INCOMPLETE';}
  $('#resultTitle').textContent=title;
  $('#resultBody').innerHTML='OA KESTREL<br>'+lead+
@@ -1330,7 +1330,7 @@ function cpBegin02Now(id){musicSetMode('mission');campaignMenuOA='VANTAGE';cpSet
 function resetCampaignHints(){campaignHintSig='';campaignHintAt=performance.now();campaignHintLevel=0}
 function campaignHintTick(now){if(campaignMission!=='02-05'||!running||campaignFinished)return;const s=campaign02Stats(),sig=[campaignCorrect,s.established,campaignCollectionInterrupted,Math.round(campaignCompromise/5)].join(':');if(sig!==campaignHintSig){campaignHintSig=sig;campaignHintAt=now;campaignHintLevel=0;return}const idle=now-campaignHintAt;if(idle>65000&&campaignHintLevel<2){campaignHintLevel=2;cpNotice('ANALYST ASSIST // DISRUPTION','Develop 3 supported relationships to establish the observed network, then interrupt hostile collection while keeping OE below 50%.','intel')}else if(idle>35000&&campaignHintLevel<1){campaignHintLevel=1;cpNotice('ANALYST ASSIST','Maintain coverage around VANTAGE activity areas. Distinct affiliated contacts observed together develop supported relationships.','intel')}}
 function cpCheckCampaign02(){if(!isCampaign02()||campaignFinished)return;if(usesThreatEnvironment()&&campaignCompromise>=60){cpFinishCampaign02(false);return}let m=C02[campaignMission],s=campaign02Stats();if(m&&m.pass(s))cpFinishCampaign02(true)}
-function cpFinishCampaign02(pass){if(campaignFinished)return;campaignMenuOA='VANTAGE';const rk=$('#resultKicker');if(rk)rk.textContent='CAMPAIGN 02 // OA VANTAGE';campaignFinished=true;running=false;stopCollect();window.CP_MENU=true;let id=campaignMission,m=C02[id],s=campaign02Stats();if(pass){localStorage.setItem('ci-c02-'+id.slice(-2)+'-complete','1');if(id==='02-05')localStorage.setItem('ci-c02-complete','1');cpRefreshCampaign02()}$('#resultTitle').textContent=pass?'NETWORK PICTURE ADVANCED':'NETWORK PICTURE INCOMPLETE';$('#resultBody').innerHTML='OA VANTAGE // '+id+' '+m.title+'<br><br>CONTACTS RESOLVED&nbsp;&nbsp;'+campaignCorrect+'<br>CONTINUITY TRACKS&nbsp;&nbsp;&nbsp;'+s.continuity+'<br>PATTERN TRACKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+s.patterns+'<br>ASSOCIATION EVENTS&nbsp;&nbsp;&nbsp;'+s.associations+'<br>SUPPORTED LINKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+s.supported+'<br>ESTABLISHED LINKS&nbsp;&nbsp;&nbsp;&nbsp;'+s.established+'<br>INTEL INTEGRITY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+Math.round(integrity)+'%';$('#resultContinue').classList.toggle('hidden',!pass);$('#resultRetry').classList.toggle('hidden',pass);$('#campaignResult').classList.remove('hidden');outcomeFeedback(pass)}
+function cpFinishCampaign02(pass){if(campaignFinished)return;campaignMenuOA='VANTAGE';const rk=$('#resultKicker');if(rk)rk.textContent='CAMPAIGN 02 // OA VANTAGE';campaignFinished=true;running=false;stopCollect();window.CP_MENU=true;let id=campaignMission,m=C02[id],s=campaign02Stats();if(pass){localStorage.setItem('ci-c02-'+id.slice(-2)+'-complete','1');if(id==='02-05'){localStorage.setItem('ci-c02-complete','1');progressionCollectUnlocks()}cpRefreshCampaign02()}$('#resultTitle').textContent=pass?'NETWORK PICTURE ADVANCED':'NETWORK PICTURE INCOMPLETE';$('#resultBody').innerHTML='OA VANTAGE // '+id+' '+m.title+'<br><br>CONTACTS RESOLVED&nbsp;&nbsp;'+campaignCorrect+'<br>CONTINUITY TRACKS&nbsp;&nbsp;&nbsp;'+s.continuity+'<br>PATTERN TRACKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+s.patterns+'<br>ASSOCIATION EVENTS&nbsp;&nbsp;&nbsp;'+s.associations+'<br>SUPPORTED LINKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+s.supported+'<br>ESTABLISHED LINKS&nbsp;&nbsp;&nbsp;&nbsp;'+s.established+'<br>INTEL INTEGRITY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+Math.round(integrity)+'%';$('#resultContinue').classList.toggle('hidden',!pass);$('#resultRetry').classList.toggle('hidden',pass);$('#campaignResult').classList.remove('hidden');outcomeFeedback(pass)}
 function tutorialGuide(step,title,text,button=false){tutorialStep=step;if(campaignMission==='TUTORIAL'&&(step===2||step===3||step===4)&&!T.some(t=>!t.done)){spawn(false);const q=T[T.length-1];if(q){q.truth='FRIENDLY';q.type='UNKNOWN';q.x=430;q.y=315;q.vx=.25;q.vy=.1}}const g=$('#tutorialGuide');g.classList.remove('hidden');$('#tutorialTitle').textContent=title;$('#tutorialText').textContent=text;const n=$('#tutorialNext');n.textContent=step>=12?'RETURN TO MENU':'CONTINUE';n.classList.toggle('hidden',!button)}
 function tutorialMenu(){window.CP_MENU=true;clearTutorialState();$('#mainMenu').classList.add('hidden');$('#tutorialBriefing').classList.remove('hidden')}
 function tutorialBegin(){missionTransition('TRAINING // OA KESTREL','FULL SYSTEMS WALKTHROUGH',tutorialBeginNow)}
@@ -1355,7 +1355,7 @@ function setArcadeOA(oa){const allowed=arcadeOAAllowed();arcadeOA=allowed.includ
 function arcadeBegin(){if(!arcadeOAAllowed().includes(arcadeOA))return;missionTransition('ARCADE // OA '+arcadeOA,'ENDLESS OPERATION // LOADING',arcadeBeginNow)}
 function arcadeBeginNow(){if(!arcadeOAAllowed().includes(arcadeOA))return;musicSetMode('mission');cpSetOAVisual(arcadeOA);campaignMission='ARCADE';campaignIds=0;campaignCorrect=0;campaignThreatResolved=0;campaignNonThreatResolved=0;campaignCollectionInterrupted=0;campaignCompromise=0;campaignFinished=false;arcadeStreak=0;arcadeBestStreak=0;arcadeCorrect=0;arcadeWrong=0;arcadeThreatLevel=1;cpIntelDropReset();arcadeHide();cpHideCampaignOverlays();window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();arcadeStart=performance.now();last=performance.now()}
 function arcadeFinish(reason){if(campaignMission!=='ARCADE'||campaignFinished)return;campaignFinished=true;playAsset(missionFailAudio,.95,'sfx');banner('ARCADE FAILURE // '+reason,2600);running=false;stopCollect();window.CP_MENU=true;const w=$('#hostileCollectionWarning');if(w)w.classList.add('hidden');const elapsed=Math.max(0,Math.floor((performance.now()-(arcadeStart||start))/1000)),acc=(arcadeCorrect+arcadeWrong)?Math.round(arcadeCorrect*100/(arcadeCorrect+arcadeWrong)):100;$('#arcadeResultTitle').textContent=reason;$('#arcadeResultBody').innerHTML='OA '+activeOA+' // ARCADE AAR<br><br>SCORE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+Math.max(0,Math.round(score))+'<br>SURVIVAL TIME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+String(Math.floor(elapsed/60)).padStart(2,'0')+':'+String(elapsed%60).padStart(2,'0')+'<br>THREAT LEVEL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+arcadeThreatLevel+'<br>CONTACTS RESOLVED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+resolved+'<br>THREATS INTERCEPTED&nbsp;&nbsp;&nbsp;&nbsp;'+ints+'<br>COLLECTION INTERRUPTED&nbsp;&nbsp;'+campaignCollectionInterrupted+'<br>DECISION ACCURACY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+acc+'%<br>LONGEST STREAK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+arcadeBestStreak+'<br>SITES DEGRADED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+cpDegradedCount()+' / 5<br>FINAL OE COMPROMISE&nbsp;&nbsp;&nbsp;&nbsp;'+Math.round(campaignCompromise)+'%';$('#arcadeResult').classList.remove('hidden');$('#arcadeResult').classList.add('loss-flash')}
-function arcadeMenu(){clearTutorialState();musicSetMode('menu');setArcadeOA(arcadeOA);cpHideCampaignOverlays();$('#mainMenu').classList.add('hidden');$('#arcadeResult').classList.add('hidden');$('#arcadeBriefing').classList.remove('hidden');refreshArcadeIntelAssist();window.CP_MENU=true}
+function arcadeMenu(){progressionMarkRead('arcade');clearTutorialState();musicSetMode('menu');setArcadeOA(arcadeOA);cpHideCampaignOverlays();$('#mainMenu').classList.add('hidden');$('#arcadeResult').classList.add('hidden');$('#arcadeBriefing').classList.remove('hidden');refreshArcadeIntelAssist();window.CP_MENU=true}
 function cpShowMenu(){
   clearTutorialState();musicSetMode('menu');rotateCommandBackground();
   window.CP_PAUSED=false;window.CP_MENU=true;running=false;stopCollect();A.dest=null;
@@ -1379,6 +1379,153 @@ function cpSetPause(v){
   }
 }
 
+/* COMMAND PROGRESSION // persistent unread unlock tracking */
+const PROGRESSION_NOTICE_KEY='ci-progression-notices-v1';
+const PROGRESSION_MILESTONES=[
+    ['ci-c01-complete','profile','WIDE AREA COLLECTION'],
+    ['ci-c02-complete','profile','RAPID TASKING'],
+    ['ci-c01-complete','arcade','KESTREL'],
+    ['ci-c02-complete','arcade','VANTAGE'],
+    ['ci-c03-05-complete','arcade','VERDANT'],
+    ['ci-c04-05-complete','arcade','MIRAGE'],
+    ['ci-c05-05-complete','arcade','TEMPEST'],
+    ['ci-c06-05-complete','arcade','POLARIS']
+];
+function progressionSnapshot(){
+    return PROGRESSION_MILESTONES
+        .filter(m=>localStorage.getItem(m[0])==='1')
+        .map(m=>m[1]+':'+m[2]);
+}
+function progressionNoticeState(){
+    let state;
+    try{state=JSON.parse(localStorage.getItem(PROGRESSION_NOTICE_KEY)||'null')}catch(e){}
+    if(!state||!Array.isArray(state.seen)||!Array.isArray(state.unread)){
+        state={seen:progressionSnapshot(),unread:[]};
+        localStorage.setItem(PROGRESSION_NOTICE_KEY,JSON.stringify(state));
+    }
+    return state;
+}
+function refreshProgressionBadges(){
+    const state=progressionNoticeState();
+    const profile=$('#profileNewBadge'),arcade=$('#arcadeNewBadge');
+    if(profile)profile.hidden=!state.unread.some(k=>k.startsWith('profile:'));
+    if(arcade)arcade.hidden=!state.unread.some(k=>k.startsWith('arcade:'));
+}
+function progressionMarkRead(section){
+    const state=progressionNoticeState();
+    state.unread=state.unread.filter(k=>!k.startsWith(section+':'));
+    localStorage.setItem(PROGRESSION_NOTICE_KEY,JSON.stringify(state));
+    refreshProgressionBadges();
+}
+refreshProgressionBadges();
+/* COMMAND PROGRESSION // sequential tactical unlock announcements */
+const progressionAnnouncementQueue=[];
+let progressionAnnouncementActive=false;
+
+function progressionQueueAnnouncements(unlocks){
+    if(!Array.isArray(unlocks)||!unlocks.length)return;
+
+    progressionAnnouncementQueue.push(...unlocks);
+    progressionShowNextAnnouncement();
+}
+
+function progressionShowNextAnnouncement(){
+    if(progressionAnnouncementActive)return;
+
+    const key=progressionAnnouncementQueue.shift();
+    if(!key)return;
+
+    const stack=$('#progressionNoticeStack');
+    if(!stack)return;
+
+    progressionAnnouncementActive=true;
+
+    const parts=key.split(':');
+    const section=parts[0];
+    const reward=parts.slice(1).join(':');
+
+    const notice=document.createElement('div');
+    notice.className='progression-unlock-notice';
+
+    const title=document.createElement('b');
+    const detail=document.createElement('span');
+
+    if(section==='profile'){
+        title.textContent='NEW ISR CAPABILITY AVAILABLE';
+        detail.textContent='COMMAND PROFILE // '+reward;
+    }else{
+        title.textContent='NEW OPERATIONAL AREA AVAILABLE';
+        detail.textContent='ARCADE // OA '+reward;
+    }
+
+    notice.appendChild(title);
+    notice.appendChild(detail);
+    stack.appendChild(notice);
+
+    setTimeout(()=>{
+        notice.classList.add('leaving');
+
+        setTimeout(()=>{
+            notice.remove();
+            progressionAnnouncementActive=false;
+            progressionShowNextAnnouncement();
+        },350);
+    },3000);
+}
+/* TEMPORARY DEV TEST // progression announcement preview */
+/* TEMPORARY DEV TEST // button visibility and interaction */
+function refreshDevProgressionTest(){
+    const button=$('#devProgressionTest');
+    if(button)button.hidden=!devAccessActive();
+}
+
+document.addEventListener('click',function(event){
+    const button=event.target.closest('#devProgressionTest');
+    if(!button)return;
+
+    if(!devAccessActive())return;
+
+    window.ciDevPreviewProgression();
+
+    /* TEMPORARY DEV TEST // visual badge preview only */
+    const profileBadge=$('#profileNewBadge');
+    const arcadeBadge=$('#arcadeNewBadge');
+    if(profileBadge)profileBadge.hidden=false;
+    if(arcadeBadge)arcadeBadge.hidden=false;
+});
+
+document.addEventListener('click',function(event){
+    if(event.target.closest('#devModeOn,#devModeOff,#devAccessUnlock')){
+        setTimeout(refreshDevProgressionTest,0);
+    }
+});
+
+refreshDevProgressionTest();
+window.ciDevPreviewProgression=function(){
+    if(!devAccessActive()){
+        console.warn('Progression preview requires DEV mode.');
+        return false;
+    }
+
+    progressionQueueAnnouncements([
+        'profile:WIDE AREA COLLECTION',
+        'arcade:KESTREL'
+    ]);
+
+    return true;
+};
+function progressionCollectUnlocks(){
+    const state=progressionNoticeState();
+    const current=progressionSnapshot();
+    const added=current.filter(k=>!state.seen.includes(k));
+    if(!added.length)return [];
+    state.seen.push(...added);
+    state.unread.push(...added);
+    localStorage.setItem(PROGRESSION_NOTICE_KEY,JSON.stringify(state));
+    refreshProgressionBadges();
+    progressionQueueAnnouncements(added);
+    return added;
+}
 function refreshCommandProfile(){
   const c1=localStorage.getItem('ci-c01-complete')==='1',c2=localStorage.getItem('ci-c02-complete')==='1',done=(c1?1:0)+(c2?1:0);
   const a=$('#profileC01'),b=$('#profileC02'),tier=$('#profileTier'),bar=$('#profileProgress'),txt=$('#profileProgressText'),isr=$('#profileISR');
@@ -1389,7 +1536,7 @@ function refreshCommandProfile(){
 }
 function setISRCapability(k){if(!isrCapabilityUnlocked(k))return;isrCapability=k;localStorage.setItem(ISR_CAPABILITY_KEY,k);refreshCommandProfile();sound('click')}
 function rotateCommandBackground(){const maps=["url('assets/maps/oa-kestrel-overscan.png')","url('assets/maps/oa-vantage-overscan.png')","url('assets/maps/oa-verdant-overscan.png')","url('assets/maps/oa-mirage-overscan.png')","url('assets/maps/oa-tempest-overscan.png')"];const raw=sessionStorage.getItem('ci-command-bg-index');let last=raw===null?-1:Number(raw),next;if(last<0||!Number.isFinite(last))next=Math.floor(Math.random()*maps.length);else if(maps.length>1){const choices=maps.map((_,i)=>i).filter(i=>i!==last);next=choices[Math.floor(Math.random()*choices.length)]}else next=0;sessionStorage.setItem('ci-command-bg-index',String(next));const home=document.getElementById('mainMenu');if(home)home.style.setProperty('--ci-command-bg',maps[next]);document.documentElement.style.setProperty('--ci-command-bg',maps[next])}
-function openCommandProfile(){refreshCommandProfile();$('#mainMenu').classList.add('hidden');$('#commandProfileMenu').classList.remove('hidden')}
+function openCommandProfile(){progressionMarkRead('profile');refreshCommandProfile();$('#mainMenu').classList.add('hidden');$('#commandProfileMenu').classList.remove('hidden')}
 function closeCommandProfile(){$('#commandProfileMenu').classList.add('hidden');$('#mainMenu').classList.remove('hidden')}
 
 
