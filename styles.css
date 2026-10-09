@@ -2521,3 +2521,14 @@ body.studio-title-glitch-in #mainMenu::after{background:linear-gradient(90deg,tr
     min-height:0!important;
     scrollbar-width:thin;
 }
+/* CI hostile collection warning text containment v1 */
+#mapWrap .hostile-collection-warning {
+    height:auto!important;
+    overflow-wrap:anywhere!important;
+}
+#mapWrap .hostile-collection-warning b,
+#mapWrap .hostile-collection-warning span {
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+    word-break:normal!important;
+}
