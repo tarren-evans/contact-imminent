@@ -69,6 +69,12 @@ self.addEventListener('fetch',e=>{
 
   if(e.request.method!=='GET')return;
 
+  // Media byte-range requests must not enter the Cache API.
+  if(e.request.headers.has('range')){
+    e.respondWith(fetch(e.request));
+    return;
+  }
+
   const sameOrigin=u.origin===self.location.origin;
   const isShell=sameOrigin&&(
     u.pathname.endsWith('/styles.css')||
@@ -94,7 +100,7 @@ self.addEventListener('fetch',e=>{
   }
 
   e.respondWith(caches.match(e.request).then(hit=>hit||fetch(e.request).then(async r=>{
-    if(r&&r.ok&&sameOrigin){
+    if(r&&r.status===200&&sameOrigin){
       const c=await caches.open(CACHE);
       c.put(e.request,r.clone());
     }
