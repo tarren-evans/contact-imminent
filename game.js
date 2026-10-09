@@ -1868,3 +1868,99 @@ const eventPanel=$('#eventPanel'),devPanel=$('#devPanel');if(eventPanel){eventPa
  const reposition=()=>placeCaret(caretTarget);window.addEventListener('resize',reposition,{passive:true,once:true});
 };;;(function bootSequence(){const splash=$('#bootSplash'),bar=$('#bootLoadBar'),pct=$('#bootPct'),minBoot=1800,t0=performance.now();ciPrimeBootAudio();const bootUnlock=()=>{audioUnlock();splash?.classList.add('audio-armed');const hint=$('#bootAudioHint');if(hint)hint.textContent='AUDIO LINK // ACTIVE'};splash?.addEventListener('pointerdown',bootUnlock,{once:true,capture:true});document.addEventListener('keydown',bootUnlock,{once:true,capture:true});const critical=[GLOBAL_EARTH_TEXTURE_SRC,'assets/maps/global-deep-space.png',...Object.values(GLOBAL_MAP_IMAGE)];let complete=0,total=critical.length+1;function paint(){const n=Math.min(99,Math.round(complete/total*100));if(bar){bar.style.width=n+'%';bar.style.backgroundColor=n<50?'#ff4b45':n<80?'#e0b23d':'#55d67a'}if(pct){pct.textContent=n+'%';pct.style.color=n<50?'#ff6b65':n<80?'#e0b23d':'#55d67a'}}function preload(src){return new Promise(resolve=>{const img=new Image();let done=false;const finish=()=>{if(done)return;done=true;complete++;paint();resolve()};img.onload=()=>{const d=img.decode?.();if(d&&d.then)d.then(finish).catch(finish);else finish()};img.onerror=finish;img.src=src;if(img.complete&&img.naturalWidth)img.onload()})}async function warm(){paint();await Promise.all(critical.map(preload));try{const gl=initGlobalSurfaceGL();const limit=performance.now()+2200;while(gl&&!gl.ready&&performance.now()<limit)await new Promise(r=>setTimeout(r,32));if(gl){drawGlobalSurfaceGL(8,8,3);try{gl.gl.finish()}catch(e){}}}catch(e){}complete++;paint();const wait=Math.max(0,minBoot-(performance.now()-t0));if(wait)await new Promise(r=>setTimeout(r,wait));if(bar){bar.style.width='100%';bar.style.backgroundColor='#55d67a'}if(pct){pct.textContent='100%';pct.style.color='#55d67a'}requestAnimationFrame(()=>requestAnimationFrame(()=>{splash?.classList.add('done');window.CI_showStudioReveal?.()}))}warm();setTimeout(()=>ciPreloadInterstitial(),5000)})();
 requestAnimationFrame(loop)})();
+
+
+/* CI content-aware mission briefing sizing v1 */
+(function () {
+  const selector = '.gameoverlay[id^="briefing"] > .briefingpanel';
+
+  function fitBriefing(panel) {
+    const overlay = panel.parentElement;
+    if (!overlay || overlay.classList.contains('hidden')) return;
+
+    const bounds = overlay.getBoundingClientRect();
+    const availableWidth = Math.max(1, bounds.width - 24);
+    const availableHeight = Math.max(1, bounds.height - 24);
+
+    const compactTarget = 290;
+    const minimumWidth = Math.min(420, availableWidth);
+    const maximumWidth = Math.min(760, availableWidth);
+
+    panel.style.setProperty('box-sizing', 'border-box', 'important');
+    panel.style.setProperty('height', 'auto', 'important');
+    panel.style.setProperty('max-height', 'none', 'important');
+    panel.style.setProperty('overflow', 'visible', 'important');
+
+    let chosenWidth = minimumWidth;
+
+    for (let width = minimumWidth; ; width = Math.min(width + 20, maximumWidth)) {
+      panel.style.setProperty('width', width + 'px', 'important');
+      panel.style.setProperty('max-width', availableWidth + 'px', 'important');
+
+      chosenWidth = width;
+
+      if (panel.scrollHeight <= compactTarget || width >= maximumWidth) break;
+    }
+
+    panel.style.setProperty('width', chosenWidth + 'px', 'important');
+
+    const contentHeight = panel.scrollHeight;
+
+    if (contentHeight > availableHeight) {
+      panel.style.setProperty('max-height', availableHeight + 'px', 'important');
+      panel.style.setProperty('overflow-y', 'auto', 'important');
+      panel.style.setProperty('overscroll-behavior', 'contain');
+    }
+
+    const buttons = panel.querySelectorAll('button');
+    const lastButton = buttons[buttons.length - 1];
+
+    if (lastButton && contentHeight <= availableHeight) {
+      const panelRect = panel.getBoundingClientRect();
+      const buttonRect = lastButton.getBoundingClientRect();
+
+      if (buttonRect.bottom > panelRect.bottom + 1) {
+        console.warn('[CI briefing] Button extends beyond panel:', overlay.id);
+      }
+    }
+  }
+
+  function fitVisibleBriefings() {
+    document.querySelectorAll(selector).forEach(fitBriefing);
+  }
+
+  const observer = new MutationObserver(function (mutations) {
+    if (mutations.some(m =>
+      m.type === 'attributes' &&
+      m.attributeName === 'class' &&
+      m.target.matches?.('.gameoverlay[id^="briefing"]')
+    )) {
+      requestAnimationFrame(fitVisibleBriefings);
+    }
+  });
+
+  function initialize() {
+    document.querySelectorAll('.gameoverlay[id^="briefing"]').forEach(overlay => {
+      observer.observe(overlay, {
+        attributes: true,
+        attributeFilter: ['class']
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      requestAnimationFrame(fitVisibleBriefings);
+    });
+
+    window.visualViewport?.addEventListener('resize', () => {
+      requestAnimationFrame(fitVisibleBriefings);
+    });
+
+    fitVisibleBriefings();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+  } else {
+    initialize();
+  }
+})();

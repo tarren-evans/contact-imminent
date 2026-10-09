@@ -2504,3 +2504,12 @@ body.studio-title-glitch-in #mainMenu::after{background:linear-gradient(90deg,tr
         filter:none!important;
     }
 }
+
+/* CI content-aware mission briefing foundation v1 */
+.gameoverlay[id^="briefing"] > .briefingpanel {
+    box-sizing:border-box!important;
+    height:auto!important;
+    max-height:none!important;
+    overflow:visible!important;
+    overflow-y:visible!important;
+}
