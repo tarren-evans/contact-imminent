@@ -913,7 +913,7 @@ function cpRefreshStatusColors(){
  cpStatusClass($('#integrity'),integrityState);cpStatusClass($('#objIntegrity'),integrityState);
  cpStatusClass($('#comp'),oeState);cpStatusClass($('#objCompromise'),oeState);
 }
-function displayMode(mode){return String(mode||'STANDBY').replaceAll('_',' ')}function ui(force=false){document.body.classList.toggle('arcade-ui',campaignMission==='ARCADE'||campaignMission==='RETRO');let now=performance.now();if(!force&&now-lastUi<200)return;lastUi=now;let p=parms(),c=(cpThreatMission()?campaignCompromise:compromise()),n=/^04-0[1-5]$/.test(campaignMission||'')?mirageTraffic.filter(t=>t.type==='UNKNOWN'&&Math.hypot(A.x-t.x,A.y-t.y)<=cpEffectiveISRRadius()).length:T.filter(t=>!t.done&&t.type==='UNKNOWN'&&D(A,t)<=cpEffectiveISRRadius()).length;$('#stateLine').textContent=A.controlSelected?'ISR CONTROL // SELECT DESTINATION':'ISR // '+displayMode(A.mode);$('#rangeLine').textContent='SENSOR // '+n+' UNKNOWN IN RANGE';$('#score').textContent=String(Math.max(0,Math.round(score))).padStart(4,'0');$('#integrity').textContent=Math.round(integrity)+'%';$('#comp').textContent=Math.round(c)+'%';const compCard=$('#comp')?.closest('.op-status-item');if(compCard)compCard.style.display=((activeOA==='VERDANT'&&/^03-/.test(campaignMission||''))||(activeOA==='MIRAGE'&&/^04-/.test(campaignMission||'')))?'none':'';const cm=$('#compMeter'),im=$('#integrityMeter');if(cm){cm.style.width=Math.min(100,Math.max(0,c))+'%';cm.className=c>=50?'danger':c>=30?'warn':''}if(im){im.style.width=Math.min(100,Math.max(0,integrity))+'%';im.className=integrity<40?'danger':integrity<80?'warn':''}$('#compTop').textContent=Math.round(c)+'%';$('#resolved').textContent=resolved;$('#ints').textContent=ints;
+function displayMode(mode){return String(mode||'STANDBY').replaceAll('_',' ')}function ui(force=false){document.body.classList.toggle('arcade-ui',campaignMission==='ARCADE'||campaignMission==='RETRO');let now=performance.now();if(!force&&now-lastUi<200)return;lastUi=now;const cpVerdantUiValues=/^03-0[1-5]$/.test(campaignMission||'')?verdantMissionValues():null;let p=parms(),c=(cpThreatMission()?campaignCompromise:compromise()),n=/^04-0[1-5]$/.test(campaignMission||'')?mirageTraffic.filter(t=>t.type==='UNKNOWN'&&Math.hypot(A.x-t.x,A.y-t.y)<=cpEffectiveISRRadius()).length:T.filter(t=>!t.done&&t.type==='UNKNOWN'&&D(A,t)<=cpEffectiveISRRadius()).length;$('#stateLine').textContent=A.controlSelected?'ISR CONTROL // SELECT DESTINATION':'ISR // '+displayMode(A.mode);$('#rangeLine').textContent='SENSOR // '+n+' UNKNOWN IN RANGE';$('#score').textContent=String(Math.max(0,Math.round(score))).padStart(4,'0');$('#integrity').textContent=Math.round(integrity)+'%';$('#comp').textContent=Math.round(c)+'%';const compCard=$('#comp')?.closest('.op-status-item');if(compCard)compCard.style.display=((activeOA==='VERDANT'&&/^03-/.test(campaignMission||''))||(activeOA==='MIRAGE'&&/^04-/.test(campaignMission||'')))?'none':'';const cm=$('#compMeter'),im=$('#integrityMeter');if(cm){cm.style.width=Math.min(100,Math.max(0,c))+'%';cm.className=c>=50?'danger':c>=30?'warn':''}if(im){im.style.width=Math.min(100,Math.max(0,integrity))+'%';im.className=integrity<40?'danger':integrity<80?'warn':''}$('#compTop').textContent=Math.round(c)+'%';$('#resolved').textContent=resolved;$('#ints').textContent=ints;
 let or=$('#objResolved'),oi=$('#objInterrupted'),og=$('#objIntegrity'),oc=$('#objCompromise'),ot=$('#objectiveTracker'),
     ott=$('#objectiveTitle'),osl=$('#objectiveSecondaryLabel'),osc=$('#objectiveSecondaryChip'),otc=$('#objectiveThirdChip'),otl=$('#objectiveThirdLabel'),oec=$('#objectiveOEChip');
 if(ot)ot.style.display=usesObjectiveTracker()?'flex':'none';
@@ -927,7 +927,7 @@ if(campaignMission&&or){
  if(campaignMission==='01-05'){title='CONDITIONS SET';resolveTarget=16;secondaryLabel='INTERRUPT';secondaryValue=campaignCollectionInterrupted+'/5';secondaryComplete=campaignCollectionInterrupted>=5;showOE=true}
  if(campaignMission==='04-01'){const v=mirageMissionValues();title='INVENTORY';resolveTarget=4;secondaryLabel='TRACKS';secondaryValue=Math.min(v[1],4)+'/4';secondaryComplete=v[1]>=4;showOE=false;campaignCorrect=Math.min(v[0],4);}else if(campaignMission==='04-02'){const v=mirageMissionValues();title='CAPACITY';resolveTarget=3;secondaryLabel='LINKS';secondaryValue=Math.min(v[1],5)+'/5';secondaryComplete=v[1]>=5;showOE=false;campaignCorrect=Math.min(v[0],3);}else if(campaignMission==='04-03'){const v=mirageMissionValues();title='POSTURE';resolveTarget=3;secondaryLabel='CORROB';secondaryValue=Math.min(v[1],2)+'/2';secondaryComplete=v[1]>=2;showOE=false;campaignCorrect=Math.min(v[0],3);}else if(campaignMission==='04-04'){const v=mirageMissionValues();title='INDICATIONS';resolveTarget=3;secondaryLabel='CORROB';secondaryValue=Math.min(v[1],2)+'/2';secondaryComplete=v[1]>=2;showOE=false;campaignCorrect=Math.min(v[0],3);}else if(campaignMission==='04-05'){const v=mirageMissionValues();title='WARNING';resolveTarget=3;secondaryLabel='CORROB';secondaryValue=Math.min(v[1],2)+'/2';secondaryComplete=v[1]>=2;showOE=false;campaignCorrect=Math.min(v[0],3);}
  if(/^03-0[1-5]$/.test(campaignMission||'')){
-   const m=VERDANT_MISSIONS[campaignMission],v=verdantMissionValues();
+   const m=VERDANT_MISSIONS[campaignMission],v=cpVerdantUiValues;
    title=m.title;resolveTarget=m.goals[0];secondaryLabel=campaignMission==='03-01'?'TRAFFIC':campaignMission==='03-02'?'ANOMALY':campaignMission==='03-03'?'TRANSFER':campaignMission==='03-04'?'SIGNATURE':'PRESERVE';
    secondaryValue=Math.min(v[1],m.goals[1])+'/'+m.goals[1];secondaryComplete=v[1]>=m.goals[1];showOE=false;campaignCorrect=Math.min(v[0],m.goals[0]);
   }
@@ -937,12 +937,12 @@ if(campaignMission&&or){
  if(osc)osc.style.display=secondaryLabel?'inline-flex':'none';
  if(osl)osl.textContent=secondaryLabel;
  if(oi)oi.textContent=secondaryValue;
- if(campaignMission==='04-01'){const v=mirageMissionValues();if(otl)otl.textContent='LINKS';og.textContent=Math.min(v[2],3)+'/3';if(otc)otc.style.display='inline-flex';}else if(campaignMission==='04-02'){const v=mirageMissionValues();if(otl)otl.textContent='NETWORK';og.textContent=Math.min(v[2],2)+'/2';if(otc)otc.style.display='inline-flex';}else if(campaignMission==='04-03'){const v=mirageMissionValues();if(otl)otl.textContent='TRACKS';og.textContent=Math.min(v[2],5)+'/5';if(otc)otc.style.display='inline-flex';}else if(/^04-0[45]$/.test(campaignMission||'')){const v=mirageMissionValues();if(otl)otl.textContent='TRACKS';og.textContent=Math.min(v[2],6)+'/6';if(otc)otc.style.display='inline-flex';}else if(/^03-0[1-5]$/.test(campaignMission||'')){const m=VERDANT_MISSIONS[campaignMission],v=verdantMissionValues();if(otl)otl.textContent=campaignMission==='03-01'?'RECUR':'CLASS';og.textContent=Math.min(v[2],m.goals[2])+'/'+m.goals[2];if(otc)otc.style.display='inline-flex';}else{if(otl)otl.textContent='INTEGRITY';og.textContent=campaignMission==='RETRO'?Math.round(integrity)+'%':(campaignMission==='ARCADE'?Math.round(integrity)+'/0':Math.round(integrity)+'/80');if(otc)otc.style.display='none';}
+ if(campaignMission==='04-01'){const v=mirageMissionValues();if(otl)otl.textContent='LINKS';og.textContent=Math.min(v[2],3)+'/3';if(otc)otc.style.display='inline-flex';}else if(campaignMission==='04-02'){const v=mirageMissionValues();if(otl)otl.textContent='NETWORK';og.textContent=Math.min(v[2],2)+'/2';if(otc)otc.style.display='inline-flex';}else if(campaignMission==='04-03'){const v=mirageMissionValues();if(otl)otl.textContent='TRACKS';og.textContent=Math.min(v[2],5)+'/5';if(otc)otc.style.display='inline-flex';}else if(/^04-0[45]$/.test(campaignMission||'')){const v=mirageMissionValues();if(otl)otl.textContent='TRACKS';og.textContent=Math.min(v[2],6)+'/6';if(otc)otc.style.display='inline-flex';}else if(/^03-0[1-5]$/.test(campaignMission||'')){const m=VERDANT_MISSIONS[campaignMission],v=cpVerdantUiValues;if(otl)otl.textContent=campaignMission==='03-01'?'RECUR':'CLASS';og.textContent=Math.min(v[2],m.goals[2])+'/'+m.goals[2];if(otc)otc.style.display='inline-flex';}else{if(otl)otl.textContent='INTEGRITY';og.textContent=campaignMission==='RETRO'?Math.round(integrity)+'%':(campaignMission==='ARCADE'?Math.round(integrity)+'/0':Math.round(integrity)+'/80');if(otc)otc.style.display='none';}
  if(oec)oec.style.display=showOE?'inline-flex':'none';
  if(oc)oc.textContent=campaignMission==='RETRO'?Math.round(c)+'%':Math.round(campaignCompromise)+'/'+((campaignMission==='01-05'||campaignMission==='02-05')?'50':'60');
  or.parentElement.classList.toggle('complete',campaignMission==='ARCADE'?arcadeStreak>=5:campaignCorrect>=resolveTarget);
  if(oi&&oi.parentElement){oi.parentElement.classList.toggle('complete',secondaryComplete);oi.parentElement.classList.remove('danger')}
- if(campaignMission==='04-01'){const v=mirageMissionValues();og.parentElement.classList.toggle('complete',v[2]>=3);og.parentElement.classList.remove('danger')}else if(campaignMission==='04-02'){const v=mirageMissionValues();og.parentElement.classList.toggle('complete',v[2]>=2);og.parentElement.classList.remove('danger')}else if(campaignMission==='04-03'){const v=mirageMissionValues();og.parentElement.classList.toggle('complete',v[2]>=5);og.parentElement.classList.remove('danger')}else if(/^04-0[45]$/.test(campaignMission||'')){const v=mirageMissionValues();og.parentElement.classList.toggle('complete',v[2]>=6);og.parentElement.classList.remove('danger')}else if(/^03-0[1-5]$/.test(campaignMission||'')){const m=VERDANT_MISSIONS[campaignMission],v=verdantMissionValues();og.parentElement.classList.toggle('complete',v[2]>=m.goals[2]);og.parentElement.classList.remove('danger')}else{og.parentElement.classList.toggle('complete',integrity>=80);og.parentElement.classList.toggle('danger',integrity<80);}
+ if(campaignMission==='04-01'){const v=mirageMissionValues();og.parentElement.classList.toggle('complete',v[2]>=3);og.parentElement.classList.remove('danger')}else if(campaignMission==='04-02'){const v=mirageMissionValues();og.parentElement.classList.toggle('complete',v[2]>=2);og.parentElement.classList.remove('danger')}else if(campaignMission==='04-03'){const v=mirageMissionValues();og.parentElement.classList.toggle('complete',v[2]>=5);og.parentElement.classList.remove('danger')}else if(/^04-0[45]$/.test(campaignMission||'')){const v=mirageMissionValues();og.parentElement.classList.toggle('complete',v[2]>=6);og.parentElement.classList.remove('danger')}else if(/^03-0[1-5]$/.test(campaignMission||'')){const m=VERDANT_MISSIONS[campaignMission],v=cpVerdantUiValues;og.parentElement.classList.toggle('complete',v[2]>=m.goals[2]);og.parentElement.classList.remove('danger')}else{og.parentElement.classList.toggle('complete',integrity>=80);og.parentElement.classList.toggle('danger',integrity<80);}
  if(oc&&oc.parentElement){oc.parentElement.classList.toggle('complete',showOE&&campaignCompromise<60);oc.parentElement.classList.toggle('danger',showOE&&campaignCompromise>=50)}
  let od=$('#objDegraded');if(od)od.textContent=cpDegradedCount()+' / 5 // FLOOR '+cpCompromiseFloor()+'%';
  cpRefreshStatusColors();
@@ -953,7 +953,7 @@ if(stall&&!stallLogged){
  rec('STALL',`mode=${A.mode} pos=${A.x.toFixed(2)},${A.y.toFixed(2)} dest=${A.dest.x.toFixed(2)},${A.dest.y.toFixed(2)} age=${age} gap=${C.maxGap.toFixed(1)}`);
 }
 if(!$('#devPanel')?.open)return;
-$('#diagStatus').textContent=stall?'ISR STALL DETECTED':'NOMINAL';$('#diagStatus').classList.toggle('stall',stall);$('#diag1').textContent=`FPS ${C.fps} | RAF ${C.raf} | GAP ${Math.round(C.maxGap)}ms | ERR ${C.errors}`;$('#diag2').textContent=`ISR POINTER ${C.isr} | MAP POINTER ${C.map} | TRACK POINTER ${C.track} | ORDERS ${C.orders}`;$('#diag3').textContent=`MODE ${A.mode} | POS ${A.x.toFixed(1)},${A.y.toFixed(1)} | DEST ${valid(A.dest)?A.dest.x.toFixed(1)+','+A.dest.y.toFixed(1):'--'} | MOVE AGE ${age}ms`;let vv=window.visualViewport,vw=Math.round(window.innerWidth),vh=Math.round(window.innerHeight),vww=vv?Math.round(vv.width):vw,vvh=vv?Math.round(vv.height):vh,vs=vv?vv.scale:1;$('#viewportDiag').textContent=`VIEWPORT // ${vw}x${vh} -> ${vww}x${vvh} | SCALE ${vs.toFixed(2)}`;}function diagText(){return [`CONTACT IMMINENT v0.11.6.140 OA KESTREL / OA VANTAGE CAMPAIGN RUNTIME DIAGNOSTICS`,new Date().toISOString(),`running=${running} phase=${phase} score=${Math.round(score)} integrity=${integrity} compromise=${compromise().toFixed(2)}`,`fps=${C.fps} raf=${C.raf} maxGapMs=${C.maxGap.toFixed(1)} errors=${C.errors}`,`isrClicks=${C.isr} mapClicks=${C.map} trackClicks=${C.track} orders=${C.orders}`,`mode=${A.mode} pos=${A.x.toFixed(2)},${A.y.toFixed(2)} dest=${valid(A.dest)?A.dest.x.toFixed(2)+','+A.dest.y.toFixed(2):'--'} moveAgeMs=${Math.round(performance.now()-A.lastMove)}`,'','ROLLING DEBUG LOG',...dbg].join('\n')}async function copyDiag(){let t=diagText();try{await navigator.clipboard.writeText(t);log('DIAGNOSTICS // COPIED')}catch(e){rec('COPY_FAIL',String(e));let ta=document.createElement('textarea');ta.value=t;document.body.append(ta);ta.select();document.execCommand('copy');ta.remove();log('DIAGNOSTICS // COPIED')}}function saveDiag(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([diagText()],{type:'text/plain'}));a.download='contact-imminent-v0.11.6.140-debug.txt';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),(cpFusionActive()?600:1000));log('DIAGNOSTICS // SAVED')}function finish(){if(!running)return;if(/^02-/.test(campaignMission||'')){cpFinishCampaign02(false);return;}if(campaignMission==='01-04'){cpFinish0104('TIMEOUT');return;}if(campaignMission==='01-05'){cpFinish0105('TIMEOUT');return;}running=false;stopCollect();A.dest=null;A.mode='IDLE';let c=compromise();$('#endTitle').textContent=c<60?'CONDITIONS HAVE BEEN SET':'CONDITIONS NOT SET';$('#fs').textContent=Math.max(0,Math.round(score));$('#fr').textContent=resolved;$('#fi').textContent=ints;$('#fc').textContent=Math.round(c)+'%';$('#end').classList.add('show');ui(true)}function loop(now){if(window.CP_PAUSED){last=now;requestAnimationFrame(loop);return;}C.raf++;let gap=now-C.lastRaf;C.lastRaf=now;if(gap>C.maxGap)C.maxGap=gap;C.fpsFrames++;if(now-C.fpsAt>=1000){C.fps=Math.round(C.fpsFrames*1000/(now-C.fpsAt));C.fpsFrames=0;C.fpsAt=now}let dt=Math.min(.05,(now-last)/1000);last=now;if(running){campaignHintTick(now);let elapsed=(now-start)/1000,left=Math.max(0,180-elapsed),np=elapsed<60?1:elapsed<120?2:3;if(campaignMission==='RETRO'){let s=Math.floor(elapsed);$('#clock').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');$('#phase').textContent='SURVIVE';if(compromise()>=99.9){running=false;stopCollect();A.dest=null;A.mode='IDLE';$('#endTitle').textContent='OE LOST // SURVIVED '+$('#clock').textContent;$('#fs').textContent=Math.max(0,Math.round(score));$('#fr').textContent=resolved;$('#fi').textContent=ints;$('#fc').textContent=Math.round(compromise())+'%';$('#end').classList.add('show')}}else if(campaignMission==='ARCADE'){arcadeThreatLevel=1+Math.floor(elapsed/75);if(arcadeThreatLevel!==phase){phase=arcadeThreatLevel;let nm='THREAT LEVEL '+arcadeThreatLevel;$('#phase').textContent='ARCADE // '+nm;banner(nm,1300);sound('level');log(nm)}let s=Math.floor(elapsed);$('#clock').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}else if(/^04-0[1-5]$/.test(campaignMission||'')){$('#phase').textContent=campaignMission+' // '+(campaignMission==='04-02'?'CAPACITY':'INVENTORY')+' // UTC';$('#clock').textContent='UTC'}else if(/^03-0[1-5]$/.test(campaignMission||'')){$('#phase').textContent=campaignMission+' // '+(VERDANT_MISSIONS[campaignMission]?.title||'VERDANT')+' // UTC';$('#clock').textContent='UTC'}else{if(np!==phase){phase=np;let nm=phase===2?'PHASE II // CONTEST':'PHASE III // DOMINATE';$('#phase').textContent=nm;banner(nm,1300);log(nm)}let s=Math.ceil(left);$('#clock').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}if(campaignMission!=='ARCADE'&&campaignMission!=='RETRO'&&campaignMission!=='TUTORIAL'&&!/^0[34]-/.test(campaignMission||'')&&left<=0)finish();else{let p=parms();if(campaignMission!=='TUTORIAL'&&!/^0[34]-/.test(campaignMission||'')&&(now-lastSpawn)/1000>=p.gap&&T.filter(t=>!t.done).length<p.cap){spawn();lastSpawn=now}T.forEach(t=>{if(t.done||t.stationary)return;t.x+=t.vx*dt;t.y+=t.vy*dt;if(t.x<35||t.x>865)t.vx*=-1;if(t.y<35||t.y>615)t.vy*=-1});naiTick(now);enemy(dt);cpContestedTick(dt);cpIntelDropTick();cpCyberTick();reconstitutionTick(now);cpTrackStallGuard();const postureTarget=(A.mode==='LOITER'||A.mode==='LOITER_ENTRY'||A.mode==='LOITER_APPROACH')?.75:1;A.sensorPosture+=(postureTarget-A.sensorPosture)*Math.min(1,dt/.65);if(A.mode==='LOITER_EXIT'&&valid(A.dest)){const desired=H(A.dest.x-A.x,A.dest.y-A.y),delta=cpHeadingDelta(A.heading,desired),maxTurn=(A.exitTurnCommitted?95:110)*dt;let remaining=Math.abs(delta);if(A.exitTurnCommitted){const dir=A.exitTurnDir||1;remaining=dir>0?(desired-A.heading+360)%360:(A.heading-desired+360)%360;const turn=Math.min(maxTurn,remaining);A.heading=(A.heading+dir*turn+360)%360}else A.heading=(A.heading+Math.max(-maxTurn,Math.min(maxTurn,delta))+360)%360;const rad=A.heading*Math.PI/180,step=cpEffectiveISRSpeed()*dt;A.x+=Math.sin(rad)*step;A.y-=Math.cos(rad)*step;A.lastMove=now;stallLogged=false;const exitAge=now-(A.exitStarted||now),aligned=A.exitTurnCommitted?remaining<7:Math.abs(delta)<7;if(exitAge>=220&&aligned){const committed=A.exitTurnCommitted;A.loiterCenter=null;A.exitTurnCommitted=false;A.exitTurnDir=0;A.mode='ENROUTE';rec('LOITER_EXIT_COMPLETE',`heading=${A.heading.toFixed(1)} delta=${delta.toFixed(1)} age=${Math.round(exitAge)}${committed?' committed-turn':''}`)}else if(now>=A.exitUntil&&exitAge%1000<60){rec('LOITER_EXIT_HOLD',`heading=${A.heading.toFixed(1)} target=${desired.toFixed(1)} remaining=${remaining.toFixed(1)}`)}}else if(A.mode==='ENROUTE'&&valid(A.dest)){const rx=57,ry=32,approach=108;let dx=A.dest.x-A.x,dy=A.dest.y-A.y,d=Math.hypot(dx,dy);if(d<=approach){A.loiterCenter={x:A.dest.x,y:A.dest.y};let th=Math.atan2((A.y-A.dest.y)/ry,(A.x-A.dest.x)/rx);if(!Number.isFinite(th))th=0;const tangentHeading=dir=>H(-rx*Math.sin(th)*dir,ry*Math.cos(th)*dir),cw=tangentHeading(1),ccw=tangentHeading(-1);A.loiterDir=Math.abs(cpHeadingDelta(A.heading,cw))<=Math.abs(cpHeadingDelta(A.heading,ccw))?1:-1;A.approachAngle=th;A.mode='LOITER_APPROACH';A.lastMove=now;stallLogged=false;rec('LOITER_APPROACH',`distance=${d.toFixed(2)} dir=${A.loiterDir>0?'CW':'CCW'} heading=${A.heading.toFixed(1)}`)}else{A.heading=H(dx,dy);let q=Math.min(cpEffectiveISRSpeed()*dt,Math.max(.08,d-approach)),ox=A.x,oy=A.y;A.x+=dx/d*q;A.y+=dy/d*q;if(Math.hypot(A.x-ox,A.y-oy)>.0001){A.lastMove=now;stallLogged=false}}}else if(A.mode==='LOITER_APPROACH'&&valid(A.loiterCenter)){const rx=57,ry=32,base=cpEffectiveISRSpeed(),loiterSpeed=base*.70,tx=A.loiterCenter.x+Math.cos(A.approachAngle)*rx,ty=A.loiterCenter.y+Math.sin(A.approachAngle)*ry,dx=tx-A.x,dy=ty-A.y,d=Math.hypot(dx,dy),desired=d>2?H(dx,dy):H(-rx*Math.sin(A.approachAngle)*A.loiterDir,ry*Math.cos(A.approachAngle)*A.loiterDir),delta=cpHeadingDelta(A.heading,desired),maxTurn=105*dt;A.heading+=Math.max(-maxTurn,Math.min(maxTurn,delta));const centerD=Math.hypot(A.x-A.loiterCenter.x,A.y-A.loiterCenter.y),blend=Math.max(0,Math.min(1,(centerD-59)/(108-59))),speed=loiterSpeed+(base-loiterSpeed)*blend,rad=A.heading*Math.PI/180,step=Math.min(speed*dt,Math.max(.35,d));A.x+=Math.sin(rad)*step;A.y-=Math.cos(rad)*step;A.lastMove=now;stallLogged=false;if(d<=3.5&&Math.abs(cpHeadingDelta(A.heading,H(-rx*Math.sin(A.approachAngle)*A.loiterDir,ry*Math.cos(A.approachAngle)*A.loiterDir)))<24){A.loiterAngle=A.approachAngle;A.dest=null;A.mode='LOITER';rec('LOITER_CAPTURE',`dir=${A.loiterDir>0?'CW':'CCW'} merge=${d.toFixed(2)}`)}}else if(A.mode==='LOITER_ENTRY'&&valid(A.loiterCenter)){const rx=57,ry=32;A.loiterAngle=Math.atan2((A.y-A.loiterCenter.y)/ry,(A.x-A.loiterCenter.x)/rx);if(!Number.isFinite(A.loiterAngle))A.loiterAngle=0;A.dest=null;A.mode='LOITER';A.lastMove=now;stallLogged=false}else if(A.mode==='LOITER'&&valid(A.loiterCenter)){const rx=57,ry=32,loiterSpeed=cpEffectiveISRSpeed()*.70,omega=loiterSpeed/Math.max(1,(rx+ry)*.5);A.loiterAngle=(A.loiterAngle+(A.loiterDir||1)*omega*dt)%(Math.PI*2);const nx=A.loiterCenter.x+Math.cos(A.loiterAngle)*rx,ny=A.loiterCenter.y+Math.sin(A.loiterAngle)*ry,dx=nx-A.x,dy=ny-A.y;if(Math.hypot(dx,dy)>.01)A.heading=H(dx,dy);A.x=nx;A.y=ny;A.lastMove=now;stallLogged=false}}}mirageTick(dt);verdantSmartTick(dt);verdantTrafficTick(dt);cpPriorityNAITick(now);vantageAffinityTick(now);updateTrackMemory(now);networkTick(now);if(/^02-/.test(campaignMission||''))cpCheckCampaign02();geometry();ui();diagnostic(now);requestAnimationFrame(loop)}function supplyTargetFromPoint(p){if(!supplyRepairMode||supplyPackages<1||!valid(p))return false;const candidates=B.filter(b=>b.degraded&&!b.reconstituting).map(b=>({b,d:Math.hypot(b.x-p.x,b.y-p.y)})).sort((a,b)=>a.d-b.d);if(!candidates.length)return false;const hit=candidates[0];if(hit.d>62){cpNotice('SUPPLY TARGETING','SELECT A HIGHLIGHTED DEGRADED SITE','intel');return false;}reconstituteSite(hit.b);return true}
+$('#diagStatus').textContent=stall?'ISR STALL DETECTED':'NOMINAL';$('#diagStatus').classList.toggle('stall',stall);$('#diag1').textContent=`FPS ${C.fps} | RAF ${C.raf} | GAP ${Math.round(C.maxGap)}ms | ERR ${C.errors}`;$('#diag2').textContent=`ISR POINTER ${C.isr} | MAP POINTER ${C.map} | TRACK POINTER ${C.track} | ORDERS ${C.orders}`;$('#diag3').textContent=`MODE ${A.mode} | POS ${A.x.toFixed(1)},${A.y.toFixed(1)} | DEST ${valid(A.dest)?A.dest.x.toFixed(1)+','+A.dest.y.toFixed(1):'--'} | MOVE AGE ${age}ms`;let vv=window.visualViewport,vw=Math.round(window.innerWidth),vh=Math.round(window.innerHeight),vww=vv?Math.round(vv.width):vw,vvh=vv?Math.round(vv.height):vh,vs=vv?vv.scale:1;$('#viewportDiag').textContent=`VIEWPORT // ${vw}x${vh} -> ${vww}x${vvh} | SCALE ${vs.toFixed(2)}`;}function diagText(){return [`CONTACT IMMINENT v0.11.6.140 OA KESTREL / OA VANTAGE CAMPAIGN RUNTIME DIAGNOSTICS`,new Date().toISOString(),`running=${running} phase=${phase} score=${Math.round(score)} integrity=${integrity} compromise=${compromise().toFixed(2)}`,`fps=${C.fps} raf=${C.raf} maxGapMs=${C.maxGap.toFixed(1)} errors=${C.errors}`,`isrClicks=${C.isr} mapClicks=${C.map} trackClicks=${C.track} orders=${C.orders}`,`mode=${A.mode} pos=${A.x.toFixed(2)},${A.y.toFixed(2)} dest=${valid(A.dest)?A.dest.x.toFixed(2)+','+A.dest.y.toFixed(2):'--'} moveAgeMs=${Math.round(performance.now()-A.lastMove)}`,'','ROLLING DEBUG LOG',...dbg].join('\n')}async function copyDiag(){let t=diagText();try{await navigator.clipboard.writeText(t);log('DIAGNOSTICS // COPIED')}catch(e){rec('COPY_FAIL',String(e));let ta=document.createElement('textarea');ta.value=t;document.body.append(ta);ta.select();document.execCommand('copy');ta.remove();log('DIAGNOSTICS // COPIED')}}function saveDiag(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([diagText()],{type:'text/plain'}));a.download='contact-imminent-v0.11.6.140-debug.txt';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),(cpFusionActive()?600:1000));log('DIAGNOSTICS // SAVED')}function finish(){if(!running)return;if(/^02-/.test(campaignMission||'')){cpFinishCampaign02(false);return;}if(campaignMission==='01-04'){cpFinish0104('TIMEOUT');return;}if(campaignMission==='01-05'){cpFinish0105('TIMEOUT');return;}running=false;stopCollect();A.dest=null;A.mode='IDLE';let c=compromise();$('#endTitle').textContent=c<60?'CONDITIONS HAVE BEEN SET':'CONDITIONS NOT SET';$('#fs').textContent=Math.max(0,Math.round(score));$('#fr').textContent=resolved;$('#fi').textContent=ints;$('#fc').textContent=Math.round(c)+'%';$('#end').classList.add('show');ui(true)}function loop(now){if(window.CP_PAUSED){last=now;requestAnimationFrame(loop);return;}C.raf++;let gap=now-C.lastRaf;C.lastRaf=now;if(gap>C.maxGap)C.maxGap=gap;C.fpsFrames++;if(now-C.fpsAt>=1000){C.fps=Math.round(C.fpsFrames*1000/(now-C.fpsAt));C.fpsFrames=0;C.fpsAt=now}let dt=Math.min(.05,(now-last)/1000);last=now;if(running){campaignHintTick(now);let elapsed=(now-start)/1000,left=Math.max(0,180-elapsed),np=elapsed<60?1:elapsed<120?2:3;if(campaignMission==='RETRO'){let s=Math.floor(elapsed);$('#clock').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');$('#phase').textContent='SURVIVE';if(compromise()>=99.9){running=false;stopCollect();A.dest=null;A.mode='IDLE';$('#endTitle').textContent='OE LOST // SURVIVED '+$('#clock').textContent;$('#fs').textContent=Math.max(0,Math.round(score));$('#fr').textContent=resolved;$('#fi').textContent=ints;$('#fc').textContent=Math.round(compromise())+'%';$('#end').classList.add('show')}}else if(campaignMission==='ARCADE'){arcadeThreatLevel=1+Math.floor(elapsed/75);if(arcadeThreatLevel!==phase){phase=arcadeThreatLevel;let nm='THREAT LEVEL '+arcadeThreatLevel;$('#phase').textContent='ARCADE // '+nm;banner(nm,1300);sound('level');log(nm)}let s=Math.floor(elapsed);$('#clock').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}else if(/^04-0[1-5]$/.test(campaignMission||'')){$('#phase').textContent=campaignMission+' // '+(campaignMission==='04-02'?'CAPACITY':'INVENTORY')+' // UTC';$('#clock').textContent='UTC'}else if(/^03-0[1-5]$/.test(campaignMission||'')){$('#phase').textContent=campaignMission+' // '+(VERDANT_MISSIONS[campaignMission]?.title||'VERDANT')+' // ROUTES'}else{if(np!==phase){phase=np;let nm=phase===2?'PHASE II // CONTEST':'PHASE III // DOMINATE';$('#phase').textContent=nm;banner(nm,1300);log(nm)}let s=Math.ceil(left);$('#clock').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}if(campaignMission!=='ARCADE'&&campaignMission!=='RETRO'&&campaignMission!=='TUTORIAL'&&!/^0[34]-/.test(campaignMission||'')&&left<=0)finish();else{let p=parms();if(campaignMission!=='TUTORIAL'&&!/^0[34]-/.test(campaignMission||'')&&(now-lastSpawn)/1000>=p.gap&&T.filter(t=>!t.done).length<p.cap){spawn();lastSpawn=now}T.forEach(t=>{if(t.done||t.stationary)return;t.x+=t.vx*dt;t.y+=t.vy*dt;if(t.x<35||t.x>865)t.vx*=-1;if(t.y<35||t.y>615)t.vy*=-1});naiTick(now);enemy(dt);cpContestedTick(dt);cpIntelDropTick();cpCyberTick();reconstitutionTick(now);cpTrackStallGuard();const postureTarget=(A.mode==='LOITER'||A.mode==='LOITER_ENTRY'||A.mode==='LOITER_APPROACH')?.75:1;A.sensorPosture+=(postureTarget-A.sensorPosture)*Math.min(1,dt/.65);if(A.mode==='LOITER_EXIT'&&valid(A.dest)){const desired=H(A.dest.x-A.x,A.dest.y-A.y),delta=cpHeadingDelta(A.heading,desired),maxTurn=(A.exitTurnCommitted?95:110)*dt;let remaining=Math.abs(delta);if(A.exitTurnCommitted){const dir=A.exitTurnDir||1;remaining=dir>0?(desired-A.heading+360)%360:(A.heading-desired+360)%360;const turn=Math.min(maxTurn,remaining);A.heading=(A.heading+dir*turn+360)%360}else A.heading=(A.heading+Math.max(-maxTurn,Math.min(maxTurn,delta))+360)%360;const rad=A.heading*Math.PI/180,step=cpEffectiveISRSpeed()*dt;A.x+=Math.sin(rad)*step;A.y-=Math.cos(rad)*step;A.lastMove=now;stallLogged=false;const exitAge=now-(A.exitStarted||now),aligned=A.exitTurnCommitted?remaining<7:Math.abs(delta)<7;if(exitAge>=220&&aligned){const committed=A.exitTurnCommitted;A.loiterCenter=null;A.exitTurnCommitted=false;A.exitTurnDir=0;A.mode='ENROUTE';rec('LOITER_EXIT_COMPLETE',`heading=${A.heading.toFixed(1)} delta=${delta.toFixed(1)} age=${Math.round(exitAge)}${committed?' committed-turn':''}`)}else if(now>=A.exitUntil&&exitAge%1000<60){rec('LOITER_EXIT_HOLD',`heading=${A.heading.toFixed(1)} target=${desired.toFixed(1)} remaining=${remaining.toFixed(1)}`)}}else if(A.mode==='ENROUTE'&&valid(A.dest)){const rx=57,ry=32,approach=108;let dx=A.dest.x-A.x,dy=A.dest.y-A.y,d=Math.hypot(dx,dy);if(d<=approach){A.loiterCenter={x:A.dest.x,y:A.dest.y};let th=Math.atan2((A.y-A.dest.y)/ry,(A.x-A.dest.x)/rx);if(!Number.isFinite(th))th=0;const tangentHeading=dir=>H(-rx*Math.sin(th)*dir,ry*Math.cos(th)*dir),cw=tangentHeading(1),ccw=tangentHeading(-1);A.loiterDir=Math.abs(cpHeadingDelta(A.heading,cw))<=Math.abs(cpHeadingDelta(A.heading,ccw))?1:-1;A.approachAngle=th;A.mode='LOITER_APPROACH';A.lastMove=now;stallLogged=false;rec('LOITER_APPROACH',`distance=${d.toFixed(2)} dir=${A.loiterDir>0?'CW':'CCW'} heading=${A.heading.toFixed(1)}`)}else{A.heading=H(dx,dy);let q=Math.min(cpEffectiveISRSpeed()*dt,Math.max(.08,d-approach)),ox=A.x,oy=A.y;A.x+=dx/d*q;A.y+=dy/d*q;if(Math.hypot(A.x-ox,A.y-oy)>.0001){A.lastMove=now;stallLogged=false}}}else if(A.mode==='LOITER_APPROACH'&&valid(A.loiterCenter)){const rx=57,ry=32,base=cpEffectiveISRSpeed(),loiterSpeed=base*.70,tx=A.loiterCenter.x+Math.cos(A.approachAngle)*rx,ty=A.loiterCenter.y+Math.sin(A.approachAngle)*ry,dx=tx-A.x,dy=ty-A.y,d=Math.hypot(dx,dy),desired=d>2?H(dx,dy):H(-rx*Math.sin(A.approachAngle)*A.loiterDir,ry*Math.cos(A.approachAngle)*A.loiterDir),delta=cpHeadingDelta(A.heading,desired),maxTurn=105*dt;A.heading+=Math.max(-maxTurn,Math.min(maxTurn,delta));const centerD=Math.hypot(A.x-A.loiterCenter.x,A.y-A.loiterCenter.y),blend=Math.max(0,Math.min(1,(centerD-59)/(108-59))),speed=loiterSpeed+(base-loiterSpeed)*blend,rad=A.heading*Math.PI/180,step=Math.min(speed*dt,Math.max(.35,d));A.x+=Math.sin(rad)*step;A.y-=Math.cos(rad)*step;A.lastMove=now;stallLogged=false;if(d<=3.5&&Math.abs(cpHeadingDelta(A.heading,H(-rx*Math.sin(A.approachAngle)*A.loiterDir,ry*Math.cos(A.approachAngle)*A.loiterDir)))<24){A.loiterAngle=A.approachAngle;A.dest=null;A.mode='LOITER';rec('LOITER_CAPTURE',`dir=${A.loiterDir>0?'CW':'CCW'} merge=${d.toFixed(2)}`)}}else if(A.mode==='LOITER_ENTRY'&&valid(A.loiterCenter)){const rx=57,ry=32;A.loiterAngle=Math.atan2((A.y-A.loiterCenter.y)/ry,(A.x-A.loiterCenter.x)/rx);if(!Number.isFinite(A.loiterAngle))A.loiterAngle=0;A.dest=null;A.mode='LOITER';A.lastMove=now;stallLogged=false}else if(A.mode==='LOITER'&&valid(A.loiterCenter)){const rx=57,ry=32,loiterSpeed=cpEffectiveISRSpeed()*.70,omega=loiterSpeed/Math.max(1,(rx+ry)*.5);A.loiterAngle=(A.loiterAngle+(A.loiterDir||1)*omega*dt)%(Math.PI*2);const nx=A.loiterCenter.x+Math.cos(A.loiterAngle)*rx,ny=A.loiterCenter.y+Math.sin(A.loiterAngle)*ry,dx=nx-A.x,dy=ny-A.y;if(Math.hypot(dx,dy)>.01)A.heading=H(dx,dy);A.x=nx;A.y=ny;A.lastMove=now;stallLogged=false}}}if(running){mirageTick(dt);verdantSmartTick(dt);verdantTrafficTick(dt);cpPriorityNAITick(now);vantageAffinityTick(now);updateTrackMemory(now);networkTick(now);}if(/^02-/.test(campaignMission||''))cpCheckCampaign02();geometry();ui();diagnostic(now);requestAnimationFrame(loop)}function supplyTargetFromPoint(p){if(!supplyRepairMode||supplyPackages<1||!valid(p))return false;const candidates=B.filter(b=>b.degraded&&!b.reconstituting).map(b=>({b,d:Math.hypot(b.x-p.x,b.y-p.y)})).sort((a,b)=>a.d-b.d);if(!candidates.length)return false;const hit=candidates[0];if(hit.d>62){cpNotice('SUPPLY TARGETING','SELECT A HIGHLIGHTED DEGRADED SITE','intel');return false;}reconstituteSite(hit.b);return true}
 $('#map').addEventListener('pointerdown',e=>{if(!running||!supplyRepairMode)return;const p=point(e);if(supplyTargetFromPoint(p)){e.preventDefault();e.stopImmediatePropagation();}},true);
 function cpTrackUnderISRPointer(e){if(!running)return null;const p=point(e);return T.filter(t=>!t.done&&t.el?.getAttribute('visibility')!=='hidden').map(t=>({t,d:Math.hypot(t.x-p.x,t.y-p.y)})).filter(o=>o.d<=34).sort((a,b)=>a.d-b.d)[0]?.t||null}
 $('#asset').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();if(!running)return;const t=cpTrackUnderISRPointer(e);if(t){C.track++;rec('TRACK_THROUGH_ISR',`${t.id} mode=${A.mode}`);sel=t;ui(true);return}acquire()});$('#map').addEventListener('pointerdown',e=>{e.preventDefault();if(verdantTrafficSel){verdantTrafficSel=null;updateSpotReport(null,false)}if(mirageSiteSel||mirageTrafficSel){mirageSiteSel=null;mirageTrafficSel=null;updateSpotReport(null,false)}C.map++;rec('MAP_POINTER',`mode=${A.mode}`);if(!running)return;if(passiveDeployMode){passivePlace(point(e));return}if(ewoTargetMode){ewoFire(point(e));return}if(!A.controlSelected)return;order(point(e));ui(true)});function actionPointer(el,fn){el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();fn();requestAnimationFrame(()=>el.blur())});el.addEventListener('click',e=>e.preventDefault())}actionPointer($('#collect'),collect);actionPointer($('#isrTask'),()=>{if(A.controlSelected){A.controlSelected=false;ui(true)}else acquire()});actionPointer($('#clear'),()=>decide('CLEAR'));actionPointer($('#intercept'),()=>decide('INTERCEPT'));actionPointer($('#assessRoutine'),()=>mirageSubmitAssessment('ROUTINE'));actionPointer($('#assessElevated'),()=>mirageSubmitAssessment('ELEVATED'));actionPointer($('#assessWarning'),()=>mirageSubmitAssessment('WARNING'));actionPointer($('#passiveDeploy'),passiveToggleDeploy);actionPointer($('#ewoSweep'),ewoSweep);actionPointer($('#supplyUse'),supplyActivate);function deploy(){stopCollect();passiveReset();cpCyberReset();Object.assign(C,{raf:0,isr:0,map:0,track:0,orders:0,errors:0,lastRaf:performance.now(),maxGap:0,fps:0,fpsFrames:0,fpsAt:performance.now()});dbg=[];rec('DEPLOY','diagnostic session started');T.forEach(t=>{t.el?.remove();t.ring?.remove();t.lkp?.g?.remove()});T=[];sel=null;next=1;score=0;integrity=100;decisionCorrect=0;decisionTotal=0;resolved=0;ints=0;phase=1;campaignStationarySpawned=0;stallLogged=false;Object.assign(A,{x:145,y:510,dest:null,mode:'IDLE',heading:0,lastMove:performance.now(),loiterCenter:null,loiterAngle:0,loiterDir:1,approachAngle:0,exitUntil:0,exitStarted:0,exitTurnDir:0,exitTurnCommitted:false,sensorPosture:1,controlSelected:false});if(/^04-0[1-5]$/.test(campaignMission||'')){verdantSmartActive=false;Object.assign(A,{x:450,y:610,dest:null,mode:'IDLE',heading:0,lastMove:performance.now()});mirageReset();updateSpotReport(null,false);}else if(/^03-0[1-5]$/.test(campaignMission||'')){const vc=VERDANT_DEPLOY[campaignMission];verdantSmartActive=true;verdantTrafficSel=null;Object.assign(A,{x:vc.isr.x,y:vc.isr.y,dest:null,mode:'IDLE',heading:0,lastMove:performance.now()});verdantMissionReset();verdantResetSmartRoutes();verdantTrafficReset();updateSpotReport(null,false);}else{verdantSmartActive=false;}$('#phase').textContent=campaignMission==='04-01'?'04-01 // INVENTORY':campaignMission==='04-02'?'04-02 // CAPACITY':campaignMission==='04-03'?'04-03 // POSTURE':campaignMission==='04-04'?'04-04 // INDICATIONS':campaignMission==='04-05'?'04-05 // WARNING':/^03-0[1-5]$/.test(campaignMission||'')?(campaignMission+' // '+(VERDANT_MISSIONS[campaignMission]?.title||'VERDANT')):campaignMission==='RETRO'?'SURVIVE':campaignMission==='ARCADE'?'ARCADE // THREAT LEVEL 1':campaignMission==='TUTORIAL'?'TRAINING // COMMAND ORIENTATION':'PHASE I // ESTABLISH';if(/^03-0[1-5]$/.test(campaignMission||''))verdantMissionProgress();$('#log').textContent='';$('#enemyRings').textContent='';let lk=$('#lastKnownPositions');if(lk)lk.textContent='';let df=$('#decisionFeedback');if(df)df.textContent='';$('#end').classList.remove('show');initBlue();running=false;$('#clock').textContent=(campaignMission==='ARCADE'||campaignMission==='RETRO')?'00:00':campaignMission==='TUTORIAL'?'TRAIN':'03:00';let n=campaignMission==='TUTORIAL'?1:5;banner(campaignMission==='TUTORIAL'?'TRAINING ENVIRONMENT':String(n),700);let timer=setInterval(()=>{n--;if(n>0)banner(String(n),700);else{clearInterval(timer);banner(campaignMission==='TUTORIAL'?'TRAINING // SYSTEMS ONLINE':campaignMission==='RETRO'?'SURVIVE':'PREPARE THE OPERATIONAL ENVIRONMENT',1600);setTimeout(()=>{running=true;A.mode='ON_STATION';start=performance.now();lastSpawn=start;A.lastMove=start;if(campaignMission==='01-02'){spawn(false);spawn(true);spawn(true)}
@@ -1036,11 +1036,101 @@ function verdantTrafficBuildGraph(r){
 }
 function verdantTrafficReset(){const g=$('#verdantTraffic');if(g)g.textContent='';verdantTraffic=[];verdantTrafficObserved.clear();verdantTrafficSel=null;const cfg=window.CP_VERDANT_MAP?.routeFoundation;if(!cfg)return;const candidates=cfg.routes.filter(r=>{const gr=verdantTrafficBuildGraph(r);return gr.cells.length>2&&gr.adj.some(a=>a.length)});const picks=['P-004','B-010','P-006','P-003','B-005','P-007','B-008','P-005'];for(let n=0;n<VERDANT_TRAFFIC_COUNT;n++){const r=candidates.find(x=>x.id===picks[n])||candidates[n%candidates.length];if(!r)continue;const gr=verdantTrafficBuildGraph(r),usable=gr.adj.map((a,i)=>a.length?i:-1).filter(i=>i>=0),idx=usable[(n*7)%usable.length],next=gr.adj[idx][n%gr.adj[idx].length]?.j??idx;const el=document.createElementNS(NS,'g');el.setAttribute('class','verdant-traffic-mover');el.innerHTML='<circle class="verdant-traffic-hit" r="15"></circle><circle r="6"></circle><line x1="0" y1="0" x2="11" y2="0"></line>';g?.appendChild(el);const profile=n<4?'routine':n<7?'recurring':'irregular',baseSpeed=profile==='routine'?10+(n%3)*2:profile==='recurring'?8.5+(n%2)*1.5:15.5;const m={id:'MOV-'+String(n+1).padStart(2,'0'),route:r,idx,next,t:0,speed:baseSpeed,profile,dir:n%2?1:-1,el,observed:false,observations:0,inCoverage:false,type:'UNKNOWN',truth:verdantTrafficTruth(n),collectMs:0,collecting:false};el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();verdantTrafficSel=m;sel=null;verdantTrafficSpot();ui(true)});verdantTraffic.push(m)}verdantTrafficRender();verdantTrafficHud();}
 function verdantTrafficChooseNext(m){const gr=m.route.trafficGraph,opts=(gr.adj[m.idx]||[]).filter(o=>o.j!==m.prev);if(!opts.length)return gr.adj[m.idx]?.[0]?.j??m.idx;return opts[(m.idx+m.id.charCodeAt(4))%Math.min(opts.length,3)].j}
-function verdantTrafficTick(dt){if(!verdantSmartActive||activeOA!=='VERDANT'||!verdantTraffic.length)return;for(const m of verdantTraffic){const gr=m.route.trafficGraph,a=gr.cells[m.idx],b=gr.cells[m.next];if(!a||!b)continue;const d=Math.max(1,Math.hypot(b.x-a.x,b.y-a.y));m.t+=m.speed*dt/d;if(m.t>=1){m.prev=m.idx;m.idx=m.next;m.next=verdantTrafficChooseNext(m);m.t=0}const c=gr.cells[m.idx],q=gr.cells[m.next]||c;m.x=c.x+(q.x-c.x)*m.t;m.y=c.y+(q.y-c.y)*m.t;m.heading=H(q.x-c.x,q.y-c.y);const covered=Math.hypot(A.x-m.x,A.y-m.y)<=118;if(covered&&!m.inCoverage){m.observed=true;m.observations++;verdantTrafficObserved.add(m.id)}m.inCoverage=covered}verdantTrafficRender();verdantTrafficHud();verdantMissionProgress();if(verdantTrafficSel)verdantTrafficSpot();}
+function verdantTrafficTick(dt){if(!verdantSmartActive||activeOA!=='VERDANT'||!verdantTraffic.length)return;for(const m of verdantTraffic){const gr=m.route.trafficGraph,a=gr.cells[m.idx],b=gr.cells[m.next];if(!a||!b)continue;const d=Math.max(1,Math.hypot(b.x-a.x,b.y-a.y));m.t+=m.speed*dt/d;if(m.t>=1){m.prev=m.idx;m.idx=m.next;m.next=verdantTrafficChooseNext(m);m.t=0}const c=gr.cells[m.idx],q=gr.cells[m.next]||c;m.x=c.x+(q.x-c.x)*m.t;m.y=c.y+(q.y-c.y)*m.t;m.heading=H(q.x-c.x,q.y-c.y);const covered=Math.hypot(A.x-m.x,A.y-m.y)<=118;if(covered&&!m.inCoverage){m.observed=true;m.observations++;verdantTrafficObserved.add(m.id)}m.inCoverage=covered}verdantTrafficRender();verdantTrafficHud();if(verdantTrafficSel)verdantTrafficSpot();}
 function verdantTrafficRender(){const k=cpVerdantSymbolAspect();for(const m of verdantTraffic){if(!m.el)continue;m.el.setAttribute('transform',`translate(${m.x??m.route.trafficGraph.cells[m.idx].x} ${m.y??m.route.trafficGraph.cells[m.idx].y}) scale(${k} 1) rotate(${m.heading||0})`);m.el.classList.toggle('observed',m.observed);for(const t of ['friendly','neutral','irregular','hostile'])m.el.classList.remove('classified-'+t);if(m.type&&m.type!=='UNKNOWN')m.el.classList.add('classified-'+m.type.toLowerCase());const c=verdantTrafficColor(m.type);m.el.style.color=c}}
 function verdantTrafficHud(){const el=$('#verdantTrafficStatus');if(!el)return;const seen=verdantTrafficObserved.size,total=verdantTraffic.length;el.textContent=`TRAFFIC // ${String(seen).padStart(2,'0')} / ${String(total).padStart(2,'0')} MOVERS OBSERVED // ROUTE USE ${seen>=5?'PATTERN EMERGING':seen>=2?'PARTIAL':'BASELINE'}`}
 function verdantTrafficSpot(){const m=verdantTrafficSel,box=$('#spotReport');if(!box||!verdantSmartActive||activeOA!=='VERDANT'||!m)return;box.hidden=false;box.style.setProperty('--spot-color',verdantTrafficColor(m.type));$('#spotTitle').textContent='SPOT // '+m.id;$('#spotClass').textContent=m.type==='UNKNOWN'?'UNKNOWN':m.type;const obs=Math.max(0,m.observations||0),pattern=obs>=3?'RECURRING':obs>=1?'OBSERVED':'UNOBSERVED';let intel=pattern;if(campaignMission==='03-02'&&obs>=2)intel=(m.profile==='routine'?'BASELINE':'ANOMALOUS');if(campaignMission==='03-03'&&obs>=3&&m.profile!=='routine')intel='TRANSFER // ASSOCIATED';if(campaignMission==='03-04'&&obs>=3&&(m.type==='IRREGULAR'||m.type==='HOSTILE'))intel='SIGNATURE // CORROBORATED';if(campaignMission==='03-05'&&obs>=3&&(m.type==='IRREGULAR'||m.type==='HOSTILE'))intel='ACTIONABLE';else if(campaignMission==='03-05'&&obs>=2&&(m.type==='FRIENDLY'||m.type==='NEUTRAL'))intel='LEGITIMATE // PRESERVE';$('#spotContext').textContent=m.collecting?('COLLECT // '+(m.collectMs/1000).toFixed(1)+' / 7.0 SEC'):(m.route.id+' // OBS '+String(obs).padStart(2,'0')+' // '+intel);}
 
+const VERDANT_DISCOVERY_W=450;
+const VERDANT_DISCOVERY_H=325;
+const VERDANT_DISCOVERY_SCALE=2;
+const VERDANT_DISCOVERY_GRID=16;
+
+let verdantDiscoveryCanvas=null;
+let verdantDiscoveryContext=null;
+let verdantDiscoveryVisited=null;
+let verdantDiscoveryDirty=false;
+
+function verdantDiscoveryReset(){
+ verdantDiscoveryCanvas=document.createElement('canvas');
+ verdantDiscoveryCanvas.width=VERDANT_DISCOVERY_W;
+ verdantDiscoveryCanvas.height=VERDANT_DISCOVERY_H;
+
+ verdantDiscoveryContext=verdantDiscoveryCanvas.getContext('2d',{alpha:true});
+ verdantDiscoveryContext.clearRect(0,0,VERDANT_DISCOVERY_W,VERDANT_DISCOVERY_H);
+
+ verdantDiscoveryVisited=new Set();
+ verdantDiscoveryDirty=true;
+ verdantDiscoveryLastFlush=0;
+
+ const image=$('#verdantDiscoveryReveal');
+ if(image)image.removeAttribute('href');
+}
+
+function verdantDiscoveryReveal(x,y,radius){
+ if(!verdantDiscoveryContext||!verdantDiscoveryVisited)return false;
+
+ const grid=VERDANT_DISCOVERY_GRID;
+ const minX=Math.max(0,Math.floor((x-radius)/grid));
+ const maxX=Math.min(Math.ceil(900/grid)-1,Math.floor((x+radius)/grid));
+ const minY=Math.max(0,Math.floor((y-radius)/grid));
+ const maxY=Math.min(Math.ceil(650/grid)-1,Math.floor((y+radius)/grid));
+
+ let changed=false;
+ const ctx=verdantDiscoveryContext;
+
+ ctx.fillStyle='#ffffff';
+
+ for(let gy=minY;gy<=maxY;gy++){
+  for(let gx=minX;gx<=maxX;gx++){
+   const cx=(gx+.5)*grid;
+   const cy=(gy+.5)*grid;
+   const dx=cx-x;
+   const dy=cy-y;
+
+   if(dx*dx+dy*dy>radius*radius)continue;
+
+   const key=gx+','+gy;
+
+   if(verdantDiscoveryVisited.has(key))continue;
+
+   verdantDiscoveryVisited.add(key);
+
+   ctx.fillRect(
+    gx*grid/VERDANT_DISCOVERY_SCALE,
+    gy*grid/VERDANT_DISCOVERY_SCALE,
+    grid/VERDANT_DISCOVERY_SCALE,
+    grid/VERDANT_DISCOVERY_SCALE
+   );
+
+   changed=true;
+  }
+ }
+
+ if(changed)verdantDiscoveryDirty=true;
+ return changed;
+}
+let verdantDiscoveryLastFlush=0;
+const VERDANT_DISCOVERY_FLUSH_INTERVAL=200;
+
+function verdantDiscoveryFlush(force=false){
+ if(!verdantDiscoveryDirty||!verdantDiscoveryCanvas)return;
+
+ const now=performance.now();
+
+ if(!force && verdantDiscoveryLastFlush!==0 &&
+    now-verdantDiscoveryLastFlush<VERDANT_DISCOVERY_FLUSH_INTERVAL){
+  return;
+ }
+
+ const image=$('#verdantDiscoveryReveal');
+ if(!image)return;
+
+ image.setAttribute('href',verdantDiscoveryCanvas.toDataURL('image/png'));
+
+ verdantDiscoveryLastFlush=now;
+ verdantDiscoveryDirty=false;
+}
 function verdantEnsureCells(r){
  if(r.cells?.length)return;
  const seen=new Set();r.cells=[];
@@ -1049,20 +1139,165 @@ function verdantEnsureCells(r){
  for(const p of (r.points||[])){const gx=Math.round(p[0]/25),gy=Math.round(p[1]/25),k=gx+','+gy;if(seen.has(k))continue;seen.add(k);r.cells.push({x:p[0],y:p[1],progress:0,state:'unassessed'})}
 }
 function verdantCellState(c){return c.progress>=VERDANT_CELL.confirmed?'confirmed':c.progress>=VERDANT_CELL.probable?'probable':c.progress>=VERDANT_CELL.suspected?'suspected':'unassessed'}
-function verdantRouteMetrics(r){verdantEnsureCells(r);const n=Math.max(1,r.cells.length),ct={suspected:0,probable:0,confirmed:0,observed:0};for(const c of r.cells){const s=verdantCellState(c);if(s!=='unassessed')ct.observed++;if(s==='suspected')ct.suspected++;if(s==='probable')ct.probable++;if(s==='confirmed')ct.confirmed++}return{...ct,n,coverage:ct.observed/n,probableCoverage:(ct.probable+ct.confirmed)/n,confirmedCoverage:ct.confirmed/n}}
-function verdantStateFor(r){const m=verdantRouteMetrics(r);return m.confirmedCoverage>=.72?'confirmed':m.probableCoverage>=.45?'probable':m.coverage>=.15?'suspected':'unassessed'}
-function cpRenderVerdantRoutes(){
- const g=$('#verdantRouteNetwork');if(!g)return;g.textContent='';if(activeOA!=='VERDANT')return;
- const cfg=window.CP_VERDANT_MAP?.routeFoundation;if(!cfg)return;const ns='http://www.w3.org/2000/svg';
- // Mobile optimization: one persistent visual image per assessed route. Collection
- // remains cell-based, but the DOM no longer grows with every discovered cell/state.
- cfg.routes.forEach(r=>{verdantEnsureCells(r);const rs=verdantStateFor(r);if(rs==='unassessed')return;const im=document.createElementNS(ns,'image');im.setAttribute('href',r.asset);im.setAttribute('x','0');im.setAttribute('y','0');im.setAttribute('width','900');im.setAttribute('height','650');im.setAttribute('preserveAspectRatio','none');im.setAttribute('class','verdant-smart-route state-'+rs);im.dataset.route=r.id;g.appendChild(im);const tx=document.createElementNS(ns,'text');tx.setAttribute('x',r.label[0]);tx.setAttribute('y',r.label[1]);tx.setAttribute('class','verdant-smart-label state-'+rs);tx.textContent=r.id;g.appendChild(tx)});
+function verdantRouteMetrics(r){
+ verdantEnsureCells(r);
+
+ const n=Math.max(1,r.cells.length);
+ const discovered=r.discoveryCount||0;
+ const coverage=discovered/n;
+
+ return{
+  n,
+  observed:discovered,
+  discovered,
+  coverage,
+  suspected:coverage>=.15?discovered:0,
+  probable:coverage>=.45?discovered:0,
+  confirmed:coverage>=.72?discovered:0,
+  probableCoverage:coverage,
+  confirmedCoverage:coverage
+ };
 }
-function verdantResetSmartRoutes(){const cfg=window.CP_VERDANT_MAP?.routeFoundation;if(!cfg)return;cfg.routes.forEach(r=>{verdantEnsureCells(r);r.cells.forEach(c=>{c.progress=0;c.state='unassessed'});r.state='unassessed'});verdantSmartLastState='';cpRenderVerdantRoutes();verdantUpdateHud()}
+
+function verdantStateFor(r){
+ if(r.discoveryState)return r.discoveryState;
+
+ const coverage=verdantRouteMetrics(r).coverage;
+
+ r.discoveryState=coverage>=.72?'confirmed':
+                  coverage>=.45?'probable':
+                  coverage>=.15?'suspected':
+                  'unassessed';
+
+ return r.discoveryState;
+}
+
+function verdantDiscoveryUpdateRoutes(x,y,radius){
+ const cfg=window.CP_VERDANT_MAP?.routeFoundation;
+ if(!cfg)return false;
+
+ const radiusSquared=radius*radius;
+ let changed=false;
+
+ for(const r of cfg.routes){
+  verdantEnsureCells(r);
+
+  if(r.discoveryCount===r.cells.length)continue;
+
+  for(const c of r.cells){
+   if(c.discovered)continue;
+
+   const dx=c.x-x;
+   const dy=c.y-y;
+
+   if(dx*dx+dy*dy<=radiusSquared){
+    c.discovered=true;
+    r.discoveryCount=(r.discoveryCount||0)+1;
+    r.discoveryState=null;
+    changed=true;
+   }
+  }
+ }
+
+ return changed;
+}
+function cpRenderVerdantRoutes(){
+ const g=$('#verdantRouteNetwork');
+ if(!g)return;
+
+ if(activeOA!=='VERDANT'){
+  g.textContent='';
+  g.removeAttribute('mask');
+  delete g.dataset.discoveryReady;
+  return;
+ }
+
+ const cfg=window.CP_VERDANT_MAP?.routeFoundation;
+ if(!cfg)return;
+
+ const ns='http://www.w3.org/2000/svg';
+
+ if(
+  g.dataset.discoveryReady==='1' &&
+  g.querySelectorAll('image.verdant-smart-route').length===1
+ ){
+  return;
+ }
+
+ g.textContent='';
+ g.setAttribute('mask','url(#verdantDiscoveryMask)');
+
+ const im=document.createElementNS(ns,'image');
+
+ im.setAttribute('href','assets/routes/verdant/verdant-road-network.png');
+ im.setAttribute('x','0');
+ im.setAttribute('y','0');
+ im.setAttribute('width','900');
+ im.setAttribute('height','650');
+ im.setAttribute('preserveAspectRatio','none');
+ im.setAttribute('class','verdant-smart-route state-confirmed');
+
+ g.appendChild(im);
+
+ g.dataset.discoveryReady='1';
+}
+function verdantResetSmartRoutes(){
+ const cfg=window.CP_VERDANT_MAP?.routeFoundation;
+ if(!cfg)return;
+
+ cfg.routes.forEach(r=>{
+  verdantEnsureCells(r);
+  r.discoveryCount=0;
+  r.discoveryState=null;
+  r.cells.forEach(c=>{
+   c.progress=0;
+   c.state='unassessed';
+   c.discovered=false;
+  });
+  r.state='unassessed';
+ });
+
+ verdantSmartLastState='';
+
+ verdantDiscoveryReset();
+
+ const g=$('#verdantRouteNetwork');
+ if(g){
+  g.dataset.discoveryReady='0';
+ }
+
+ cpRenderVerdantRoutes();
+ verdantDiscoveryFlush();
+ verdantUpdateHud();
+}
 function verdantUpdateHud(){if(!verdantSmartActive)return;const cfg=window.CP_VERDANT_MAP?.routeFoundation;if(!cfg)return;const counts={unassessed:0,suspected:0,probable:0,confirmed:0};cfg.routes.forEach(r=>counts[verdantStateFor(r)]++);const el=$('#verdantRouteStatus');if(el)el.textContent=`UNASSESSED ${counts.unassessed} // SUSPECTED ${counts.suspected} // PROBABLE ${counts.probable} // CONFIRMED ${counts.confirmed}`;$('#clock').textContent=String(counts.confirmed).padStart(2,'0')+' / 20';}
-function verdantSmartTick(dt){if(!verdantSmartActive||activeOA!=='VERDANT')return;if($('#startScreen')?.style.display!=='none')return;const cfg=window.CP_VERDANT_MAP?.routeFoundation;if(!cfg)return;let routesInRange=0,visualChanged=false;const radius=118,r2=radius*radius;
- cfg.routes.forEach(r=>{verdantEnsureCells(r);let hit=false;const before=verdantStateFor(r);for(const c of r.cells){const dx=c.x-A.x,dy=c.y-A.y;if(dx*dx+dy*dy<=r2){hit=true;c.progress+=dt}}if(hit)routesInRange++;const after=verdantStateFor(r);if(after!==before){r.state=after;visualChanged=true;const m=verdantRouteMetrics(r);cpNotice('ROUTE INTELLIGENCE // '+r.id,after.toUpperCase()+' // '+Math.round(m.coverage*100)+'% COVERAGE','intel');log('VERDANT // '+r.id+' // '+after.toUpperCase()+' // '+Math.round(m.coverage*100)+'%')}});
- if(visualChanged)cpRenderVerdantRoutes();verdantMissionProgress();const rl=$('#rangeLine');if(rl)rl.textContent='SENSOR // '+routesInRange+' ROUTE'+(routesInRange===1?'':'S')+' // SPATIAL COLLECTION ACTIVE';verdantUpdateHud();}
+function verdantSmartTick(dt){
+ if(!verdantSmartActive||activeOA!=='VERDANT')return;
+ if($('#startScreen')?.style.display!=='none')return;
+
+ if(!verdantDiscoveryCanvas)verdantDiscoveryReset();
+
+ const radius=cpEffectiveISRRadius();
+ const changed=verdantDiscoveryReveal(A.x,A.y,radius);
+
+ if(changed){
+  const routesChanged=verdantDiscoveryUpdateRoutes(A.x,A.y,radius);
+
+  if(routesChanged){
+   verdantUpdateHud();
+  }
+ }
+
+ verdantDiscoveryFlush();
+
+ const rl=$('#rangeLine');
+
+ if(rl && rl.textContent!=='SENSOR // ROADWAY DISCOVERY ACTIVE'){
+  rl.textContent='SENSOR // ROADWAY DISCOVERY ACTIVE';
+ }
+
+ verdantMissionProgress();
+}
 function cpVerdantRaster(){const im=$('#verdantRaster');if(!im)return;if(activeOA!=='VERDANT'){im.setAttribute('visibility','hidden');im.removeAttribute('href');return}im.setAttribute('href','assets/maps/oa-verdant-overscan.png');im.setAttribute('x','-37.5');im.setAttribute('y','0');im.setAttribute('width','975');im.setAttribute('height','650');im.setAttribute('preserveAspectRatio','none');im.setAttribute('visibility','visible')}
 let cpVerdantAspectCache=null;
 function cpVerdantSymbolAspect(){
