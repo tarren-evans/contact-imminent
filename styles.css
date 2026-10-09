@@ -2655,3 +2655,54 @@ aside.ci-sidebar-compact #commandControls::before {
     line-height: 1.1 !important;
     align-self: center !important;
 }
+/* CI FIRST-VISIT // GLOBAL OA NEW INDICATORS */
+#globalMenu .globe-oa-marker .globe-oa-new{
+    position:absolute!important;
+    left:107px!important;
+    top:-5px!important;
+    display:inline-flex!important;
+    align-items:center;
+    justify-content:center;
+    width:max-content;
+    padding:2px 6px!important;
+    border:1px solid rgba(57,255,136,.65)!important;
+    background:rgba(5,20,13,.92)!important;
+    color:#39ff88!important;
+    font:800 8px/1.2 var(--mono,monospace)!important;
+    letter-spacing:.12em;
+    white-space:nowrap;
+    text-shadow:0 0 5px rgba(57,255,136,.25);
+    pointer-events:none!important;
+    z-index:2;
+}
+
+#globalMenu .globe-oa-marker.callout-left .globe-oa-new{
+    left:auto!important;
+    right:107px!important;
+}
+
+#globalMenu .globe-oa-marker .globe-oa-new[hidden]{
+    display:none!important;
+}
+/* CI FIRST-VISIT // NON-DISRUPTIVE MENU BADGES */
+.command-choice{
+    position:relative!important;
+}
+
+.command-choice .progression-new{
+    position:absolute!important;
+    top:-8px!important;
+    right:12px!important;
+    left:auto!important;
+    bottom:auto!important;
+    grid-column:auto!important;
+    grid-row:auto!important;
+    margin:0!important;
+    padding:2px 6px!important;
+    pointer-events:none!important;
+    z-index:5!important;
+}
+
+.command-choice .progression-new[hidden]{
+    display:none!important;
+}

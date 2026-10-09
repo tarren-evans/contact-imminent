@@ -74,7 +74,7 @@ function arcadeIntelHelp(mode){return mode==='FULL'?'COMPLETE INTELLIGENCE PICTU
 function refreshArcadeIntelAssist(){
  const label=$('#arcadeIntelModeLabel'),help=$('#arcadeIntelHelp');if(label)label.textContent=arcadeIntelAssist;if(help)help.textContent=arcadeIntelHelp(arcadeIntelAssist);
  function resetGlobalGlobe(){globalGlobe.drag=false;globalGlobe.pointer=null;globalGlobe.moved=false;globalGlobe.yaw=0;globalGlobe.pitch=0;globalGlobe.zoom=1;globalGlobe.lastX=0;globalGlobe.lastY=0;}
-$('#globalBtn')?.addEventListener('click',openGlobal);$('#globalGlobeReset')?.addEventListener('click',resetGlobalGlobe);$('#globalBack')?.addEventListener('click',closeGlobal);$('#globalCampaign')?.addEventListener('click',globalCampaignActivity);$('#globalArcade')?.addEventListener('click',globalArcadeActivity);$('#globalTraining')?.addEventListener('click',globalTrainingActivity);$('#globalPlanNAI')?.addEventListener('click',openGlobalPlanning);$('#planningClose')?.addEventListener('click',closeGlobalPlanning);$('#planningClear')?.addEventListener('click',clearGlobalPlanning);$('#planningUndo')?.addEventListener('click',undoGlobalPlanningPoint);$('#planningRevise')?.addEventListener('click',reviseGlobalPlanning);$('#planningCommit')?.addEventListener('click',commitGlobalPlanning);document.querySelectorAll('[data-global-oa]').forEach(b=>b.addEventListener('click',()=>selectGlobalOA(b.dataset.globalOa)));document.querySelectorAll('[data-global-rate]').forEach(b=>b.addEventListener('click',()=>setGlobalRate(Number(b.dataset.globalRate))));setGlobalRate(1.5);
+$('#globalBtn')?.addEventListener('click',openGlobal);$('#globalGlobeReset')?.addEventListener('click',resetGlobalGlobe);$('#globalBack')?.addEventListener('click',closeGlobal);$('#globalCampaign')?.addEventListener('click',globalCampaignActivity);$('#globalArcade')?.addEventListener('click',globalArcadeActivity);$('#globalTraining')?.addEventListener('click',globalTrainingActivity);$('#globalPlanNAI')?.addEventListener('click',openGlobalPlanning);$('#planningClose')?.addEventListener('click',closeGlobalPlanning);$('#planningClear')?.addEventListener('click',clearGlobalPlanning);$('#planningUndo')?.addEventListener('click',undoGlobalPlanningPoint);$('#planningRevise')?.addEventListener('click',reviseGlobalPlanning);$('#planningCommit')?.addEventListener('click',commitGlobalPlanning);document.querySelectorAll('[data-global-oa]').forEach(b=>b.addEventListener('click',()=>selectGlobalOA(b.dataset.globalOa,true)));document.querySelectorAll('[data-global-rate]').forEach(b=>b.addEventListener('click',()=>setGlobalRate(Number(b.dataset.globalRate))));setGlobalRate(1.5);
 document.querySelectorAll('[data-campaign-oa]').forEach(b=>b.addEventListener('click',()=>selectCampaignOA(b.dataset.campaignOa)));document.querySelectorAll('[data-intel-assist]').forEach(b=>b.classList.toggle('selected',b.dataset.intelAssist===arcadeIntelAssist));
 }
 function setArcadeIntelAssist(mode){if(!['FULL','TACTICAL','OFF'].includes(mode))return;arcadeIntelAssist=mode;localStorage.setItem(ARCADE_INTEL_KEY,mode);refreshArcadeIntelAssist();ui(true)}
@@ -144,7 +144,7 @@ function unlockDevAccess(){
 function setDevMode(on){
  if(!devAccessUnlocked)return;
  devMode=!!on;localStorage.setItem(DEV_MODE_KEY,devMode?'1':'0');
- refreshDevAccessState();refreshGlobalOAStatus();if(globalSelectedOA&&document.querySelector('#globalMenu:not(.hidden)'))selectGlobalOA(globalSelectedOA);cpNotice('DEVELOPER MODE',devMode?'PROGRESSION LOCKS BYPASSED':'STANDARD ACCESS RESTORED','intel');sound('click');
+ refreshDevAccessState();refreshGlobalOAStatus();refreshProgressionBadges();if(globalSelectedOA&&document.querySelector('#globalMenu:not(.hidden)'))selectGlobalOA(globalSelectedOA);cpNotice('DEVELOPER MODE',devMode?'PROGRESSION LOCKS BYPASSED':'STANDARD ACCESS RESTORED','intel');sound('click');
 }
 const ISR_CAPABILITY_KEY='ci-isr-capability';let isrCapability=localStorage.getItem(ISR_CAPABILITY_KEY)||'STANDARD';
 function isrCapabilityUnlocked(k){if(k==='STANDARD')return true;if(k==='WIDE')return localStorage.getItem('ci-c01-complete')==='1';if(k==='RAPID')return localStorage.getItem('ci-c02-complete')==='1';return false}
@@ -1163,7 +1163,7 @@ function cpBegin0405Now(){cpBeginMirageNow('04-05')}
 
 function cpHideCampaignOverlays(){['campaignMenu','briefing0101','briefing0102','briefing0103','briefing0104','briefing0105','briefing0301','briefing0302','briefing0303','briefing0304','briefing0305','briefing0401','briefing0402','briefing0403','briefing0404','briefing0405','campaignResult'].forEach(id=>$('#'+id).classList.add('hidden'))}
 let campaignMenuOA='KESTREL';function selectCampaignOA(oa){campaignMenuOA=['VANTAGE','VERDANT','MIRAGE','TEMPEST','ARCTIC'].includes(oa)?oa:'KESTREL';document.querySelectorAll('[data-campaign-oa]').forEach(b=>b.classList.toggle('selected',b.dataset.campaignOa===campaignMenuOA));$('#campaignPaneKestrel')?.classList.toggle('hidden',campaignMenuOA!=='KESTREL');$('#campaignPaneVantage')?.classList.toggle('hidden',campaignMenuOA!=='VANTAGE');$('#campaignPaneVerdant')?.classList.toggle('hidden',campaignMenuOA!=='VERDANT');$('#campaignPaneMirage')?.classList.toggle('hidden',campaignMenuOA!=='MIRAGE');$('#campaignPaneTempest')?.classList.toggle('hidden',campaignMenuOA!=='TEMPEST');$('#campaignPaneArctic')?.classList.toggle('hidden',campaignMenuOA!=='ARCTIC')}
-function cpCampaignMenu(){['briefing0301','briefing0302','briefing0303','briefing0304','briefing0305','briefing0401','briefing0402','briefing0403','briefing0404','briefing0405'].forEach(id=>$('#'+id)?.classList.add('hidden'));cpSetOAVisual(campaignMenuOA);selectCampaignOA(campaignMenuOA);cpRefreshCampaign02();cpRefreshVerdant();cpRefreshMirage();clearTutorialState();musicSetMode('menu');cpRefreshCampaign();window.CP_MENU=true;window.CP_PAUSED=false;running=false;stopCollect();$('#mainMenu').classList.add('hidden');$('#pauseMenu').classList.add('hidden');$('#briefing0101').classList.add('hidden');$('#briefing0102').classList.add('hidden');$('#briefing0103').classList.add('hidden');$('#briefing0104').classList.add('hidden');$('#briefing0105').classList.add('hidden');$('#campaignResult').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')}
+function cpCampaignMenu(){ciFirstVisitMark('campaign');refreshProgressionBadges();['briefing0301','briefing0302','briefing0303','briefing0304','briefing0305','briefing0401','briefing0402','briefing0403','briefing0404','briefing0405'].forEach(id=>$('#'+id)?.classList.add('hidden'));cpSetOAVisual(campaignMenuOA);selectCampaignOA(campaignMenuOA);cpRefreshCampaign02();cpRefreshVerdant();cpRefreshMirage();clearTutorialState();musicSetMode('menu');cpRefreshCampaign();window.CP_MENU=true;window.CP_PAUSED=false;running=false;stopCollect();$('#mainMenu').classList.add('hidden');$('#pauseMenu').classList.add('hidden');$('#briefing0101').classList.add('hidden');$('#briefing0102').classList.add('hidden');$('#briefing0103').classList.add('hidden');$('#briefing0104').classList.add('hidden');$('#briefing0105').classList.add('hidden');$('#campaignResult').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')}
 function cpBrief0101(){$('#campaignMenu').classList.add('hidden');$('#briefing0101').classList.remove('hidden')}
 function cpUnlocked0102(){
   if(devAccessActive())return true;
@@ -1355,7 +1355,7 @@ function setArcadeOA(oa){const allowed=arcadeOAAllowed();arcadeOA=allowed.includ
 function arcadeBegin(){if(!arcadeOAAllowed().includes(arcadeOA))return;missionTransition('ARCADE // OA '+arcadeOA,'ENDLESS OPERATION // LOADING',arcadeBeginNow)}
 function arcadeBeginNow(){if(!arcadeOAAllowed().includes(arcadeOA))return;musicSetMode('mission');cpSetOAVisual(arcadeOA);campaignMission='ARCADE';campaignIds=0;campaignCorrect=0;campaignThreatResolved=0;campaignNonThreatResolved=0;campaignCollectionInterrupted=0;campaignCompromise=0;campaignFinished=false;arcadeStreak=0;arcadeBestStreak=0;arcadeCorrect=0;arcadeWrong=0;arcadeThreatLevel=1;cpIntelDropReset();arcadeHide();cpHideCampaignOverlays();window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();arcadeStart=performance.now();last=performance.now()}
 function arcadeFinish(reason){if(campaignMission!=='ARCADE'||campaignFinished)return;campaignFinished=true;playAsset(missionFailAudio,.95,'sfx');banner('ARCADE FAILURE // '+reason,2600);running=false;stopCollect();window.CP_MENU=true;const w=$('#hostileCollectionWarning');if(w)w.classList.add('hidden');const elapsed=Math.max(0,Math.floor((performance.now()-(arcadeStart||start))/1000)),acc=(arcadeCorrect+arcadeWrong)?Math.round(arcadeCorrect*100/(arcadeCorrect+arcadeWrong)):100;$('#arcadeResultTitle').textContent=reason;$('#arcadeResultBody').innerHTML='OA '+activeOA+' // ARCADE AAR<br><br>SCORE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+Math.max(0,Math.round(score))+'<br>SURVIVAL TIME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+String(Math.floor(elapsed/60)).padStart(2,'0')+':'+String(elapsed%60).padStart(2,'0')+'<br>THREAT LEVEL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+arcadeThreatLevel+'<br>CONTACTS RESOLVED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+resolved+'<br>THREATS INTERCEPTED&nbsp;&nbsp;&nbsp;&nbsp;'+ints+'<br>COLLECTION INTERRUPTED&nbsp;&nbsp;'+campaignCollectionInterrupted+'<br>DECISION ACCURACY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+acc+'%<br>LONGEST STREAK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+arcadeBestStreak+'<br>SITES DEGRADED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+cpDegradedCount()+' / 5<br>FINAL OE COMPROMISE&nbsp;&nbsp;&nbsp;&nbsp;'+Math.round(campaignCompromise)+'%';$('#arcadeResult').classList.remove('hidden');$('#arcadeResult').classList.add('loss-flash')}
-function arcadeMenu(){progressionMarkRead('arcade');clearTutorialState();musicSetMode('menu');setArcadeOA(arcadeOA);cpHideCampaignOverlays();$('#mainMenu').classList.add('hidden');$('#arcadeResult').classList.add('hidden');$('#arcadeBriefing').classList.remove('hidden');refreshArcadeIntelAssist();window.CP_MENU=true}
+function arcadeMenu(){ciFirstVisitMark('arcade');progressionMarkRead('arcade');clearTutorialState();musicSetMode('menu');setArcadeOA(arcadeOA);cpHideCampaignOverlays();$('#mainMenu').classList.add('hidden');$('#arcadeResult').classList.add('hidden');$('#arcadeBriefing').classList.remove('hidden');refreshArcadeIntelAssist();window.CP_MENU=true}
 function cpShowMenu(){
   clearTutorialState();musicSetMode('menu');rotateCommandBackground();
   window.CP_PAUSED=false;window.CP_MENU=true;running=false;stopCollect();A.dest=null;
@@ -1405,11 +1405,79 @@ function progressionNoticeState(){
     }
     return state;
 }
+/* CI persistent first-visit indicators v1 */
+const CI_FIRST_VISITS_KEY='ci-first-visits-v1';
+const CI_FIRST_VISIT_DESTINATIONS=[
+    'global','campaign','arcade','profile',
+    'oa:KESTREL','oa:VANTAGE','oa:VERDANT',
+    'oa:MIRAGE','oa:TEMPEST','oa:ARCTIC'
+];
+const ciFirstVisitsMemory=new Set();
+
+function ciFirstVisitsRead(){
+    try{
+        const saved=JSON.parse(localStorage.getItem(CI_FIRST_VISITS_KEY)||'[]');
+        if(Array.isArray(saved)){
+            return new Set(saved.filter(k=>CI_FIRST_VISIT_DESTINATIONS.includes(k)));
+        }
+    }catch(e){}
+    return new Set(ciFirstVisitsMemory);
+}
+
+function ciFirstVisitSeen(destination){
+    return ciFirstVisitsRead().has(destination);
+}
+
+function ciFirstVisitMark(destination){
+    if(!CI_FIRST_VISIT_DESTINATIONS.includes(destination))return;
+    const visited=ciFirstVisitsRead();
+    if(visited.has(destination))return;
+    visited.add(destination);
+    ciFirstVisitsMemory.add(destination);
+    try{
+        localStorage.setItem(CI_FIRST_VISITS_KEY,JSON.stringify([...visited]));
+    }catch(e){}
+}
 function refreshProgressionBadges(){
     const state=progressionNoticeState();
     const profile=$('#profileNewBadge'),arcade=$('#arcadeNewBadge');
-    if(profile)profile.hidden=!state.unread.some(k=>k.startsWith('profile:'));
-    if(arcade)arcade.hidden=!state.unread.some(k=>k.startsWith('arcade:'));
+    const global=$('#globalNewBadge'),campaign=$('#campaignNewBadge');
+
+    if(profile){
+        profile.hidden=ciFirstVisitSeen('profile')&&
+            !state.unread.some(k=>k.startsWith('profile:'));
+    }
+
+    if(arcade){
+        arcade.hidden=ciFirstVisitSeen('arcade')&&
+            !state.unread.some(k=>k.startsWith('arcade:'));
+    }
+
+    if(campaign){
+        campaign.hidden=ciFirstVisitSeen('campaign');
+    }
+
+    const areas=[
+        'KESTREL','VANTAGE','VERDANT',
+        'MIRAGE','TEMPEST','ARCTIC'
+    ];
+
+    if(global){
+        global.hidden=!areas.some(oa=>
+            globalOAIdentityRevealed(oa)&&
+            !ciFirstVisitSeen('oa:'+oa)
+        );
+    }
+
+    document.querySelectorAll('.globe-oa-marker').forEach(marker=>{
+        const oa=marker.dataset.oa;
+        const badge=marker.querySelector('.globe-oa-new');
+        if(!badge)return;
+
+        badge.hidden=!areas.includes(oa)||
+            !globalOAIdentityRevealed(oa)||
+            ciFirstVisitSeen('oa:'+oa);
+    });
 }
 function progressionMarkRead(section){
     const state=progressionNoticeState();
@@ -1494,7 +1562,7 @@ function refreshCommandProfile(){
 }
 function setISRCapability(k){if(!isrCapabilityUnlocked(k))return;isrCapability=k;localStorage.setItem(ISR_CAPABILITY_KEY,k);refreshCommandProfile();sound('click')}
 function rotateCommandBackground(){const maps=["url('assets/maps/oa-kestrel-overscan.png')","url('assets/maps/oa-vantage-overscan.png')","url('assets/maps/oa-verdant-overscan.png')","url('assets/maps/oa-mirage-overscan.png')","url('assets/maps/oa-tempest-overscan.png')"];const raw=sessionStorage.getItem('ci-command-bg-index');let last=raw===null?-1:Number(raw),next;if(last<0||!Number.isFinite(last))next=Math.floor(Math.random()*maps.length);else if(maps.length>1){const choices=maps.map((_,i)=>i).filter(i=>i!==last);next=choices[Math.floor(Math.random()*choices.length)]}else next=0;sessionStorage.setItem('ci-command-bg-index',String(next));const home=document.getElementById('mainMenu');if(home)home.style.setProperty('--ci-command-bg',maps[next]);document.documentElement.style.setProperty('--ci-command-bg',maps[next])}
-function openCommandProfile(){progressionMarkRead('profile');refreshCommandProfile();$('#mainMenu').classList.add('hidden');$('#commandProfileMenu').classList.remove('hidden')}
+function openCommandProfile(){ciFirstVisitMark('profile');progressionMarkRead('profile');refreshCommandProfile();$('#mainMenu').classList.add('hidden');$('#commandProfileMenu').classList.remove('hidden')}
 function closeCommandProfile(){$('#commandProfileMenu').classList.add('hidden');$('#mainMenu').classList.remove('hidden')}
 
 
@@ -1584,9 +1652,9 @@ function refreshGlobalOAStatus(){
         String(classified).padStart(2,'0')+
         ' CLASSIFIED';
 }
-function openGlobal(){refreshGlobalOAStatus();window.CP_MENU=true;document.body.classList.remove('retro-mode');$('#objectiveTracker')?.classList.remove('retro-objectives-hidden');globalSelectedOA=null;$('#mainMenu').classList.add('hidden');$('#globalMenu').classList.remove('hidden');document.querySelectorAll('[data-global-oa]').forEach(b=>b.classList.remove('selected'));$('#globalOAName').textContent='NO OA SELECTED';$('#globalOADetail').textContent='Select an operational-area marker on the globe to inspect the regional picture.';$('#globalCampaign').style.display='';$('#globalArcade').style.display='';$('#globalTraining').style.display='';$('#globalPlanNAI').style.display='';$('#globalCampaign').disabled=true;$('#globalArcade').disabled=true;$('#globalTraining').disabled=true;$('#globalPlanNAI').disabled=true;}
+function openGlobal(){ciFirstVisitMark('global');refreshProgressionBadges();refreshGlobalOAStatus();window.CP_MENU=true;document.body.classList.remove('retro-mode');$('#objectiveTracker')?.classList.remove('retro-objectives-hidden');globalSelectedOA=null;$('#mainMenu').classList.add('hidden');$('#globalMenu').classList.remove('hidden');document.querySelectorAll('[data-global-oa]').forEach(b=>b.classList.remove('selected'));$('#globalOAName').textContent='NO OA SELECTED';$('#globalOADetail').textContent='Select an operational-area marker on the globe to inspect the regional picture.';$('#globalCampaign').style.display='';$('#globalArcade').style.display='';$('#globalTraining').style.display='';$('#globalPlanNAI').style.display='';$('#globalCampaign').disabled=true;$('#globalArcade').disabled=true;$('#globalTraining').disabled=true;$('#globalPlanNAI').disabled=true;}
 function closeGlobal(){$('#globalMenu').classList.add('hidden');$('#mainMenu').classList.remove('hidden');rotateCommandBackground();}
-function selectGlobalOA(oa){globalSelectedOA=oa;document.querySelectorAll('[data-global-oa]').forEach(b=>b.classList.toggle('selected',b.dataset.globalOa===oa));const num=GLOBAL_OA_NUM[oa]||'--';$('#globalOAName').textContent=oa==='RETRO'?'R0 // RETRO STATION // CONTACT IMMINENT':'OA '+num+' // '+globalOADisplayName(oa);$('#globalOADetail').textContent=globalOAIdentityRevealed(oa)?(GLOBAL_OA[oa]||oa)+' // REGIONAL PICTURE AVAILABLE':'REGIONAL INTELLIGENCE // CLASSIFIED';const retro=oa==='RETRO',campaignReady=oa==='KESTREL'||(oa==='VANTAGE'&&globalOAIdentityRevealed(oa))||(devAccessActive()&&['VERDANT','MIRAGE','TEMPEST','ARCTIC'].includes(oa)),arcadeReady=oa==='RETRO'||arcadeOAAllowed().includes(oa);$('#globalCampaign').style.display=retro?'none':'';$('#globalTraining').style.display=retro?'none':'';$('#globalPlanNAI').style.display=retro?'none':'';$('#globalPlanNAI').classList.toggle('hidden',retro);$('#globalArcade').style.display='';$('#globalCampaign').disabled=!campaignReady;$('#globalArcade').disabled=!arcadeReady;$('#globalTraining').disabled=false;$('#globalPlanNAI').disabled=retro;refreshGlobalTaskingDetail(oa);}
+function selectGlobalOA(oa,playerVisit=false){if(playerVisit&&globalOAIdentityRevealed(oa)){ciFirstVisitMark('oa:'+oa);refreshProgressionBadges();}globalSelectedOA=oa;document.querySelectorAll('[data-global-oa]').forEach(b=>b.classList.toggle('selected',b.dataset.globalOa===oa));const num=GLOBAL_OA_NUM[oa]||'--';$('#globalOAName').textContent=oa==='RETRO'?'R0 // RETRO STATION // CONTACT IMMINENT':'OA '+num+' // '+globalOADisplayName(oa);$('#globalOADetail').textContent=globalOAIdentityRevealed(oa)?(GLOBAL_OA[oa]||oa)+' // REGIONAL PICTURE AVAILABLE':'REGIONAL INTELLIGENCE // CLASSIFIED';const retro=oa==='RETRO',campaignReady=oa==='KESTREL'||(oa==='VANTAGE'&&globalOAIdentityRevealed(oa))||(devAccessActive()&&['VERDANT','MIRAGE','TEMPEST','ARCTIC'].includes(oa)),arcadeReady=oa==='RETRO'||arcadeOAAllowed().includes(oa);$('#globalCampaign').style.display=retro?'none':'';$('#globalTraining').style.display=retro?'none':'';$('#globalPlanNAI').style.display=retro?'none':'';$('#globalPlanNAI').classList.toggle('hidden',retro);$('#globalArcade').style.display='';$('#globalCampaign').disabled=!campaignReady;$('#globalArcade').disabled=!arcadeReady;$('#globalTraining').disabled=false;$('#globalPlanNAI').disabled=retro;refreshGlobalTaskingDetail(oa);}
 
 let globalActivityContext=false;
 function cpRetroGrid(){const g=$('#retroGrid');if(!g)return;g.textContent='';const ns='http://www.w3.org/2000/svg';for(let x=45;x<900;x+=45){let l=document.createElementNS(ns,'line');l.setAttribute('x1',x);l.setAttribute('y1','0');l.setAttribute('x2',x);l.setAttribute('y2','650');l.setAttribute('class',x%225===0?'retro-major':'retro-minor');g.appendChild(l)}for(let y=45;y<650;y+=45){let l=document.createElementNS(ns,'line');l.setAttribute('x1','0');l.setAttribute('y1',y);l.setAttribute('x2','900');l.setAttribute('y2',y);l.setAttribute('class',y%225===0?'retro-major':'retro-minor');g.appendChild(l)}}
@@ -1651,7 +1719,7 @@ function globalUfoVisibility(dt){
 }
 let globalGlobe={yaw:-18,pitch:0,zoom:1,drag:false,pointer:null,lastX:0,lastY:0,moved:false,lastT:performance.now(),orbitT:0};
 function globeRad(d){return d*Math.PI/180} function globeVec(lat,lon){const a=globeRad(lat),o=globeRad(lon);return{x:Math.cos(a)*Math.sin(o),y:-Math.sin(a),z:Math.cos(a)*Math.cos(o)}} function globeRotate(v){let y=globeRad(globalGlobe.yaw),p=globeRad(globalGlobe.pitch),cy=Math.cos(y),sy=Math.sin(y),cp=Math.cos(p),sp=Math.sin(p),x=v.x*cy+v.z*sy,z=-v.x*sy+v.z*cy;return{x,y:v.y*cp-z*sp,z:v.y*sp+z*cp}} function globeProject(lat,lon,cx,cy,r){const q=globeRotate(globeVec(lat,lon));return{x:cx+q.x*r,y:cy+q.y*r,z:q.z}}
-function initGlobalGlobe(){const c=$('#globalGlobeCanvas'),ov=$('#globalGlobeOverlay');if(!c||!ov||c.dataset.ready)return;c.dataset.ready='1';Object.keys(GLOBAL_OA_GEO).forEach(oa=>{const b=document.createElement('button');b.className='globe-oa-marker';b.dataset.oa=oa;b.innerHTML='<i class="oa-anchor"></i><svg class="oa-leader-svg" viewBox="0 0 96 28" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,14 30,2 96,2"/></svg><span class="oa-callout-text">'+GLOBAL_OA_NUM[oa]+' '+globalOADisplayName(oa)+'</span>';let markerGesture=null;
+function initGlobalGlobe(){const c=$('#globalGlobeCanvas'),ov=$('#globalGlobeOverlay');if(!c||!ov||c.dataset.ready)return;c.dataset.ready='1';Object.keys(GLOBAL_OA_GEO).forEach(oa=>{const b=document.createElement('button');b.className='globe-oa-marker';b.dataset.oa=oa;b.innerHTML='<i class="oa-anchor"></i><svg class="oa-leader-svg" viewBox="0 0 96 28" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,14 30,2 96,2"/></svg><span class="oa-callout-text">'+GLOBAL_OA_NUM[oa]+' '+globalOADisplayName(oa)+'</span><span class="globe-oa-new" hidden>NEW</span>';let markerGesture=null;
 b.addEventListener('pointerdown',e=>{
     if(e.button!==0)return;
     markerGesture={id:e.pointerId,x:e.clientX,y:e.clientY,lastX:e.clientX,lastY:e.clientY,moved:false};
@@ -1689,9 +1757,9 @@ b.addEventListener('click',e=>{
         e.preventDefault();
         return;
     }
-    if(!globalGlobe.moved)selectGlobalOA(oa);
+    if(!globalGlobe.moved)selectGlobalOA(oa,true);
 });
-ov.appendChild(b)});GLOBAL_ORBITS.forEach((o,i)=>{const d=document.createElement('div');d.className='globe-sat globe-sat-'+i;d.textContent='SAT-'+String(i+1).padStart(2,'0');ov.appendChild(d)});const unk=document.createElement('div');unk.className='globe-unk-contact';unk.setAttribute('aria-hidden','true');unk.innerHTML='<i></i><span>UNK</span>';ov.appendChild(unk);const ufo=document.createElement('div');ufo.className='globe-ufo-contact';ufo.setAttribute('aria-hidden','true');ufo.innerHTML='<i></i>';ov.appendChild(ufo);const rs=document.createElement('button');rs.className='globe-retro-station';rs.type='button';rs.setAttribute('aria-label','RETRO legacy simulation station');rs.innerHTML='<i></i><span>R0 // RETRO</span>';rs.addEventListener('click',()=>{if(!globalGlobe.moved)selectGlobalOA('RETRO')});ov.appendChild(rs);c.addEventListener('wheel',e=>{e.preventDefault();const dir=Math.sign(e.deltaY);globalGlobe.zoom=Math.max(.78,Math.min(1.55,globalGlobe.zoom-dir*.055));},{passive:false});c.addEventListener('pointerdown',e=>{globalGlobe.drag=true;globalGlobe.pointer=e.pointerId;globalGlobe.lastX=e.clientX;globalGlobe.lastY=e.clientY;globalGlobe.moved=false;c.setPointerCapture?.(e.pointerId)});c.addEventListener('pointermove',e=>{if(!globalGlobe.drag||e.pointerId!==globalGlobe.pointer)return;let dx=e.clientX-globalGlobe.lastX,dy=e.clientY-globalGlobe.lastY;if(Math.abs(dx)+Math.abs(dy)>2)globalGlobe.moved=true;globalGlobe.yaw+=dx*.34;globalGlobe.pitch=Math.max(-70,Math.min(70,globalGlobe.pitch-dy*.28));globalGlobe.lastX=e.clientX;globalGlobe.lastY=e.clientY});const end=e=>{if(e.pointerId===globalGlobe.pointer){globalGlobe.drag=false;globalGlobe.pointer=null;setTimeout(()=>globalGlobe.moved=false,0)}};c.addEventListener('pointerup',end);c.addEventListener('pointercancel',end)}
+ov.appendChild(b)});GLOBAL_ORBITS.forEach((o,i)=>{const d=document.createElement('div');d.className='globe-sat globe-sat-'+i;d.textContent='SAT-'+String(i+1).padStart(2,'0');ov.appendChild(d)});const unk=document.createElement('div');unk.className='globe-unk-contact';unk.setAttribute('aria-hidden','true');unk.innerHTML='<i></i><span>UNK</span>';ov.appendChild(unk);const ufo=document.createElement('div');ufo.className='globe-ufo-contact';ufo.setAttribute('aria-hidden','true');ufo.innerHTML='<i></i>';ov.appendChild(ufo);const rs=document.createElement('button');rs.className='globe-retro-station';rs.type='button';rs.setAttribute('aria-label','RETRO legacy simulation station');rs.innerHTML='<i></i><span>R0 // RETRO</span>';rs.addEventListener('click',()=>{if(!globalGlobe.moved)selectGlobalOA('RETRO')});ov.appendChild(rs);c.addEventListener('wheel',e=>{e.preventDefault();const dir=Math.sign(e.deltaY);globalGlobe.zoom=Math.max(.78,Math.min(1.55,globalGlobe.zoom-dir*.055));},{passive:false});c.addEventListener('pointerdown',e=>{globalGlobe.drag=true;globalGlobe.pointer=e.pointerId;globalGlobe.lastX=e.clientX;globalGlobe.lastY=e.clientY;globalGlobe.moved=false;c.setPointerCapture?.(e.pointerId)});c.addEventListener('pointermove',e=>{if(!globalGlobe.drag||e.pointerId!==globalGlobe.pointer)return;let dx=e.clientX-globalGlobe.lastX,dy=e.clientY-globalGlobe.lastY;if(Math.abs(dx)+Math.abs(dy)>2)globalGlobe.moved=true;globalGlobe.yaw+=dx*.34;globalGlobe.pitch=Math.max(-70,Math.min(70,globalGlobe.pitch-dy*.28));globalGlobe.lastX=e.clientX;globalGlobe.lastY=e.clientY});const end=e=>{if(e.pointerId===globalGlobe.pointer){globalGlobe.drag=false;globalGlobe.pointer=null;setTimeout(()=>globalGlobe.moved=false,0)}};c.addEventListener('pointerup',end);c.addEventListener('pointercancel',end);refreshProgressionBadges()}
 function globeOrbitLatLon(o,t){const u=globeRad((o.phase+t*360/o.period)%360),inc=globeRad(o.inc),raan=globeRad(o.raan);let x=Math.cos(u),y=Math.sin(u)*Math.sin(inc),z=Math.sin(u)*Math.cos(inc),cr=Math.cos(raan),sr=Math.sin(raan),X=x*cr+z*sr,Z=-x*sr+z*cr;return{lat:-Math.asin(Math.max(-1,Math.min(1,y)))*180/Math.PI,lon:Math.atan2(X,Z)*180/Math.PI}}
 const GLOBAL_MOBILE=matchMedia('(pointer:coarse)').matches||/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const GLOBAL_RENDER_DPR=GLOBAL_MOBILE?Math.min(1.25,window.devicePixelRatio||1):Math.min(2,window.devicePixelRatio||1);
