@@ -725,7 +725,42 @@ function cpIntelDropTick(){
 function cpFusionActive(){return usesIntelDrops()&&intelFusionUntil&&performance.now()<intelFusionUntil}
 function cpEffectiveISRRadius(){const posture=Number.isFinite(A.sensorPosture)?A.sensorPosture:1;if(campaignMission==='RETRO')return A.r*posture;normalizeISRCapability();return A.r*posture*(isrCapability==='WIDE'?1.10:1)*(cpFusionActive()?1.30:1)*(cpCyberActive()?.60:1)}
 function cpDegradedCount(){return B.filter(b=>b.degraded).length}
-function cpRenderBlueSite(b){if(!b||!b.el)return;const c=b.reconstituting?'#d8a83e':b.degraded?'#ff5b55':'#4da3ff',health=Math.max(0,Math.min(100,100-(b.exposure||0)));if(b.circle)b.circle.setAttribute('stroke',c);if(b.icon)b.icon.setAttribute('stroke',c);if(b.label){b.label.setAttribute('fill',c);b.label.textContent=b.id+(b.reconstituting?' // RECON':b.degraded?' // DEGRADED':'')}if(b.healthFill){b.healthFill.setAttribute('width',String(50*health/100));b.healthFill.setAttribute('fill',c)}if(b.healthText){b.healthText.setAttribute('fill',c);b.healthText.textContent=Math.round(health)+'%'}}
+function cpRenderBlueSite(b){
+    if(!b||!b.el)return;
+
+    const c=b.reconstituting?'#d8a83e':b.degraded?'#ff5b55':'#4da3ff';
+    const health=Math.max(0,Math.min(100,100-(b.exposure||0)));
+
+    const attr=(el,name,value)=>{
+        if(!el)return;
+        const next=String(value);
+        if(el.getAttribute(name)!==next)el.setAttribute(name,next);
+    };
+
+    const text=(el,value)=>{
+        if(!el)return;
+        const next=String(value);
+        if(el.textContent!==next)el.textContent=next;
+    };
+
+    attr(b.circle,'stroke',c);
+    attr(b.icon,'stroke',c);
+
+    if(b.label){
+        attr(b.label,'fill',c);
+        text(b.label,b.id+(b.reconstituting?' // RECON':b.degraded?' // DEGRADED':''));
+    }
+
+    if(b.healthFill){
+        attr(b.healthFill,'width',50*health/100);
+        attr(b.healthFill,'fill',c);
+    }
+
+    if(b.healthText){
+        attr(b.healthText,'fill',c);
+        text(b.healthText,Math.round(health)+'%');
+    }
+}
 function cpCompromiseFloor(){const exposure=B.reduce((sum,b)=>sum+(b.exposure||0),0);if(campaignMission==='ARCADE')return Math.min(100,exposure/20+cpDegradedCount()*8);return Math.min(50,exposure/10)}
 function cpApplyCompromiseFloor(){const floor=cpCompromiseFloor();if(cpThreatMission()&&campaignCompromise<floor)campaignCompromise=floor;return floor}
 function cpMobilizeFromDegradedSite(siteName){
