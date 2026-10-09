@@ -1172,6 +1172,90 @@ function verdantStateFor(r){
  return r.discoveryState;
 }
 
+const verdantTacticalQueue=[];
+let verdantTacticalTimer=null;
+let verdantTacticalElement=null;
+
+function verdantTacticalClear(){
+ verdantTacticalQueue.length=0;
+ if(verdantTacticalTimer!==null){
+  clearTimeout(verdantTacticalTimer);
+  verdantTacticalTimer=null;
+ }
+ if(verdantTacticalElement){
+  verdantTacticalElement.remove();
+  verdantTacticalElement=null;
+ }
+}
+
+function verdantTacticalShowNext(){
+ if(activeOA!=='VERDANT'||!verdantSmartActive||!running){
+  verdantTacticalClear();
+  return;
+ }
+ if(verdantTacticalTimer!==null)return;
+
+ const message=verdantTacticalQueue.shift();
+ if(!message)return;
+
+ if(!verdantTacticalElement){
+  const el=document.createElement('div');
+  el.id='verdantTacticalAlert';
+  el.style.cssText=
+   'position:absolute;left:12px;bottom:12px;z-index:35;'+
+   'pointer-events:none;padding:7px 11px;'+
+   'border:1px solid rgba(80,220,170,.65);'+
+   'background:rgba(5,22,22,.91);color:#9ef5d3;'+
+   'font:600 11px/1.4 monospace;letter-spacing:.6px;'+
+   'max-width:260px;box-shadow:0 0 10px rgba(30,160,130,.15)';
+    const map=$('#map');
+  const container=map?.parentElement;
+
+  if(!container)return;
+
+  if(getComputedStyle(container).position==='static'){
+   container.style.position='relative';
+  }
+
+  container.appendChild(el);
+  verdantTacticalElement=el;
+ }
+
+ verdantTacticalElement.textContent=message;
+ verdantTacticalElement.style.display='block';
+
+ verdantTacticalTimer=setTimeout(()=>{
+  verdantTacticalTimer=null;
+  if(verdantTacticalElement){
+   verdantTacticalElement.style.display='none';
+  }
+  verdantTacticalShowNext();
+ },1800);
+}
+
+function verdantTacticalEnqueue(message){
+ if(activeOA!=='VERDANT'||!verdantSmartActive||!running)return;
+ if(verdantTacticalQueue.length>=8)verdantTacticalQueue.shift();
+ verdantTacticalQueue.push(message);
+ verdantTacticalShowNext();
+}
+
+function verdantTacticalMilestones(r){
+ const coverage=(r.discoveryCount||0)/Math.max(1,r.cells.length);
+ const previous=r.tacticalMilestone||0;
+ const milestones=[
+  {threshold:.15,level:1,message:'ROUTE DETECTED // '+r.id},
+  {threshold:.50,level:2,message:'ROUTE MAPPED // '+r.id+' // 50%'},
+  {threshold:.72,level:3,message:'ROUTE CONFIRMED // '+r.id}
+ ];
+
+ for(const milestone of milestones){
+  if(coverage>=milestone.threshold && previous<milestone.level){
+   verdantTacticalEnqueue(milestone.message);
+   r.tacticalMilestone=milestone.level;
+  }
+ }
+}
 function verdantDiscoveryUpdateRoutes(x,y,radius){
  const cfg=window.CP_VERDANT_MAP?.routeFoundation;
  if(!cfg)return false;
@@ -1197,6 +1281,7 @@ function verdantDiscoveryUpdateRoutes(x,y,radius){
     changed=true;
    }
   }
+  verdantTacticalMilestones(r);
  }
 
  return changed;
@@ -1249,6 +1334,7 @@ function verdantResetSmartRoutes(){
   verdantEnsureCells(r);
   r.discoveryCount=0;
   r.discoveryState=null;
+  r.tacticalMilestone=0;
   r.cells.forEach(c=>{
    c.progress=0;
    c.state='unassessed';
@@ -1257,6 +1343,7 @@ function verdantResetSmartRoutes(){
   r.state='unassessed';
  });
 
+ verdantTacticalClear();
  verdantSmartLastState='';
 
  verdantDiscoveryReset();
