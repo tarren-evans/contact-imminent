@@ -2513,3 +2513,11 @@ body.studio-title-glitch-in #mainMenu::after{background:linear-gradient(90deg,tr
     overflow:visible!important;
     overflow-y:visible!important;
 }
+/* CI Global Picture content-aware vertical overflow v1 */
+#globalMenu .global-panel {
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    overscroll-behavior:contain;
+    min-height:0!important;
+    scrollbar-width:thin;
+}
