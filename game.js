@@ -1836,7 +1836,7 @@ $('#devAccessCode')?.addEventListener('keydown',e=>{if(e.key==='Enter')unlockDev
 $('#devModeOn')?.addEventListener('click',()=>setDevMode(true));
 $('#devModeOff')?.addEventListener('click',()=>setDevMode(false));applyAudioSettings();installMenuButtonAudio();
 document.querySelectorAll('[data-campaign-oa]').forEach(b=>b.addEventListener('click',()=>selectCampaignOA(b.dataset.campaignOa)));document.querySelectorAll('[data-intel-assist]').forEach(b=>b.addEventListener('click',()=>setArcadeIntelAssist(b.dataset.intelAssist)));refreshArcadeIntelAssist();
-$('#tutorialBtn').addEventListener('click',tutorialMenu);$('#tutorialBegin').addEventListener('click',tutorialBegin);$('#tutorialBack').addEventListener('click',()=>{$('#tutorialBriefing').classList.add('hidden');$('#mainMenu').classList.remove('hidden')});$('#tutorialNext').addEventListener('click',tutorialSupportNext);$('#campaignBtn').addEventListener('click',cpCampaignMenu);$('#mission0301').addEventListener('click',cpBrief0301);$('#mission0302').addEventListener('click',cpBrief0302);$('#mission0303').addEventListener('click',cpBrief0303);$('#mission0304').addEventListener('click',cpBrief0304);$('#mission0305').addEventListener('click',cpBrief0305);$('#briefBack0301').addEventListener('click',()=>{$('#briefing0301').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0302').addEventListener('click',()=>{$('#briefing0302').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0303').addEventListener('click',()=>{$('#briefing0303').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0304').addEventListener('click',()=>{$('#briefing0304').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0305').addEventListener('click',()=>{$('#briefing0305').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#begin0301').addEventListener('click',cpBegin0301);$('#begin0302').addEventListener('click',cpBegin0302);$('#begin0303').addEventListener('click',cpBegin0303);$('#begin0304').addEventListener('click',cpBegin0304);$('#begin0305').addEventListener('click',cpBegin0305);$('#mission0401').addEventListener('click',cpBrief0401);$('#mission0402').addEventListener('click',cpBrief0402);$('#mission0403').addEventListener('click',cpBrief0403);$('#mission0404').addEventListener('click',cpBrief0404);$('#mission0405').addEventListener('click',cpBrief0405);$('#briefBack0401').addEventListener('click',()=>{$('#briefing0401').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#begin0401').addEventListener('click',cpBegin0401);$('#briefBack0402').addEventListener('click',()=>{$('#briefing0402').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#begin0402').addEventListener('click',cpBegin0402);$('#briefBack0403').addEventListener('click',()=>{$('#briefing0403').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#begin0403').addEventListener('click',cpBegin0403);$('#briefBack0404').addEventListener('click',()=>{$('#briefing0404').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#begin0404').addEventListener('click',cpBegin0404);$('#briefBack0405').addEventListener('click',()=>{$('#briefing0405').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#begin0405').addEventListener('click',cpBegin0405);$('#arcadeBtn').addEventListener('click',arcadeMenu);$('#arcadeBegin').addEventListener('click',arcadeBegin);$('#arcadeBack').addEventListener('click',()=>{$('#arcadeBriefing').classList.add('hidden');if(globalActivityContext){document.body.classList.remove('global-context-arcade');globalActivityContext=false;openGlobal();if(globalSelectedOA)selectGlobalOA(globalSelectedOA);}else $('#mainMenu').classList.remove('hidden')});$('#arcadeRedeploy').addEventListener('click',arcadeBegin);$('#arcadeMenuBtn').addEventListener('click',()=>ciInterstitialThen(()=>{arcadeHide();cpShowMenu()}));$('#mission0101').addEventListener('click',cpBrief0101);$('#mission0102').addEventListener('click',cpBrief0102);$('#mission0103').addEventListener('click',cpBrief0103);$('#mission0104').addEventListener('click',cpBrief0104);$('#mission0105').addEventListener('click',cpBrief0105);$('#campaignBack').addEventListener('click',()=>{$('#campaignMenu').classList.add('hidden');if(globalActivityContext){document.body.classList.remove('global-context-campaign');globalActivityContext=false;openGlobal();if(globalSelectedOA)selectGlobalOA(globalSelectedOA);}else $('#mainMenu').classList.remove('hidden')});$('#briefBack').addEventListener('click',()=>{$('#briefing0101').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0102').addEventListener('click',()=>{$('#briefing0102').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0103').addEventListener('click',()=>{$('#briefing0103').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0104').addEventListener('click',()=>{$('#briefing0104').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0105').addEventListener('click',()=>{$('#briefing0105').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#begin0101').addEventListener('click',cpBegin0101);$('#begin0102').addEventListener('click',cpBegin0102);$('#begin0103').addEventListener('click',cpBegin0103);$('#begin0104').addEventListener('click',cpBegin0104);$('#begin0105').addEventListener('click',cpBegin0105);$('#intelMitigate').addEventListener('click',()=>cpIntelDropChoose('MITIGATE'));$('#intelExploit').addEventListener('click',()=>cpIntelDropChoose('EXPLOIT'));$('#intelSupply').addEventListener('click',()=>cpIntelDropChoose('SUPPLY'));$('#resultRetry').addEventListener('click',()=>campaignMission==='04-05'?cpBegin0405():campaignMission==='04-04'?cpBegin0404():campaignMission==='04-03'?cpBegin0403():campaignMission==='04-02'?cpBegin0402():campaignMission==='04-01'?cpBegin0401():/^02-/.test(campaignMission||'')?cpBegin02(campaignMission):(campaignMission==='01-05'?cpBegin0105():(campaignMission==='01-04'?cpBegin0104():(campaignMission==='01-03'?cpBegin0103():(campaignMission==='01-02'?cpBegin0102():cpBegin0101())))));$('#resultContinue').addEventListener('click',()=>ciInterstitialThen(cpCampaignMenu));
+$('#tutorialBtn').addEventListener('click',tutorialMenu);$('#tutorialBegin').addEventListener('click',tutorialBegin);$('#tutorialBack').addEventListener('click',()=>{$('#tutorialBriefing').classList.add('hidden');$('#mainMenu').classList.remove('hidden')});$('#tutorialNext').addEventListener('click',tutorialSupportNext);$('#campaignBtn').addEventListener('click',cpCampaignMenu);$('#mission0301').addEventListener('click',cpBrief0301);$('#mission0302').addEventListener('click',cpBrief0302);$('#mission0303').addEventListener('click',cpBrief0303);$('#mission0304').addEventListener('click',cpBrief0304);$('#mission0305').addEventListener('click',cpBrief0305);$('#briefBack0301').addEventListener('click',()=>{$('#briefing0301').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0302').addEventListener('click',()=>{$('#briefing0302').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0303').addEventListener('click',()=>{$('#briefing0303').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0304').addEventListener('click',()=>{$('#briefing0304').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0305').addEventListener('click',()=>{$('#briefing0305').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#begin0301').addEventListener('click',cpBegin0301);$('#begin0302').addEventListener('click',cpBegin0302);$('#begin0303').addEventListener('click',cpBegin0303);$('#begin0304').addEventListener('click',cpBegin0304);$('#begin0305').addEventListener('click',cpBegin0305);$('#mission0401').addEventListener('click',cpBrief0401);$('#mission0402').addEventListener('click',cpBrief0402);$('#mission0403').addEventListener('click',cpBrief0403);$('#mission0404').addEventListener('click',cpBrief0404);$('#mission0405').addEventListener('click',cpBrief0405);$('#briefBack0401').addEventListener('click',()=>{$('#briefing0401').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#begin0401').addEventListener('click',cpBegin0401);$('#briefBack0402').addEventListener('click',()=>{$('#briefing0402').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#begin0402').addEventListener('click',cpBegin0402);$('#briefBack0403').addEventListener('click',()=>{$('#briefing0403').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#begin0403').addEventListener('click',cpBegin0403);$('#briefBack0404').addEventListener('click',()=>{$('#briefing0404').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#begin0404').addEventListener('click',cpBegin0404);$('#briefBack0405').addEventListener('click',()=>{$('#briefing0405').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#begin0405').addEventListener('click',cpBegin0405);$('#arcadeBtn').addEventListener('click',arcadeMenu);$('#arcadeBegin').addEventListener('click',arcadeBegin);$('#arcadeBack').addEventListener('click',()=>{$('#arcadeBriefing').classList.add('hidden');if(globalActivityContext){document.body.classList.remove('global-context-arcade');globalActivityContext=false;openGlobal();if(globalSelectedOA)selectGlobalOA(globalSelectedOA);}else $('#mainMenu').classList.remove('hidden')});$('#arcadeRedeploy').addEventListener('click',arcadeBegin);$('#arcadeMenuBtn').addEventListener('click',()=>ciInterstitialThen(()=>{arcadeHide();cpShowMenu()}));$('#mission0101').addEventListener('click',cpBrief0101);$('#mission0102').addEventListener('click',cpBrief0102);$('#mission0103').addEventListener('click',cpBrief0103);$('#mission0104').addEventListener('click',cpBrief0104);$('#mission0105').addEventListener('click',cpBrief0105);$('#campaignBack').addEventListener('click',()=>{$('#campaignMenu').classList.add('hidden');if(globalActivityContext){document.body.classList.remove('global-context-campaign');globalActivityContext=false;openGlobal();if(globalSelectedOA)selectGlobalOA(globalSelectedOA);}else $('#mainMenu').classList.remove('hidden')});$('#briefBack').addEventListener('click',()=>{$('#briefing0101').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0102').addEventListener('click',()=>{$('#briefing0102').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0103').addEventListener('click',()=>{$('#briefing0103').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0104').addEventListener('click',()=>{$('#briefing0104').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0105').addEventListener('click',()=>{$('#briefing0105').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#begin0101').addEventListener('click',cpBegin0101);$('#begin0102').addEventListener('click',cpBegin0102);$('#begin0103').addEventListener('click',cpBegin0103);$('#begin0104').addEventListener('click',cpBegin0104);$('#begin0105').addEventListener('click',cpBegin0105);$('#intelMitigate').addEventListener('click',()=>cpIntelDropChoose('MITIGATE'));$('#intelExploit').addEventListener('click',()=>cpIntelDropChoose('EXPLOIT'));$('#intelSupply').addEventListener('click',()=>cpIntelDropChoose('SUPPLY'));$('#resultRetry').addEventListener('click',()=>campaignMission==='04-05'?cpBegin0405():campaignMission==='04-04'?cpBegin0404():campaignMission==='04-03'?cpBegin0403():campaignMission==='04-02'?cpBegin0402():campaignMission==='04-01'?cpBegin0401():/^02-/.test(campaignMission||'')?cpBegin02(campaignMission):(campaignMission==='01-05'?cpBegin0105():(campaignMission==='01-04'?cpBegin0104():(campaignMission==='01-03'?cpBegin0103():(campaignMission==='01-02'?cpBegin0102():cpBegin0101())))));$('#resultContinue').addEventListener('click',()=>ciInterstitialThen(cpCampaignMenu));$('#resultReturnCommand').addEventListener('click',()=>ciInterstitialThen(cpCampaignMenu));
 $('#pauseBtn').addEventListener('click',()=>cpSetPause(!window.CP_PAUSED));$('#muteBtn').addEventListener('click',()=>{masterMuted=!masterMuted;localStorage.setItem('ci-audio-muted',masterMuted?'1':'0');localStorage.setItem('ci-audio-mute-explicit','1');applyAudioSettings();if(!masterMuted){audioUnlock();musicSetMode((running&&!window.CP_MENU)?'mission':'menu')}});
 $('#resumeBtn').addEventListener('click',()=>cpSetPause(false));
 $('#restartBtn').addEventListener('click',()=>{if(!confirm('Restart this mission? Current mission progress will be reset.'))return;window.CP_PAUSED=false;$('#pauseMenu').classList.add('hidden');if(campaignMission==='ARCADE')arcadeBegin();else{deploy();last=performance.now()}});$('#pauseUtilitiesBtn')?.addEventListener('click',()=>{$('#pauseMenu').classList.add('hidden');$('#utilityMenu').classList.remove('hidden')});$('#utilityBack')?.addEventListener('click',()=>{$('#utilityMenu').classList.add('hidden');$('#pauseMenu').classList.remove('hidden')});
@@ -1963,4 +1963,66 @@ requestAnimationFrame(loop)})();
   } else {
     initialize();
   }
+})();
+
+/* CI adaptive gameplay sidebar controller v1 */
+(() => {
+    function initializeAdaptiveSidebar() {
+        const sidebar = document.querySelector('aside');
+
+        if (!sidebar) return;
+
+        let scheduled = false;
+
+        function updateSidebar() {
+            scheduled = false;
+
+            if (!sidebar.isConnected) return;
+
+            // Measure the natural layout before deciding whether
+            // the compact layout is necessary.
+            sidebar.classList.remove('ci-sidebar-compact');
+
+            const available = sidebar.clientHeight;
+            const required = sidebar.scrollHeight;
+
+            sidebar.classList.toggle(
+                'ci-sidebar-compact',
+                required > available + 1
+            );
+        }
+
+        function scheduleUpdate() {
+            if (scheduled) return;
+
+            scheduled = true;
+            requestAnimationFrame(updateSidebar);
+        }
+
+        // Observe the sidebar's available dimensions.
+        const observer = new ResizeObserver(scheduleUpdate);
+        observer.observe(sidebar);
+
+        window.addEventListener('resize', scheduleUpdate, {
+            passive: true
+        });
+
+        window.visualViewport?.addEventListener(
+            'resize',
+            scheduleUpdate,
+            { passive: true }
+        );
+
+        scheduleUpdate();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener(
+            'DOMContentLoaded',
+            initializeAdaptiveSidebar,
+            { once: true }
+        );
+    } else {
+        initializeAdaptiveSidebar();
+    }
 })();

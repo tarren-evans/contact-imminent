@@ -2532,3 +2532,115 @@ body.studio-title-glitch-in #mainMenu::after{background:linear-gradient(90deg,tr
     overflow-wrap:anywhere!important;
     word-break:normal!important;
 }
+/* CI campaign result responsive layout v1 */
+#campaignResult .menupanel {
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: min(470px, calc(100vw - 24px)) !important;
+    max-height: calc(100dvh - 16px) !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    padding: 8px 14px !important;
+    gap: 0 !important;
+}
+
+#campaignResult .menu-kicker {
+    flex-shrink: 0 !important;
+    font-size: 9px !important;
+    margin: 0 0 3px !important;
+    line-height: 1.15 !important;
+}
+
+#campaignResult .menu-title {
+    flex-shrink: 0 !important;
+    font-size: clamp(15px, 4.5vh, 22px) !important;
+    line-height: 1.05 !important;
+    margin: 2px 0 5px !important;
+    letter-spacing: 2px !important;
+}
+
+#campaignResult #resultBody {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    font-size: 9px !important;
+    line-height: 1.15 !important;
+    margin: 3px 0 5px !important;
+    padding: 5px 8px !important;
+}
+
+#campaignResult .menu-primary,
+#campaignResult .menu-secondary {
+    flex-shrink: 0 !important;
+    min-height: 30px !important;
+    height: 30px !important;
+    margin: 3px 0 !important;
+    font-size: 9px !important;
+}
+/* CI adaptive gameplay sidebar v1 */
+aside.ci-sidebar-compact {
+    overflow: hidden !important;
+    gap: 0 !important;
+}
+
+aside.ci-sidebar-compact #operationalStatus,
+aside.ci-sidebar-compact #passiveIsrPanel,
+aside.ci-sidebar-compact #commandControls {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+}
+
+aside.ci-sidebar-compact button {
+    min-height: 24px !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+}
+
+aside.ci-sidebar-compact #operationalStatus,
+aside.ci-sidebar-compact #passiveIsrPanel {
+    padding-top: 3px !important;
+    padding-bottom: 3px !important;
+}
+
+aside.ci-sidebar-compact #commandControls {
+    position: relative !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    gap: 4px !important;
+}
+
+aside.ci-sidebar-compact #commandControls button {
+    min-height: 24px !important;
+    height: 24px !important;
+    padding-top: 1px !important;
+    padding-bottom: 1px !important;
+}
+
+aside.ci-sidebar-compact #operationalStatus::before,
+aside.ci-sidebar-compact #operationalStatus::after,
+aside.ci-sidebar-compact #passiveIsrPanel::before,
+aside.ci-sidebar-compact #passiveIsrPanel::after,
+aside.ci-sidebar-compact #commandControls::after {
+    display: none !important;
+}
+
+aside.ci-sidebar-compact #passiveIsrPanel {
+    border-top: 1px solid rgba(100, 145, 150, 0.28) !important;
+}
+
+aside.ci-sidebar-compact #commandControls::before {
+    content: "" !important;
+    display: block !important;
+    position: absolute !important;
+    top: -5px !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 1px !important;
+    background: rgba(100, 145, 150, 0.28) !important;
+    pointer-events: none !important;
+}
