@@ -1569,7 +1569,7 @@ const TEMPEST_CAMPAIGN_OBJECTIVES={
  '05-02':{title:'DARK TRANSIT',resolve:8,evidence:6,corroborated:2,integrity:80},
  '05-03':{title:'SHADOW NETWORK',resolve:8,evidence:8,associations:2,integrity:80},
  '05-04':{title:'INTERDICTION WINDOW',resolve:8,evidence:6,prioritized:3,legitimate:3,integrity:80},
- '05-05':{title:'TEMPEST',resolve:10,evidence:8,associations:2,prioritized:3,sustainedMs:45000,integrity:80}
+ '05-05':{title:'MARITIME FUSION',resolve:10,evidence:8,associations:2,prioritized:3,sustainedMs:45000,integrity:80}
 };
 function cpTempestObjectivesSatisfied(id,m={}){
  const g=TEMPEST_CAMPAIGN_OBJECTIVES[id];if(!g)return false;
@@ -1595,7 +1595,7 @@ const TEMPEST_BRIEFS={
  '05-02':{title:'DARK TRANSIT',brief:'Commercial AIS is intermittent and some identities or routes do not match observed movement. AIS loss by itself is not evidence of hostile intent. Corroborate behavior with collection and repeated ISR observations; benign anomalies remain in the traffic.',goals:['Resolve 8 maritime contacts','Collect 6 evidence reports','Corroborate 2 tracks with movement history and ISR','Maintain at least 80% intelligence integrity']},
  '05-03':{title:'SHADOW NETWORK',brief:'Develop maritime associations from observed rendezvous, coordinated movement, and shared ports. Collect both tracks in a relationship and use independent observations. Duplicate links and circular evidence do not count.',goals:['Resolve 8 maritime contacts','Collect 8 evidence reports','Establish 2 unique, evidence-supported associations','Maintain at least 80% intelligence integrity']},
  '05-04':{title:'INTERDICTION WINDOW',brief:'Legitimate shipping shares the operating area with a small number of higher-interest vessels. Collect and corroborate before prioritizing; unsupported guesses reduce intelligence integrity. Each vessel has a limited identification window.',goals:['Resolve 8 maritime contacts','Collect 6 evidence reports','Prioritize 3 supported high-interest vessels in time','Resolve 3 benign vessels correctly','Maintain at least 80% intelligence integrity']},
- '05-05':{title:'TEMPEST',brief:'Integrate the maritime picture. Corroborate associations, identify high-interest vessels with supporting intelligence, and sustain priority coverage while preserving the legitimate shipping picture.',goals:['Resolve 10 maritime contacts','Collect 8 evidence reports','Establish 2 unique associations','Prioritize 3 supported high-interest vessels','Sustain priority coverage for 45 seconds','Maintain at least 80% intelligence integrity']}
+ '05-05':{title:'MARITIME FUSION',brief:'Integrate the maritime picture. Corroborate associations, identify high-interest vessels with supporting intelligence, and sustain priority coverage while preserving the legitimate shipping picture.',goals:['Resolve 10 maritime contacts','Collect 8 evidence reports','Establish 2 unique associations','Prioritize 3 supported high-interest vessels','Sustain priority coverage for 45 seconds','Maintain at least 80% intelligence integrity']}
 };
 let tempestMissionStats={corroborated:new Set(),benign:new Set()},tempestPrioritySince=0,tempestUiReady=false;
 

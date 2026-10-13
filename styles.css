@@ -2945,3 +2945,60 @@ body.dev-mode-active #settingsMenu #devProgressionState {
 @media(max-height:380px){
   .command-deck>.action-stage>#dec.has-tempest-priority #tempestPriority{height:25px!important;min-height:25px!important}
 }
+/* TEMPEST // compact landscape header hierarchy and X Pro campaign-menu clearance */
+@media (min-width:681px) and (max-height:700px){
+  #app>header{
+    position:relative!important;
+    box-sizing:border-box!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(126px,auto) minmax(0,1fr)!important;
+    column-gap:10px!important;
+    height:94px!important;
+    min-height:94px!important;
+    flex:0 0 94px!important;
+    padding:6px 14px 30px!important;
+    align-items:center!important;
+  }
+  #app>header .brand-block{min-width:0!important;align-self:center!important}
+  #app>header .brand-block h1{font-size:clamp(14px,1.65vw,19px)!important;line-height:1!important;letter-spacing:.16em!important}
+  #app>header .brand-block>small{font-size:7px!important;line-height:1!important;letter-spacing:.08em!important}
+  #app>header .brand-block .header-objectives{
+    position:absolute!important;
+    left:14px!important;right:14px!important;bottom:4px!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;
+    flex-wrap:wrap!important;gap:3px 11px!important;
+    width:auto!important;max-height:24px!important;margin:0!important;
+    overflow:hidden!important;white-space:normal!important;line-height:1!important;
+  }
+  #app>header .brand-block .header-objectives .objective-title,
+  #app>header .brand-block .header-objectives .objective-chip{line-height:1!important}
+  #app>header .brand-block .header-objectives .objective-title{font-size:7px!important;letter-spacing:.08em!important}
+  #app>header .brand-block .header-objectives em{font-size:6px!important}
+  #app>header .brand-block .header-objectives b{font-size:7px!important}
+  #app>header .clock{min-width:0!important;align-self:center!important}
+  #app>header .clock small{max-width:34ch;margin:0 auto 2px!important;font-size:7px!important;line-height:1.1!important;white-space:normal!important;text-align:center!important}
+  #app>header .clock b{font-size:clamp(18px,2.1vh,22px)!important;line-height:1!important;letter-spacing:.14em!important}
+  #app>header .status{
+    display:grid!important;grid-template-columns:auto auto!important;
+    justify-self:end!important;align-content:center!important;gap:2px 9px!important;
+    font-size:8px!important;line-height:1.05!important;white-space:nowrap!important;text-align:right!important;
+  }
+  #app>.layout{height:calc(100dvh - 94px)!important;min-height:0!important}
+}
+
+/* Keep campaign navigation visible; if the selected area is too tall, scroll only its pane. */
+@media(max-height:760px){
+  #campaignMenu .campaignpanel{
+    display:flex!important;flex-direction:column!important;
+    min-height:0!important;max-height:calc(100dvh - 12px)!important;
+    overflow:hidden!important;
+  }
+  #campaignMenu .campaign-pane:not(.hidden){
+    flex:1 1 auto!important;min-height:0!important;
+    overflow-x:hidden!important;overflow-y:auto!important;
+    overscroll-behavior:contain!important;scrollbar-width:thin;
+  }
+  #campaignMenu #campaignBack,#campaignMenu .campaignpanel>.menu-version{flex:0 0 auto!important}
+  #campaignMenu #campaignBack{margin:3px 0!important}
+  #campaignMenu .campaignpanel>.menu-version{margin-top:4px!important}
+}
