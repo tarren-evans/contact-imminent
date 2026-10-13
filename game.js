@@ -168,12 +168,32 @@ function simulatedProgressionComplete(key){
  return false;
 }
 
+function campaignMissionUnlocked(id){
+ const match=String(id||'').match(/^(0[1-6])-0([1-5])$/);if(!match)return false;
+ if(devProgressionBypassActive())return true;
+ const series=match[1],mission=Number(match[2]);
+ if(mission===1){
+  const prerequisite={
+   '01':null,'02':'ci-c01-complete','03':'ci-c02-complete',
+   '04':'ci-c03-05-complete','05':'ci-c04-05-complete','06':'ci-c05-05-complete'
+  }[series];
+  return prerequisite===null||!!prerequisite&&progressionComplete(prerequisite);
+ }
+ const previous=mission-1;
+ if(progressionComplete('ci-c'+series+'-'+String(previous).padStart(2,'0')+'-complete'))return true;
+ if(series==='01'){
+  const legacy='ci-c01-010'+mission+'-unlocked';
+  return progressionComplete(legacy)||sessionStorage.getItem(legacy)==='1';
+ }
+ return false;
+}
 function campaignProgressionWrite(key,value){
- if(devProgressionSimulationActive())return;
+ if(devProgressionSimulationActive()||devProgressionBypassActive())return;
  localStorage.setItem(key,value);
+ if(value==='1'&&/-complete$/.test(key))progressionCollectUnlocks();
 }
 function campaignSessionProgressionWrite(key,value){
- if(devProgressionSimulationActive())return;
+ if(devProgressionSimulationActive()||devProgressionBypassActive())return;
  sessionStorage.setItem(key,value);
 }
 function progressionComplete(key){
@@ -245,9 +265,9 @@ function setDevMode(on){
  refreshDevAccessState();refreshGlobalOAStatus();refreshProgressionBadges();if(globalSelectedOA&&document.querySelector('#globalMenu:not(.hidden)'))selectGlobalOA(globalSelectedOA);cpNotice('DEVELOPER MODE',devMode?'PROGRESSION LOCKS BYPASSED':'STANDARD ACCESS RESTORED','intel');sound('click');
 }
 const ISR_CAPABILITY_KEY='ci-isr-capability';let isrCapability=localStorage.getItem(ISR_CAPABILITY_KEY)||'STANDARD';
-function isrCapabilityUnlocked(k){if(k==='STANDARD')return true;if(k==='WIDE')return localStorage.getItem('ci-c01-complete')==='1';if(k==='RAPID')return localStorage.getItem('ci-c02-complete')==='1';return false}
+function isrCapabilityUnlocked(k){if(k==='STANDARD')return true;if(k==='WIDE')return localStorage.getItem('ci-c01-complete')==='1';if(k==='RAPID')return localStorage.getItem('ci-c02-complete')==='1';if(k==='ORBIT')return localStorage.getItem('ci-c03-05-complete')==='1';if(k==='HARDENED')return localStorage.getItem('ci-c04-05-complete')==='1';return false}
 function normalizeISRCapability(){if(!isrCapabilityUnlocked(isrCapability))isrCapability='STANDARD'}
-function cpEffectiveISRSpeed(){if(campaignMission==='RETRO')return A.speed;normalizeISRCapability();return A.speed*(isrCapability==='RAPID'?1.12:1)*(cpCyberActive()?.80:1)}
+function cpEffectiveISRSpeed(){if(campaignMission==='RETRO')return A.speed;normalizeISRCapability();const cyberFactor=cpCyberActive()?(isrCapability==='HARDENED'?.90:.80):1;return A.speed*(isrCapability==='RAPID'?1.12:1)*cyberFactor}
 let B=[],T=[],sel=null,col=null,pct=0,score=0,integrity=100,decisionCorrect=0,decisionTotal=0,resolved=0,ints=0,next=1,campaignMission=null,campaignIds=0,campaignCorrect=0,campaignThreatResolved=0,campaignNonThreatResolved=0,campaignStationaryAssessed=0,campaignStationarySpawned=0,campaignProximityAssessed=0,campaignCollectionInterrupted=0,campaignCompromise=0,campaignFinished=false,arcadeStreak=0,arcadeBestStreak=0,arcadeCorrect=0,arcadeWrong=0,arcadeStart=0,arcadeThreatLevel=1,arcadeNextLevel=0,intelDropOffered=false,intelDropActive=false,intelDropAt=0,intelDropExpires=0,intelFusionUntil=0,passiveCredits=0,passiveNodes=[],passiveNAIs=[],passiveDeployMode=false,passiveNextId=1,ewoTargetMode=false,ewoUses=0,tutorialStep=0,supplyPackages=0,supplyRepairMode=false,cyberDegradedUntil=0,cyberRecoverNotice=false,cyberNextGlitch=0,running=false,start=0,lastSpawn=0,last=performance.now(),phase=1,ct=null,ci=null,lastUi=0,stallLogged=false;const C={raf:0,isr:0,map:0,track:0,orders:0,errors:0,lastRaf:performance.now(),maxGap:0,fps:0,fpsFrames:0,fpsAt:performance.now()};let dbg=[],lastDiag=0;let campaignHintSig='',campaignHintAt=0,campaignHintLevel=0;function rec(kind,msg){let ts=((performance.now()-(start||performance.now()))/1000).toFixed(3);dbg.push(`${ts}s | ${kind} | ${msg}`);if(dbg.length>500)dbg.shift()}window.addEventListener('error',e=>{C.errors++;rec('ERROR',`${e.message} @ ${e.filename}:${e.lineno}:${e.colno}`)});window.addEventListener('unhandledrejection',e=>{C.errors++;rec('REJECTION',String(e.reason))});function log(s){let d=document.createElement('div');d.textContent='> '+s;$('#log').prepend(d);while($('#log').children.length>7)$('#log').lastChild.remove()}function banner(s,d=1000){$('#bannerText').textContent=s;$('#banner').classList.add('show');setTimeout(()=>$('#banner').classList.remove('show'),d)}
 // v0.6.2.1 AUDIO IDENTITY // retained tactile/menu SFX + recorded background
 let audioCtx=null,audioReady=false,audioEnabled=true,lastContactTone=0,lastWarningTone=0;const savedMute=localStorage.getItem('ci-audio-muted'),muteExplicit=localStorage.getItem('ci-audio-mute-explicit')==='1';let masterMuted=muteExplicit&&savedMute==='1';if(!muteExplicit){localStorage.setItem('ci-audio-muted','0');masterMuted=false;}if(savedMute!==null&&savedMute!=='0'&&savedMute!=='1'){localStorage.removeItem('ci-audio-muted');masterMuted=false;}
@@ -428,7 +448,7 @@ function cpNotice(title,detail,kind='intel'){
  setTimeout(()=>{n.classList.add('leaving');setTimeout(()=>n.remove(),350)},2600);
 }
 // v0.8.0 shared mission capability layer. Campaign systems query capabilities rather than hard-coding campaign numbers throughout the runtime.
-function isCampaignMission(){return /^0[1234]-\d{2}$/.test(campaignMission||'')||/^05-0[1-5]$/.test(campaignMission||'')}
+function isCampaignMission(){return /^0[1234]-\d{2}$/.test(campaignMission||'')||/^05-0[1-5]$/.test(campaignMission||'')||/^06-0[1-5]$/.test(campaignMission||'')}
 function isCampaign02(){return /^02-/.test(campaignMission||'')}
 function campaignStage(){let m=String(campaignMission||'').match(/^\d{2}-(\d{2})$/);return m?Number(m[1]):0}
 function usesObjectiveTracker(){return (isCampaignMission()&&campaignMission!=='05-01')||campaignMission==='ARCADE'||campaignMission==='RETRO'}
@@ -439,7 +459,7 @@ function usesNetworkAnalysis(){return isCampaign02()&&campaignStage()>=3}
 const PASSIVE_MAX=9,PASSIVE_RADIUS=92,PASSIVE_COSTS=[30,35,40,45,50,60,70,80,90],NAI_LINK_MAX=360,NAI_MIN_AREA=1800,NAI_COLLECT_MS=1000,EWO_COST=75;
 function passiveEnabled(){return usesPassiveISR()}
 function passiveCost(){return PASSIVE_COSTS[Math.min(passiveNodes.length,PASSIVE_COSTS.length-1)]}
-function passiveCovered(t){return passiveEnabled()&&passiveNodes.some(n=>D(n,t)<=PASSIVE_RADIUS)}
+function passiveCovered(t){return passiveEnabled()&&passiveNodes.some(n=>cpMapRadialDistance(n,t)<=PASSIVE_RADIUS)}
 function triArea(a,b,c){return Math.abs((a.x*(b.y-c.y)+b.x*(c.y-a.y)+c.x*(a.y-b.y))/2)}
 function inTri(p,a,b,c){const s=(p1,p2,p3)=>(p1.x-p3.x)*(p2.y-p3.y)-(p2.x-p3.x)*(p1.y-p3.y),d1=s(p,a,b),d2=s(p,b,c),d3=s(p,c,a),neg=d1<0||d2<0||d3<0,pos=d1>0||d2>0||d3>0;return !(neg&&pos)}
 function naiForTrack(t){return passiveNAIs.find(z=>inTri(t,z.nodes[0],z.nodes[1],z.nodes[2]))||null}
@@ -461,8 +481,8 @@ function passivePlace(p){
  if(passiveNodes.length>=PASSIVE_MAX){passiveDeployMode=false;ui(true);return false}
  const cost=passiveCost();if(passiveCredits<cost){passiveDeployMode=false;ui(true);return false}
  const n={id:passiveNextId++,x:Math.max(55,Math.min(845,p.x)),y:Math.max(55,Math.min(590,p.y))};passiveCredits-=cost;passiveNodes.push(n);passiveDeployMode=false;
- const rg=document.createElementNS(NS,'g');rg.setAttribute('transform',`translate(${n.x} ${n.y})`);rg.setAttribute('class','passive-range-layer');rg.innerHTML=`<circle class="passive-range" r="${PASSIVE_RADIUS}"/>`;$('#passiveRanges').append(rg);n.rangeEl=rg;
- const g=document.createElementNS(NS,'g');g.setAttribute('transform',`translate(${n.x} ${n.y})`);g.setAttribute('class','passive-node');g.innerHTML=`<circle class="passive-core" r="13"/><path class="passive-mark" d="M-7 0H7M0-7V7M-5-5L5 5M5-5L-5 5"/><text x="18" y="4">PSR-${String(n.id).padStart(2,'0')}</text>`;
+ const rg=document.createElementNS(NS,'g');rg.setAttribute('transform','translate('+n.x+' '+n.y+') scale('+(activeOA==='VERDANT'?cpVerdantSymbolAspect():1)+' 1)');rg.setAttribute('class','passive-range-layer');rg.innerHTML=`<circle class="passive-range" r="${PASSIVE_RADIUS}"/>`;$('#passiveRanges').append(rg);n.rangeEl=rg;
+ const g=document.createElementNS(NS,'g');g.setAttribute('transform','translate('+n.x+' '+n.y+') scale('+(activeOA==='VERDANT'?cpVerdantSymbolAspect():1)+' 1)');g.setAttribute('class','passive-node');g.innerHTML=`<circle class="passive-core" r="13"/><path class="passive-mark" d="M-7 0H7M0-7V7M-5-5L5 5M5-5L-5 5"/><text x="18" y="4">PSR-${String(n.id).padStart(2,'0')}</text>`;
  $('#passiveSensors').append(g);n.el=g;rebuildNAIs();tutorialAdvance('passive');log('PASSIVE ISR // PSR-'+String(n.id).padStart(2,'0')+' DEPLOYED');cpNotice('PASSIVE ISR DEPLOYED','COLLECTION FOOTPRINT ACTIVE','intel');sound('order');ui(true);return true
 }
 function ewoSweep(){
@@ -474,17 +494,17 @@ function ewoSweep(){
 }
 function ewoFire(origin){
  if(!ewoTargetMode||passiveCredits<EWO_COST)return;ewoTargetMode=false;passiveCredits-=EWO_COST;ewoUses++;rec('FLIGHT_ISOLATION',`EWO_FIRE // flight=${A.mode}`);stopCollect();
- const targets=T.filter(t=>!t.done&&t.type==='UNKNOWN').map(t=>({t,d:Math.hypot(t.x-origin.x,t.y-origin.y)})).sort((a,b)=>a.d-b.d);
- const layer=$('#ewoEffects');if(layer)layer.textContent='';const ring=document.createElementNS(NS,'circle');ring.setAttribute('class','ewo-wave');ring.setAttribute('cx',origin.x);ring.setAttribute('cy',origin.y);ring.setAttribute('r','0');layer.append(ring);
+ const circleScale=activeOA==='VERDANT'?cpVerdantSymbolAspect():1;const targets=T.filter(t=>!t.done&&t.type==='UNKNOWN').map(t=>({t,d:Math.hypot((t.x-origin.x)*circleScale,t.y-origin.y)})).sort((a,b)=>a.d-b.d);
+ const layer=$('#ewoEffects');if(layer)layer.textContent='';const ring=document.createElementNS(NS,'circle');ring.setAttribute('class','ewo-wave');ring.setAttribute('cx',origin.x);ring.setAttribute('cy',origin.y);ring.setAttribute('r','0');ring.setAttribute('transform','translate('+origin.x+' '+origin.y+') scale('+circleScale+' 1) translate('+(-origin.x)+' '+(-origin.y)+')');layer.append(ring);
  const particles=[];for(let i=0;i<42;i++){let q=document.createElementNS(NS,'circle');q.setAttribute('class','ewo-particle');q.setAttribute('r',1+Math.random()*1.8);layer.append(q);particles.push({q,a:Math.random()*Math.PI*2,j:(Math.random()-.5)*18})}
  tutorialAdvance('ewo');const maxR=1100,dur=1900,t0=performance.now();sound('ewo');banner('EWO SWEEP // ELECTROMAGNETIC COLLECTION',1500);cpNotice('EWO SWEEP ACTIVE','RADIAL COLLECTION WAVE','intel');log('EWO SUPPORT // RADIAL SWEEP');
- let done=new Set();function frame(now){let f=Math.min(1,(now-t0)/dur),r=maxR*f;ring.setAttribute('r',r);ring.setAttribute('stroke-opacity',String(.95*(1-f*.55)));particles.forEach(p=>{let rr=Math.max(0,r+p.j);p.q.setAttribute('cx',origin.x+Math.cos(p.a)*rr);p.q.setAttribute('cy',origin.y+Math.sin(p.a)*rr);p.q.setAttribute('fill-opacity',String(.85*(1-f*.45)))});targets.forEach(o=>{if(done.has(o.t)||o.d>r)return;done.add(o.t);let t=o.t;if(t.done||t.type!=='UNKNOWN'||(t.maritime&&!t.discovered))return;t.naiDerived=false;t.type=t.truth;cpTempestRecordEvidence(t,'EWO COLLECTION');score+=25;ensureRing(t);pulse(t.type);log('EWO COLLECTION // '+designation(t)+' // '+t.type)});ui(true);if(f<1)requestAnimationFrame(frame);else{setTimeout(()=>layer.textContent='',220);cpNotice('EWO SWEEP COMPLETE',done.size+' TRACKS IDENTIFIED','intel');sound('classify')}}requestAnimationFrame(frame)
+ let done=new Set();function frame(now){let f=Math.min(1,(now-t0)/dur),r=maxR*f;ring.setAttribute('r',r);ring.setAttribute('stroke-opacity',String(.95*(1-f*.55)));particles.forEach(p=>{let rr=Math.max(0,r+p.j);const px=origin.x+Math.cos(p.a)*rr*circleScale,py=origin.y+Math.sin(p.a)*rr;p.q.setAttribute('cx',px);p.q.setAttribute('cy',py);p.q.setAttribute('transform','translate('+px+' '+py+') scale('+circleScale+' 1) translate('+(-px)+' '+(-py)+')');p.q.setAttribute('fill-opacity',String(.85*(1-f*.45)))});targets.forEach(o=>{if(done.has(o.t)||o.d>r)return;done.add(o.t);let t=o.t;if(t.done||t.type!=='UNKNOWN'||(t.maritime&&!t.discovered))return;t.naiDerived=false;t.type=t.truth;cpTempestRecordEvidence(t,'EWO COLLECTION');cpPolarisRecordEvidence(t,'EWO COLLECTION');score+=25;ensureRing(t);pulse(t.type);log('EWO COLLECTION // '+designation(t)+' // '+t.type)});ui(true);if(f<1)requestAnimationFrame(frame);else{setTimeout(()=>layer.textContent='',220);cpNotice('EWO SWEEP COMPLETE',done.size+' TRACKS IDENTIFIED','intel');sound('classify')}}requestAnimationFrame(frame)
 }
 function passiveToggleDeploy(){if(!passiveEnabled()||!running)return;if(passiveNodes.length>=PASSIVE_MAX){cpNotice('PASSIVE ISR','MAXIMUM 9 NODES ACTIVE','intel');return}const cost=passiveCost();if(passiveCredits<cost){cpNotice('PASSIVE ISR','INSUFFICIENT ISR CREDITS // '+passiveCredits+'/'+cost,'intel');return}passiveDeployMode=!passiveDeployMode;rec('FLIGHT_ISOLATION',`PASSIVE_DEPLOY ${passiveDeployMode?'ON':'OFF'} // flight=${A.mode}`);if(passiveDeployMode){stopCollect();sel=null;log('PASSIVE ISR // SELECT DEPLOYMENT POINT')}ui(true)
 }
 function truth(){let r=Math.random();if(campaignMission==='ARCADE'){let threat=Math.min(.72,.42+(arcadeThreatLevel-1)*.045);return r<threat/2?'HOSTILE':r<threat?'IRREGULAR':r<threat+(1-threat)/2?'NEUTRAL':'FRIENDLY'}if(/^02-/.test(campaignMission||''))return r<.28?'HOSTILE':r<.50?'IRREGULAR':r<.76?'NEUTRAL':'FRIENDLY';if(campaignMission==='01-05')return r<.30?'HOSTILE':r<.60?'IRREGULAR':r<.80?'NEUTRAL':'FRIENDLY';if(campaignMission==='01-01'||campaignMission==='01-02'||campaignMission==='01-03'||campaignMission==='01-04')return r<.25?'HOSTILE':r<.50?'IRREGULAR':r<.75?'NEUTRAL':'FRIENDLY';if(phase===1)return r<.25?'HOSTILE':r<.38?'IRREGULAR':r<.68?'NEUTRAL':'FRIENDLY';if(phase===2)return r<.30?'HOSTILE':r<.48?'IRREGULAR':r<.75?'NEUTRAL':'FRIENDLY';return r<.34?'HOSTILE':r<.58?'IRREGULAR':r<.80?'NEUTRAL':'FRIENDLY'}function parms(){
  if(/^05-0[1-5]$/.test(campaignMission||''))return {gap:99,cap:50};
- if(campaignMission==='ARCADE'){let l=Math.max(1,arcadeThreatLevel);return {gap:Math.max(2.4,8.5-(l-1)*.7),cap:Math.min(10,5+Math.floor((l-1)/2))}}
+ if(/^06-0[1-5]$/.test(campaignMission||''))return {gap:7.5,cap:7};if(campaignMission==='ARCADE'){let l=Math.max(1,arcadeThreatLevel);return {gap:Math.max(2.4,8.5-(l-1)*.7),cap:Math.min(10,5+Math.floor((l-1)/2))}}
  if(/^02-/.test(campaignMission||''))return phase===1?{gap:8.2,cap:6}:phase===2?{gap:5.8,cap:7}:{gap:4.2,cap:8};
  if(campaignMission==='01-05')return phase===1?{gap:8.0,cap:6}:phase===2?{gap:5.5,cap:7}:{gap:3.8,cap:8};
  return phase===1?{gap:9.5,cap:5}:phase===2?{gap:6.5,cap:6}:{gap:4.5,cap:7}
@@ -631,7 +651,7 @@ if(stationary===null){
   if(campaignMission==='01-02'){
     stationary=campaignStationarySpawned<4 ? true : Math.random()<.45;
   }else stationary=Math.random()<.3;
-}if(!running||T.filter(t=>!t.done).length>=p.cap)return;let x,y,vx=0,vy=0;if(stationary){x=130+Math.random()*640;y=90+Math.random()*460}else{let side=Math.floor(Math.random()*4),s=1.5+Math.random()*1.9;if(side===0){x=40;y=60+Math.random()*520;vx=s;vy=(Math.random()-.5)*1.3}else if(side===1){x=860;y=60+Math.random()*520;vx=-s;vy=(Math.random()-.5)*1.3}else if(side===2){x=60+Math.random()*780;y=40;vx=(Math.random()-.5)*1.3;vy=s}else{x=60+Math.random()*780;y=610;vx=(Math.random()-.5)*1.3;vy=-s}}let tr=truth(),t={id:'UNK-'+String(next++).padStart(3,'0'),x,y,vx,vy,stationary,truth:tr,type:'UNKNOWN',cyberTrap:campaignMission==='ARCADE'&&Math.random()<.10,done:false,collecting:false,enemyRange:stationary?145:105,ring:null,bornAt:performance.now(),proxSite:null,proxSince:0,proxAssessed:false,hostileCollect:false,collectStarted:0,compromiseAdded:0,stallX:null,stallY:null,stallAt:performance.now(),stallLogged:false,naiSince:0,naiPct:0,naiDerived:false,priorityNAISince:0,priorityNAIPct:0,priorityNAICued:false,priorityNAIObserved:false,intel:{firstObserved:0,lastObserved:0,observations:0,wasObserved:false,lastX:null,lastY:null,obsPoints:[],siteObs:{},areaRecurrence:false,baselineEstablished:false,baselineX:null,baselineY:null,deviationCount:0,lastDeviationAt:0,lastDeviationX:null,lastDeviationY:null},lkp:null};
+}if(!running||T.filter(t=>!t.done).length>=p.cap)return;let x,y,vx=0,vy=0;if(stationary){x=130+Math.random()*640;y=90+Math.random()*460}else{let side=Math.floor(Math.random()*4),s=1.5+Math.random()*1.9;if(side===0){x=40;y=60+Math.random()*520;vx=s;vy=(Math.random()-.5)*1.3}else if(side===1){x=860;y=60+Math.random()*520;vx=-s;vy=(Math.random()-.5)*1.3}else if(side===2){x=60+Math.random()*780;y=40;vx=(Math.random()-.5)*1.3;vy=s}else{x=60+Math.random()*780;y=610;vx=(Math.random()-.5)*1.3;vy=-s}}if(/^06-0[35]$/.test(campaignMission||'')&&B.length){const site=B[(next-1)%B.length];x=site.x+(Math.random()-.5)*110;y=site.y+(Math.random()-.5)*90;stationary=Math.random()<.42}let tr=truth(),t={id:'UNK-'+String(next++).padStart(3,'0'),x,y,vx,vy,stationary,truth:tr,type:'UNKNOWN',cyberTrap:campaignMission==='ARCADE'&&Math.random()<.10,done:false,collecting:false,enemyRange:stationary?145:105,ring:null,bornAt:performance.now(),proxSite:null,proxSince:0,proxAssessed:false,hostileCollect:false,collectStarted:0,compromiseAdded:0,stallX:null,stallY:null,stallAt:performance.now(),stallLogged:false,naiSince:0,naiPct:0,naiDerived:false,priorityNAISince:0,priorityNAIPct:0,priorityNAICued:false,priorityNAIObserved:false,intel:{firstObserved:0,lastObserved:0,observations:0,wasObserved:false,lastX:null,lastY:null,obsPoints:[],siteObs:{},areaRecurrence:false,baselineEstablished:false,baselineX:null,baselineY:null,deviationCount:0,lastDeviationAt:0,lastDeviationX:null,lastDeviationY:null},lkp:null};
 if(/^02-/.test(campaignMission||'')&&window.CP_VANTAGE_MAP){const hs=window.CP_VANTAGE_MAP.hotspots;if(hs.length&&Math.random()<.76){let h=hs[Math.floor(Math.random()*hs.length)];t.hotspot=h.id;t.x=h.x+(Math.random()-.5)*90;t.y=h.y+(Math.random()-.5)*90;t.stationary=Math.random()<.38;}}
 if(campaignMission==='01-03'||campaignMission==='01-04'||campaignMission==='01-05'||campaignMission==='ARCADE'){
   const siteList=B.map(b=>({name:b.id,x:b.x,y:b.y}));
@@ -670,7 +690,7 @@ function ensureRing(t){
         t.ring=null;
     }
 }
-function draw(t){if(t.done){t.el.setAttribute('visibility','hidden');renderLKP(t);ensureRing(t);return}let inside=D(A,t)<=cpEffectiveISRRadius(),knownLost=!!(t.intel&&t.intel.observations>0&&!t.intel.wasObserved&&!passiveCovered(t)),undiscovered=!!(t.maritime&&!t.discovered);t.el.setAttribute('visibility',knownLost||undiscovered?'hidden':'visible');renderLKP(t);{const k=activeOA==='VERDANT'?cpVerdantSymbolAspect():1;t.el.setAttribute('transform',`translate(${t.x} ${t.y}) scale(${k} 1)`);}let c=color(t);t.c.setAttribute('r',sel===t?'22':'17');t.c.setAttribute('stroke',c);const symbolPath=t.type==='CYBER'?'M0 -11L9 -5L9 5L0 11L-9 5L-9 -5ZM-5 0H5M0 -6V6':(t.stationary?'M-9 -9H9V9H-9Z':'M0 -8L8 0L0 8L-8 0Z');if(t.d.getAttribute('d')!==symbolPath)t.d.setAttribute('d',symbolPath);t.d.setAttribute('stroke',c);t.tx.setAttribute('fill',c);t.v.setAttribute('stroke',c);t.v.setAttribute('x2',t.vx*13);t.v.setAttribute('y2',t.vy*13);t.tx.textContent=designation(t)+' // '+(t.type==='UNKNOWN'&&t.naiSince?'NAI COLLECTING '+t.naiPct+'%':t.collecting?'COLLECTING '+pct+'%':t.type==='UNKNOWN'?(t.priorityNAISince?'PRIORITY NAI // AUTO COLLECTION '+t.priorityNAIPct+'%':naiForTrack(t)?'NAI // AUTO COLLECTION':passiveCovered(t)?(inside?'PASSIVE CUE // IN RANGE':'PASSIVE CUE'):(inside?'IN RANGE':'UNKNOWN')):t.type);ensureRing(t)}function pulse(k){let c=k==='CYBER'?'#c65cff':k==='HOSTILE'?'#ff5b55':k==='IRREGULAR'?'#d8a83e':k==='NEUTRAL'?'#55d66b':'#4da3ff';$('#sr').setAttribute('stroke',c);$('#sf').setAttribute('fill',c);$('#sr').setAttribute('stroke-width','5');$('#sf').setAttribute('fill-opacity','.13');setTimeout(()=>{$('#sr').setAttribute('stroke','currentColor');$('#sf').setAttribute('fill','currentColor');$('#sr').setAttribute('stroke-width','2.4');$('#sf').setAttribute('fill-opacity','.025')},850)}function naiClassify(t){if(!t||t.done||t.type!=='UNKNOWN'||(t.maritime&&!t.discovered))return;t.naiSince=0;t.naiPct=100;t.naiDerived=true;t.type=t.truth;cpTempestRecordEvidence(t,'NAI COLLECTION');score+=25;if(campaignMission==='01-01'||campaignMission==='01-02')campaignIds++;if(campaignMission==='01-02'&&t.stationary)campaignStationaryAssessed++;if(campaignMission==='01-03'&&t.proxSite&&!t.proxAssessed){t.proxAssessed=true;campaignProximityAssessed++;}pulse(t.type);ensureRing(t);log('NAI CLASSIFIED // '+designation(t)+' // '+t.type);cpNotice('NAI AUTO COLLECTION',designation(t)+' // '+t.type,'intel');sound('classify');if(campaignMission==='01-02')cpCheck0102();if(campaignMission==='01-03')cpCheck0103();ui(true)}
+function draw(t){if(t.done){t.el.setAttribute('visibility','hidden');renderLKP(t);ensureRing(t);return}let inside=cpMapRadialDistance(A,t)<=cpEffectiveISRRadius(),knownLost=!!(t.intel&&t.intel.observations>0&&!t.intel.wasObserved&&!passiveCovered(t)),undiscovered=!!(t.maritime&&!t.discovered);t.el.setAttribute('visibility',knownLost||undiscovered?'hidden':'visible');renderLKP(t);{const k=activeOA==='VERDANT'?cpVerdantSymbolAspect():1;t.el.setAttribute('transform',`translate(${t.x} ${t.y}) scale(${k} 1)`);}let c=color(t);t.c.setAttribute('r',sel===t?'22':'17');t.c.setAttribute('stroke',c);const symbolPath=t.type==='CYBER'?'M0 -11L9 -5L9 5L0 11L-9 5L-9 -5ZM-5 0H5M0 -6V6':(t.stationary?'M-9 -9H9V9H-9Z':'M0 -8L8 0L0 8L-8 0Z');if(t.d.getAttribute('d')!==symbolPath)t.d.setAttribute('d',symbolPath);t.d.setAttribute('stroke',c);t.tx.setAttribute('fill',c);t.v.setAttribute('stroke',c);t.v.setAttribute('x2',t.vx*13);t.v.setAttribute('y2',t.vy*13);t.tx.textContent=designation(t)+' // '+(t.type==='UNKNOWN'&&t.naiSince?'NAI COLLECTING '+t.naiPct+'%':t.collecting?'COLLECTING '+pct+'%':t.type==='UNKNOWN'?(t.priorityNAISince?'PRIORITY NAI // AUTO COLLECTION '+t.priorityNAIPct+'%':naiForTrack(t)?'NAI // AUTO COLLECTION':passiveCovered(t)?(inside?'PASSIVE CUE // IN RANGE':'PASSIVE CUE'):(inside?'IN RANGE':'UNKNOWN')):t.type);ensureRing(t)}function pulse(k){let c=k==='CYBER'?'#c65cff':k==='HOSTILE'?'#ff5b55':k==='IRREGULAR'?'#d8a83e':k==='NEUTRAL'?'#55d66b':'#4da3ff';$('#sr').setAttribute('stroke',c);$('#sf').setAttribute('fill',c);$('#sr').setAttribute('stroke-width','5');$('#sf').setAttribute('fill-opacity','.13');setTimeout(()=>{$('#sr').setAttribute('stroke','currentColor');$('#sf').setAttribute('fill','currentColor');$('#sr').setAttribute('stroke-width','2.4');$('#sf').setAttribute('fill-opacity','.025')},850)}function naiClassify(t){if(!t||t.done||t.type!=='UNKNOWN'||(t.maritime&&!t.discovered))return;t.naiSince=0;t.naiPct=100;t.naiDerived=true;t.type=t.truth;cpTempestRecordEvidence(t,'NAI COLLECTION');cpPolarisRecordEvidence(t,'NAI COLLECTION');score+=25;if(campaignMission==='01-01'||campaignMission==='01-02')campaignIds++;if(campaignMission==='01-02'&&t.stationary)campaignStationaryAssessed++;if(campaignMission==='01-03'&&t.proxSite&&!t.proxAssessed){t.proxAssessed=true;campaignProximityAssessed++;}pulse(t.type);ensureRing(t);log('NAI CLASSIFIED // '+designation(t)+' // '+t.type);cpNotice('NAI AUTO COLLECTION',designation(t)+' // '+t.type,'intel');sound('classify');if(campaignMission==='01-02')cpCheck0102();if(campaignMission==='01-03')cpCheck0103();ui(true)}
 function naiTick(now){if(!passiveEnabled()||!passiveNAIs.length)return;T.forEach(t=>{if(t.done||t.type!=='UNKNOWN'||t.collecting){t.naiSince=0;t.naiPct=0;return}const z=naiForTrack(t);if(!z){t.naiSince=0;t.naiPct=0;return}if(!t.naiSince){t.naiSince=now;t.naiPct=0;log('NAI-'+String(z.id).padStart(2,'0')+' // AUTO COLLECTION // '+t.id)}t.naiPct=Math.min(99,Math.floor((now-t.naiSince)*100/NAI_COLLECT_MS));if(now-t.naiSince>=NAI_COLLECT_MS)naiClassify(t)})}
 const PRIORITY_NAI_COLLECT_MS=NAI_COLLECT_MS;
 function cpCommittedPriorityNAIPoints(){const saved=readGlobalNAIs()[activeOA];return saved?.committed&&Array.isArray(saved.points)&&saved.points.length>=3?saved.points.map(p=>({x:p.x*900,y:p.y*650})):[];}
@@ -697,7 +717,7 @@ function verdantTrafficCollect(){
  stopCollect();m.collecting=true;col=m;const started=performance.now(),base=m.collectMs||0;
  ci=setInterval(()=>{if(!m.inCoverage){m.collecting=false;clearInterval(ci);ci=null;col=null;verdantTrafficSpot();ui(true);return;}m.collectMs=Math.min(VERDANT_TRAFFIC_COLLECT_MS,base+(performance.now()-started));pct=Math.floor(m.collectMs/VERDANT_TRAFFIC_COLLECT_MS*100);verdantTrafficSpot();ui(true);if(m.collectMs>=VERDANT_TRAFFIC_COLLECT_MS){clearInterval(ci);ci=null;col=null;m.collecting=false;m.type=m.truth;m.collectMs=VERDANT_TRAFFIC_COLLECT_MS;score+=25;pulse(m.type);log('CLASSIFIED // '+m.id+' // '+m.type);sound('classify');verdantTrafficRender();verdantTrafficSpot();verdantMissionProgress();ui(true);}},80);
 }
-function collect(){if(/^04-0[1-5]$/.test(campaignMission||'')&&(mirageSiteSel||mirageTrafficSel)){mirageCollect();return;}if(/^03-0[1-5]$/.test(campaignMission||'')&&verdantTrafficSel){verdantTrafficCollect();return;}if(!running||!sel||sel.done||sel.type!=='UNKNOWN'||D(A,sel)>cpEffectiveISRRadius()||col)return;col=sel;col.collecting=true;pct=0;let st=Date.now(),collectMs=(passiveCovered(col)?550:1000)*(cpCyberActive()?2:1);ci=setInterval(()=>{pct=Math.min(99,Math.floor((Date.now()-st)*100/collectMs));ui(true)},80);ct=setTimeout(()=>{clearInterval(ci);ci=ct=null;col.collecting=false;if(campaignMission==='ARCADE'&&col.cyberTrap){col.truth='CYBER';col.type='CYBER';cpCyberTrigger(col)}else col.type=col.truth;cpTempestRecordEvidence(col);score+=25;if(campaignMission==='01-01'||campaignMission==='01-02')campaignIds++;
+function collect(){if(/^04-0[1-5]$/.test(campaignMission||'')&&(mirageSiteSel||mirageTrafficSel)){mirageCollect();return;}if(/^03-0[1-5]$/.test(campaignMission||'')&&verdantTrafficSel){verdantTrafficCollect();return;}if(!running||!sel||sel.done||sel.type!=='UNKNOWN'||D(A,sel)>cpEffectiveISRRadius()||col)return;col=sel;col.collecting=true;pct=0;let st=Date.now(),collectMs=(passiveCovered(col)?550:1000)*(cpCyberActive()?2:1);ci=setInterval(()=>{pct=Math.min(99,Math.floor((Date.now()-st)*100/collectMs));ui(true)},80);ct=setTimeout(()=>{clearInterval(ci);ci=ct=null;col.collecting=false;if(campaignMission==='ARCADE'&&col.cyberTrap){col.truth='CYBER';col.type='CYBER';cpCyberTrigger(col)}else col.type=col.truth;cpTempestRecordEvidence(col);cpPolarisRecordEvidence(col,'ISR COLLECTION');score+=25;if(campaignMission==='01-01'||campaignMission==='01-02')campaignIds++;
 if(campaignMission==='01-02'&&col.stationary)campaignStationaryAssessed++;
 if(campaignMission==='01-03'&&col.proxSite&&!col.proxAssessed){col.proxAssessed=true;campaignProximityAssessed++;}
 pct=100;pulse(col.type);ensureRing(col);log('CLASSIFIED // '+designation(col)+' // '+col.type);sound('classify');tutorialAdvance('classified');col=null;if(campaignMission==='01-02')cpCheck0102();if(campaignMission==='01-03')cpCheck0103();ui(true)},collectMs)}function cpDecisionFloat(t,ok){
@@ -728,7 +748,7 @@ function decide(a){
    if((target.type==='HOSTILE'||target.type==='IRREGULAR')&&a==='INTERCEPT')sound('explosion');
    if(target.type==='CYBER'&&a==='INTERCEPT'){sound('cyberDisrupt');cpNotice('CYBER/EW INTERCEPT','THREAT NODE DISRUPTION IN PROGRESS // 2 SEC','intel');setTimeout(()=>{if(cpCyberActive()){cpCyberGlitchBurst(true);setTimeout(()=>cpCyberClear('THREAT NODE DISRUPTED // ISR SYSTEMS RESTORED'),120)}},2000);}
    passiveAward(target.naiDerived?5:10,target.naiDerived?'NAI DISPOSITION':'CORRECT DISPOSITION');
-   if(campaignMission==='01-01'||campaignMission==='01-02'||campaignMission==='01-03'||campaignMission==='01-04'||campaignMission==='01-05'||campaignMission==='05-01'||/^02-/.test(campaignMission||'')||campaignMission==='ARCADE'){
+   if(campaignMission==='01-01'||campaignMission==='01-02'||campaignMission==='01-03'||campaignMission==='01-04'||campaignMission==='01-05'||campaignMission==='05-01'||/^02-/.test(campaignMission||'')||/^06-0[1-5]$/.test(campaignMission||'')||campaignMission==='ARCADE'){
      campaignCorrect++;
      if(threat)campaignThreatResolved++;else campaignNonThreatResolved++;
    }
@@ -775,7 +795,7 @@ function decide(a){
    else if(campaignMission==='01-05')cpCheck0105();
    else if(/^02-/.test(campaignMission||''))cpCheckCampaign02();
  }
- if(/^05-0[1-5]$/.test(campaignMission||'')){if(!ok&&target.maritime&&campaignMission!=='05-01')cpTempestPenalty('Disposition conflicts with collected maritime evidence.');if(ok&&!['HOSTILE','IRREGULAR'].includes(target.truth)&&target.maritime)tempestMissionStats.benign.add(target.id);if(campaignMission==='05-01')cpCheck0501();else cpTempestCheck()}if(campaignMission==='ARCADE'&&integrity<=0&&!campaignFinished)arcadeFinish('INTELLIGENCE FAILURE');
+ if(/^05-0[1-5]$/.test(campaignMission||'')){if(!ok&&target.maritime&&campaignMission!=='05-01')cpTempestPenalty('Disposition conflicts with collected maritime evidence.');if(ok&&!['HOSTILE','IRREGULAR'].includes(target.truth)&&target.maritime)tempestMissionStats.benign.add(target.id);if(campaignMission==='05-01')cpCheck0501();else cpTempestCheck()}if(cpPolarisId())cpPolarisRecordResolution(target,ok);if(campaignMission==='ARCADE'&&integrity<=0&&!campaignFinished)arcadeFinish('INTELLIGENCE FAILURE');
  sel=null;ui(true);
 }
 function compromise(){return B.reduce((a,b)=>a+b.exposure,0)/B.length}let cpRecoveryTimer=0;
@@ -829,7 +849,7 @@ function cpIntelDropTick(){
  }
 }
 function cpFusionActive(){return usesIntelDrops()&&intelFusionUntil&&performance.now()<intelFusionUntil}
-function cpEffectiveISRRadius(){const posture=Number.isFinite(A.sensorPosture)?A.sensorPosture:1;if(campaignMission==='RETRO')return A.r*posture;normalizeISRCapability();return A.r*posture*(isrCapability==='WIDE'?1.10:1)*(cpFusionActive()?1.30:1)*(cpCyberActive()?.60:1)}
+function cpEffectiveISRRadius(){const posture=Number.isFinite(A.sensorPosture)?A.sensorPosture:1;if(campaignMission==='RETRO')return A.r*posture;normalizeISRCapability();const packageRadius=isrCapability==='WIDE'?1.10:isrCapability==='ORBIT'&&A.mode==='LOITER'?1.15:1,cyberFactor=cpCyberActive()?(isrCapability==='HARDENED'?.75:.60):1;return A.r*posture*packageRadius*(cpFusionActive()?1.30:1)*cyberFactor}
 function cpDegradedCount(){return B.filter(b=>b.degraded).length}
 function cpRenderBlueSite(b){
     if(!b||!b.el)return;
@@ -962,7 +982,7 @@ function patternBaseline(points){if(!points||points.length<3)return null;let bes
 function recordPatternObservation(t,now){let i=t.intel;if(!i)return;let p={x:t.x,y:t.y,at:now},prior=i.obsPoints.slice(),baseline=patternBaseline(prior);if(baseline){i.baselineEstablished=true;i.baselineX=baseline.x;i.baselineY=baseline.y;let delta=Math.hypot(p.x-baseline.x,p.y-baseline.y);if(delta>=190){i.deviationCount=(i.deviationCount||0)+1;i.lastDeviationAt=now;i.lastDeviationX=p.x;i.lastDeviationY=p.y;rec('PATTERN_DEVIATION',t.id+' delta='+Math.round(delta)+' count='+i.deviationCount);cpNotice('PATTERN DEVIATION // OBSERVED',designation(t)+' // '+Math.round(delta)+' GRID FROM ESTABLISHED BASELINE','intel')}}if(i.obsPoints.some(o=>Math.hypot(o.x-p.x,o.y-p.y)<=115))i.areaRecurrence=true;i.obsPoints.push(p);if(i.obsPoints.length>12)i.obsPoints.shift();let refreshed=patternBaseline(i.obsPoints);if(refreshed){i.baselineEstablished=true;i.baselineX=refreshed.x;i.baselineY=refreshed.y}let near=null,nearD=Infinity;B.forEach(site=>{let d=Math.hypot(site.x-p.x,site.y-p.y);if(d<nearD){nearD=d;near=site}});if(near&&nearD<=145)i.siteObs[near.id]=(i.siteObs[near.id]||0)+1;if(activeOA==='VANTAGE'&&window.CP_VANTAGE_MAP){i.hotspotObs=i.hotspotObs||{};let h=null,hd=Infinity;window.CP_VANTAGE_MAP.hotspots.forEach(q=>{let d=Math.hypot(q.x-p.x,q.y-p.y);if(d<hd){hd=d;h=q}});if(h&&hd<=115){i.hotspotObs[h.id]=(i.hotspotObs[h.id]||0)+1;if(i.hotspotObs[h.id]>=2)campaign02PatternTracks.add(t.id)}}}
 function patternIndicators(t){let i=t?.intel;if(!i)return[];let out=[];if(i.observations>=2)out.push(['REPEATED ACTIVITY',i.observations+' OBS']);if(i.baselineEstablished)out.push(['BASELINE','ESTABLISHED']);if(i.deviationCount>0)out.push(['PATTERN DEVIATION',i.deviationCount+' OBSERVED']);let hs=Object.entries(i.hotspotObs||{}).filter(([,n])=>n>=2).sort((a,b)=>b[1]-a[1]);hs.slice(0,2).forEach(([id,n])=>out.push([id.replaceAll('-',' ')+' ACTIVITY',n+' OBS']));let sites=Object.entries(i.siteObs||{}).filter(([,n])=>n>=2).sort((a,b)=>b[1]-a[1]);sites.slice(0,2).forEach(([id,n])=>out.push([id+' PROXIMITY',n+' OBS']));if(i.areaRecurrence)out.push(['AREA RECURRENCE','DETECTED']);return out}
 function intelligenceAssessment(t){let i=t?.intel;if(!i||i.observations<2)return'INSUFFICIENT INFORMATION';let pats=patternIndicators(t),siteRepeated=Object.values(i.siteObs||{}).some(n=>n>=2),signals=(i.areaRecurrence?1:0)+(siteRepeated?1:0)+(i.observations>=3?1:0)+(i.deviationCount>0?1:0);return signals>=2?'SIGNIFICANT ACTIVITY':pats.length?'PATTERN DEVELOPING':'INSUFFICIENT INFORMATION'}
-function updateTrackMemory(now){if(!running||campaignMission==='RETRO')return;T.forEach(t=>{if(t.done||!t.intel)return;const observed=D(A,t)<=cpEffectiveISRRadius(),was=t.intel.wasObserved;if(observed){if(!was){t.intel.observations++;if(!t.intel.firstObserved)t.intel.firstObserved=now;recordPatternObservation(t,now);rec('TRACK_OBS',t.id+' observation='+t.intel.observations)}t.intel.lastObserved=now;t.intel.lastX=t.x;t.intel.lastY=t.y}else if(was){rec('TRACK_LKP',t.id+' '+Math.round(t.intel.lastX)+'/'+Math.round(t.intel.lastY))}t.intel.wasObserved=observed})}
+function updateTrackMemory(now){if(!running||campaignMission==='RETRO')return;T.forEach(t=>{if(t.done||!t.intel)return;const observed=cpMapRadialDistance(A,t)<=cpEffectiveISRRadius(),was=t.intel.wasObserved;if(observed){if(!was){t.intel.observations++;if(!t.intel.firstObserved)t.intel.firstObserved=now;recordPatternObservation(t,now);cpPolarisRecordObservation(t);rec('TRACK_OBS',t.id+' observation='+t.intel.observations)}t.intel.lastObserved=now;t.intel.lastX=t.x;t.intel.lastY=t.y}else if(was){rec('TRACK_LKP',t.id+' '+Math.round(t.intel.lastX)+'/'+Math.round(t.intel.lastY))}t.intel.wasObserved=observed})}
 function associationLevel(n){return n>=1?'SUPPORTED':'POSSIBLE'}
 function associationEntries(t){let out=[];networkAssociations.forEach((v,k)=>{let [a,b]=k.split('|');if(a===t.id||b===t.id)out.push({id:a===t.id?b:a,count:v.count,level:associationLevel(v.count),hotspot:v.hotspot})});return out.sort((a,b)=>b.count-a.count)}
 function networkTick(now){
@@ -1054,10 +1074,10 @@ function cpRefreshStatusColors(){
  cpStatusClass($('#integrity'),integrityState);cpStatusClass($('#objIntegrity'),integrityState);
  cpStatusClass($('#comp'),oeState);cpStatusClass($('#objCompromise'),oeState);
 }
-function displayMode(mode){return String(mode||'STANDBY').replaceAll('_',' ')}function ui(force=false){document.body.classList.toggle('arcade-ui',campaignMission==='ARCADE'||campaignMission==='RETRO');let now=performance.now();if(!force&&now-lastUi<200)return;lastUi=now;const cpVerdantUiValues=/^03-0[1-5]$/.test(campaignMission||'')?verdantMissionValues():null;let p=parms(),c=(cpThreatMission()?campaignCompromise:compromise()),n=/^04-0[1-5]$/.test(campaignMission||'')?mirageTraffic.filter(t=>t.type==='UNKNOWN'&&Math.hypot(A.x-t.x,A.y-t.y)<=cpEffectiveISRRadius()).length:T.filter(t=>!t.done&&t.type==='UNKNOWN'&&D(A,t)<=cpEffectiveISRRadius()).length;$('#stateLine').textContent=A.controlSelected?'ISR CONTROL // SELECT DESTINATION':'ISR // '+displayMode(A.mode);$('#rangeLine').textContent='SENSOR // '+n+' UNKNOWN IN RANGE';$('#score').textContent=String(Math.max(0,Math.round(score))).padStart(4,'0');$('#integrity').textContent=Math.round(integrity)+'%';$('#comp').textContent=Math.round(c)+'%';const compCard=$('#comp')?.closest('.op-status-item');if(compCard)compCard.style.display=((activeOA==='VERDANT'&&/^03-/.test(campaignMission||''))||(activeOA==='MIRAGE'&&/^04-/.test(campaignMission||'')))?'none':'';const cm=$('#compMeter'),im=$('#integrityMeter');if(cm){cm.style.width=Math.min(100,Math.max(0,c))+'%';cm.className=c>=50?'danger':c>=30?'warn':''}if(im){im.style.width=Math.min(100,Math.max(0,integrity))+'%';im.className=integrity<40?'danger':integrity<80?'warn':''}$('#compTop').textContent=Math.round(c)+'%';$('#resolved').textContent=resolved;$('#ints').textContent=ints;
+function displayMode(mode){return String(mode||'STANDBY').replaceAll('_',' ')}function ui(force=false){document.body.classList.toggle('arcade-ui',campaignMission==='ARCADE'||campaignMission==='RETRO');document.body.classList.toggle('verdant-timeless-ui',/^03-0[1-5]$/.test(campaignMission||''));let now=performance.now();if(!force&&now-lastUi<200)return;lastUi=now;const cpVerdantUiValues=/^03-0[1-5]$/.test(campaignMission||'')?verdantMissionValues():null;let p=parms(),c=(cpThreatMission()?campaignCompromise:compromise()),n=/^04-0[1-5]$/.test(campaignMission||'')?mirageTraffic.filter(t=>t.type==='UNKNOWN'&&Math.hypot(A.x-t.x,A.y-t.y)<=cpEffectiveISRRadius()).length:T.filter(t=>!t.done&&t.type==='UNKNOWN'&&cpMapRadialDistance(A,t)<=cpEffectiveISRRadius()).length;$('#stateLine').textContent=A.controlSelected?'ISR CONTROL // SELECT DESTINATION':'ISR // '+displayMode(A.mode);$('#rangeLine').textContent='SENSOR // '+n+' UNKNOWN IN RANGE';$('#score').textContent=String(Math.max(0,Math.round(score))).padStart(4,'0');$('#integrity').textContent=Math.round(integrity)+'%';$('#comp').textContent=Math.round(c)+'%';const compCard=$('#comp')?.closest('.op-status-item');if(compCard)compCard.style.display=((activeOA==='VERDANT'&&/^03-/.test(campaignMission||''))||(activeOA==='MIRAGE'&&/^04-/.test(campaignMission||'')))?'none':'';const cm=$('#compMeter'),im=$('#integrityMeter');if(cm){cm.style.width=Math.min(100,Math.max(0,c))+'%';cm.className=c>=50?'danger':c>=30?'warn':''}if(im){im.style.width=Math.min(100,Math.max(0,integrity))+'%';im.className=integrity<40?'danger':integrity<80?'warn':''}$('#compTop').textContent=Math.round(c)+'%';$('#resolved').textContent=resolved;$('#ints').textContent=ints;
 let or=$('#objResolved'),oi=$('#objInterrupted'),og=$('#objIntegrity'),oc=$('#objCompromise'),ot=$('#objectiveTracker'),
     ott=$('#objectiveTitle'),osl=$('#objectiveSecondaryLabel'),osc=$('#objectiveSecondaryChip'),otc=$('#objectiveThirdChip'),otl=$('#objectiveThirdLabel'),oec=$('#objectiveOEChip');
-if(ot)ot.style.display=usesObjectiveTracker()?'flex':'none';cpTempestObjectiveExtra();
+if(ot)ot.style.display=usesObjectiveTracker()?'flex':'none';cpTempestObjectiveExtra();cpPolarisObjectiveExtra();
 if(campaignMission&&or){
  let title='ESTABLISH',resolveTarget=10,secondaryLabel='',secondaryValue='',secondaryComplete=false,showOE=false;
  if(campaignMission==='ARCADE'){title='ARCADE // THREAT '+arcadeThreatLevel;resolveTarget=Math.max(1,arcadeCorrect);secondaryLabel='STREAK';secondaryValue=arcadeStreak+' / '+arcadeBestStreak;secondaryComplete=arcadeStreak>=5;showOE=true}
@@ -1073,14 +1093,14 @@ if(campaignMission&&or){
    title=m.title;resolveTarget=m.goals[0];secondaryLabel=campaignMission==='03-01'?'TRAFFIC':campaignMission==='03-02'?'ANOMALY':campaignMission==='03-03'?'TRANSFER':campaignMission==='03-04'?'SIGNATURE':'PRESERVE';
    secondaryValue=Math.min(v[1],m.goals[1])+'/'+m.goals[1];secondaryComplete=v[1]>=m.goals[1];showOE=false;campaignCorrect=Math.min(v[0],m.goals[0]);
   }
- if(/^02-/.test(campaignMission||'')){let s=campaign02Stats(),m=C02[campaignMission];title=m?m.title:'NETWORK';if(campaignMission==='02-01'){resolveTarget=8;secondaryLabel='CONTINUITY';secondaryValue=s.continuity+'/4';secondaryComplete=s.continuity>=4}else if(campaignMission==='02-02'){resolveTarget=10;secondaryLabel='PATTERNS';secondaryValue=s.patterns+'/3';secondaryComplete=s.patterns>=3}else if(campaignMission==='02-03'){resolveTarget=10;secondaryLabel='ASSOC';secondaryValue=s.associations+'/3';secondaryComplete=s.associations>=3&&s.supported>=1}else if(campaignMission==='02-04'){resolveTarget=12;secondaryLabel='SUPPORTED';secondaryValue=s.supported+'/3';secondaryComplete=s.supported>=3&&s.established>=1}else{resolveTarget=14;secondaryLabel='ESTABLISHED';secondaryValue=s.established+'/1';secondaryComplete=s.established>=1}showOE=usesThreatEnvironment()}
+  if(/^06-0[1-5]$/.test(campaignMission||'')){const cfg=POLARIS_OBJECTIVES[campaignMission];title=POLARIS_BRIEFS[campaignMission].title;resolveTarget=cfg.resolve;secondaryLabel=cfg.metricLabel;secondaryValue=Math.min(cpPolarisMetricValue(),cfg.metricTarget)+'/'+cfg.metricTarget;secondaryComplete=cpPolarisMetricValue()>=cfg.metricTarget;showOE=false}if(/^02-/.test(campaignMission||'')){let s=campaign02Stats(),m=C02[campaignMission];title=m?m.title:'NETWORK';if(campaignMission==='02-01'){resolveTarget=8;secondaryLabel='CONTINUITY';secondaryValue=s.continuity+'/4';secondaryComplete=s.continuity>=4}else if(campaignMission==='02-02'){resolveTarget=10;secondaryLabel='PATTERNS';secondaryValue=s.patterns+'/3';secondaryComplete=s.patterns>=3}else if(campaignMission==='02-03'){resolveTarget=10;secondaryLabel='ASSOC';secondaryValue=s.associations+'/3';secondaryComplete=s.associations>=3&&s.supported>=1}else if(campaignMission==='02-04'){resolveTarget=12;secondaryLabel='SUPPORTED';secondaryValue=s.supported+'/3';secondaryComplete=s.supported>=3&&s.established>=1}else{resolveTarget=14;secondaryLabel='ESTABLISHED';secondaryValue=s.established+'/1';secondaryComplete=s.established>=1}showOE=usesThreatEnvironment()}
  if(ott){ott.textContent='OBJECTIVES // '+title;if(campaignMission==='RETRO'){ott.classList.remove('retro-survive-green','retro-survive-yellow','retro-survive-orange','retro-survive-red');ott.classList.add(c<25?'retro-survive-green':c<50?'retro-survive-yellow':c<75?'retro-survive-orange':'retro-survive-red')}}
  if(or.previousElementSibling)or.previousElementSibling.textContent=/^05-0[1-5]$/.test(campaignMission||'')?'RESOLVE':campaignMission==='04-01'?'SITES':campaignMission==='04-02'?'CAPABILITY':campaignMission==='04-03'?'ANOMALY':campaignMission==='04-04'?'INDICATOR':campaignMission==='04-05'?'INDICATOR':/^03-0[1-5]$/.test(campaignMission||'')?(campaignMission==='03-01'?'ROUTES':campaignMission==='03-02'?'PATTERN':campaignMission==='03-03'?'RECUR':campaignMission==='03-04'?'ANOMALY':'ACTION'):'RESOLVE';or.textContent=campaignMission==='RETRO'?String(resolved):(/^05-0[1-5]$/.test(campaignMission||'')?String(resolved)+'/'+resolveTarget:(campaignMission==='ARCADE'?String(arcadeCorrect):campaignCorrect+'/'+resolveTarget));
  if(osc)osc.style.display=secondaryLabel?'inline-flex':'none';
  if(osl)osl.textContent=secondaryLabel;
  if(oi)oi.textContent=secondaryValue;
  if(/^05-0[2-5]$/.test(campaignMission||'')){const m=cpTempestMetrics();if(otl)otl.textContent=campaignMission==='05-02'?'CORROB':campaignMission==='05-03'?'ASSOC':campaignMission==='05-04'?'PRIORITY':'ASSOC';og.textContent=campaignMission==='05-02'?Math.min(m.corroborated,2)+'/2':campaignMission==='05-03'||campaignMission==='05-05'?Math.min(m.associations,2)+'/2':Math.min(m.prioritized,3)+'/3';if(otc)otc.style.display='inline-flex'}else if(campaignMission==='04-01'){const v=mirageMissionValues();if(otl)otl.textContent='LINKS';og.textContent=Math.min(v[2],3)+'/3';if(otc)otc.style.display='inline-flex';}else if(campaignMission==='04-02'){const v=mirageMissionValues();if(otl)otl.textContent='NETWORK';og.textContent=Math.min(v[2],2)+'/2';if(otc)otc.style.display='inline-flex';}else if(campaignMission==='04-03'){const v=mirageMissionValues();if(otl)otl.textContent='TRACKS';og.textContent=Math.min(v[2],5)+'/5';if(otc)otc.style.display='inline-flex';}else if(/^04-0[45]$/.test(campaignMission||'')){const v=mirageMissionValues();if(otl)otl.textContent='TRACKS';og.textContent=Math.min(v[2],6)+'/6';if(otc)otc.style.display='inline-flex';}else if(/^03-0[1-5]$/.test(campaignMission||'')){const m=VERDANT_MISSIONS[campaignMission],v=cpVerdantUiValues;if(otl)otl.textContent=campaignMission==='03-01'?'RECUR':'CLASS';og.textContent=Math.min(v[2],m.goals[2])+'/'+m.goals[2];if(otc)otc.style.display='inline-flex';}else{if(otl)otl.textContent='INTEGRITY';og.textContent=campaignMission==='RETRO'?Math.round(integrity)+'%':(campaignMission==='ARCADE'?Math.round(integrity)+'/0':Math.round(integrity)+'/80');if(otc)otc.style.display='none';}
- if(oec)oec.style.display=showOE?'inline-flex':'none';
+  if(/^06-0[1-5]$/.test(campaignMission||'')){const cfg=POLARIS_OBJECTIVES[campaignMission],v=cpPolarisThirdValue();if(otl)otl.textContent=cfg.thirdLabel;og.textContent=cfg.third==='relay'?Math.min(v,cfg.thirdTarget)+'/'+cfg.thirdTarget:Math.round(v)+'/80';if(otc)otc.style.display='inline-flex';const passed=cfg.third==='relay'?v>=cfg.thirdTarget:integrity>=80;og.parentElement.classList.toggle('complete',passed);og.parentElement.classList.toggle('danger',cfg.third!=='relay'&&integrity<80)}if(oec)oec.style.display=showOE?'inline-flex':'none';
  if(oc)oc.textContent=campaignMission==='RETRO'?Math.round(c)+'%':Math.round(campaignCompromise)+'/'+((campaignMission==='01-05'||campaignMission==='02-05')?'50':'60');
  or.parentElement.classList.toggle('complete',campaignMission==='ARCADE'?arcadeStreak>=5:campaignCorrect>=resolveTarget);
  if(oi&&oi.parentElement){oi.parentElement.classList.toggle('complete',secondaryComplete);oi.parentElement.classList.remove('danger')}
@@ -1095,24 +1115,86 @@ if(stall&&!stallLogged){
  rec('STALL',`mode=${A.mode} pos=${A.x.toFixed(2)},${A.y.toFixed(2)} dest=${A.dest.x.toFixed(2)},${A.dest.y.toFixed(2)} age=${age} gap=${C.maxGap.toFixed(1)}`);
 }
 if(!$('#devPanel')?.open)return;
-$('#diagStatus').textContent=stall?'ISR STALL DETECTED':'NOMINAL';$('#diagStatus').classList.toggle('stall',stall);$('#diag1').textContent=`FPS ${C.fps} | RAF ${C.raf} | GAP ${Math.round(C.maxGap)}ms | ERR ${C.errors}`;$('#diag2').textContent=`ISR POINTER ${C.isr} | MAP POINTER ${C.map} | TRACK POINTER ${C.track} | ORDERS ${C.orders}`;$('#diag3').textContent=`MODE ${A.mode} | POS ${A.x.toFixed(1)},${A.y.toFixed(1)} | DEST ${valid(A.dest)?A.dest.x.toFixed(1)+','+A.dest.y.toFixed(1):'--'} | MOVE AGE ${age}ms`;let vv=window.visualViewport,vw=Math.round(window.innerWidth),vh=Math.round(window.innerHeight),vww=vv?Math.round(vv.width):vw,vvh=vv?Math.round(vv.height):vh,vs=vv?vv.scale:1;$('#viewportDiag').textContent=`VIEWPORT // ${vw}x${vh} -> ${vww}x${vvh} | SCALE ${vs.toFixed(2)}`;}function diagText(){return [`CONTACT IMMINENT v0.11.6.142 OA KESTREL / OA VANTAGE CAMPAIGN RUNTIME DIAGNOSTICS`,new Date().toISOString(),`running=${running} phase=${phase} score=${Math.round(score)} integrity=${integrity} compromise=${compromise().toFixed(2)}`,`fps=${C.fps} raf=${C.raf} maxGapMs=${C.maxGap.toFixed(1)} errors=${C.errors}`,`isrClicks=${C.isr} mapClicks=${C.map} trackClicks=${C.track} orders=${C.orders}`,`mode=${A.mode} pos=${A.x.toFixed(2)},${A.y.toFixed(2)} dest=${valid(A.dest)?A.dest.x.toFixed(2)+','+A.dest.y.toFixed(2):'--'} moveAgeMs=${Math.round(performance.now()-A.lastMove)}`,'','ROLLING DEBUG LOG',...dbg].join('\n')}async function copyDiag(){let t=diagText();try{await navigator.clipboard.writeText(t);log('DIAGNOSTICS // COPIED')}catch(e){rec('COPY_FAIL',String(e));let ta=document.createElement('textarea');ta.value=t;document.body.append(ta);ta.select();document.execCommand('copy');ta.remove();log('DIAGNOSTICS // COPIED')}}function saveDiag(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([diagText()],{type:'text/plain'}));a.download='contact-imminent-v0.11.6.142-debug.txt';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),(cpFusionActive()?600:1000));log('DIAGNOSTICS // SAVED')}function finish(){if(!running)return;if(/^02-/.test(campaignMission||'')){cpFinishCampaign02(false);return;}if(campaignMission==='01-04'){cpFinish0104('TIMEOUT');return;}if(campaignMission==='01-05'){cpFinish0105('TIMEOUT');return;}running=false;stopCollect();A.dest=null;A.mode='IDLE';let c=compromise();$('#endTitle').textContent=c<60?'CONDITIONS HAVE BEEN SET':'CONDITIONS NOT SET';$('#fs').textContent=Math.max(0,Math.round(score));$('#fr').textContent=resolved;$('#fi').textContent=ints;$('#fc').textContent=Math.round(c)+'%';$('#end').classList.add('show');ui(true)}function loop(now){if(window.CP_PAUSED){last=now;requestAnimationFrame(loop);return;}C.raf++;let gap=now-C.lastRaf;C.lastRaf=now;if(gap>C.maxGap)C.maxGap=gap;C.fpsFrames++;if(now-C.fpsAt>=1000){C.fps=Math.round(C.fpsFrames*1000/(now-C.fpsAt));C.fpsFrames=0;C.fpsAt=now}let dt=Math.min(.05,(now-last)/1000);last=now;if(running){campaignHintTick(now);let elapsed=(now-start)/1000,left=Math.max(0,180-elapsed),np=elapsed<60?1:elapsed<120?2:3;if(campaignMission==='RETRO'){let s=Math.floor(elapsed);$('#clock').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');$('#phase').textContent='SURVIVE';if(compromise()>=99.9){running=false;stopCollect();A.dest=null;A.mode='IDLE';$('#endTitle').textContent='OE LOST // SURVIVED '+$('#clock').textContent;$('#fs').textContent=Math.max(0,Math.round(score));$('#fr').textContent=resolved;$('#fi').textContent=ints;$('#fc').textContent=Math.round(compromise())+'%';$('#end').classList.add('show')}}else if(campaignMission==='ARCADE'){arcadeThreatLevel=1+Math.floor(elapsed/75);if(arcadeThreatLevel!==phase){phase=arcadeThreatLevel;let nm='THREAT LEVEL '+arcadeThreatLevel;$('#phase').textContent='ARCADE // '+nm;banner(nm,1300);sound('level');log(nm)}let s=Math.floor(elapsed);$('#clock').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}else if(/^05-0[1-5]$/.test(campaignMission||'')){let seconds=Math.floor(elapsed);$('#clock').textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');$('#phase').textContent=campaignMission+' // '+TEMPEST_BRIEFS[campaignMission].title+' // MARITIME TRAFFIC'}else if(/^04-0[1-5]$/.test(campaignMission||'')){$('#phase').textContent=campaignMission+' // '+(campaignMission==='04-02'?'CAPACITY':'INVENTORY')+' // UTC';$('#clock').textContent='UTC'}else if(/^03-0[1-5]$/.test(campaignMission||'')){$('#phase').textContent=campaignMission+' // '+(VERDANT_MISSIONS[campaignMission]?.title||'VERDANT')+' // ROUTES'}else{if(np!==phase){phase=np;let nm=phase===2?'PHASE II // CONTEST':'PHASE III // DOMINATE';$('#phase').textContent=nm;banner(nm,1300);log(nm)}let s=Math.ceil(left);$('#clock').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}if(campaignMission!=='ARCADE'&&campaignMission!=='RETRO'&&campaignMission!=='TUTORIAL'&&!/^05-0[1-5]$/.test(campaignMission||'')&&!/^0[34]-/.test(campaignMission||'')&&left<=0)finish();else{let p=parms();if(campaignMission!=='TUTORIAL'&&!/^05-0[1-5]$/.test(campaignMission||'')&&!/^0[34]-/.test(campaignMission||'')&&(now-lastSpawn)/1000>=p.gap&&T.filter(t=>!t.done).length<p.cap){spawn();lastSpawn=now}T.forEach(t=>{if(t.done||t.stationary||t.maritime)return;t.x+=t.vx*dt;t.y+=t.vy*dt;if(t.x<35||t.x>865)t.vx*=-1;if(t.y<35||t.y>615)t.vy*=-1});naiTick(now);enemy(dt);cpContestedTick(dt);cpIntelDropTick();cpCyberTick();reconstitutionTick(now);cpTrackStallGuard();const postureTarget=(A.mode==='LOITER'||A.mode==='LOITER_ENTRY'||A.mode==='LOITER_APPROACH')?.75:1;A.sensorPosture+=(postureTarget-A.sensorPosture)*Math.min(1,dt/.65);if(A.mode==='LOITER_EXIT'&&valid(A.dest)){const desired=H(A.dest.x-A.x,A.dest.y-A.y),delta=cpHeadingDelta(A.heading,desired),maxTurn=(A.exitTurnCommitted?95:110)*dt;let remaining=Math.abs(delta);if(A.exitTurnCommitted){const dir=A.exitTurnDir||1;remaining=dir>0?(desired-A.heading+360)%360:(A.heading-desired+360)%360;const turn=Math.min(maxTurn,remaining);A.heading=(A.heading+dir*turn+360)%360}else A.heading=(A.heading+Math.max(-maxTurn,Math.min(maxTurn,delta))+360)%360;const rad=A.heading*Math.PI/180,step=cpEffectiveISRSpeed()*dt;A.x+=Math.sin(rad)*step;A.y-=Math.cos(rad)*step;A.lastMove=now;stallLogged=false;const exitAge=now-(A.exitStarted||now),aligned=A.exitTurnCommitted?remaining<7:Math.abs(delta)<7;if(exitAge>=220&&aligned){const committed=A.exitTurnCommitted;A.loiterCenter=null;A.exitTurnCommitted=false;A.exitTurnDir=0;A.mode='ENROUTE';rec('LOITER_EXIT_COMPLETE',`heading=${A.heading.toFixed(1)} delta=${delta.toFixed(1)} age=${Math.round(exitAge)}${committed?' committed-turn':''}`)}else if(now>=A.exitUntil&&exitAge%1000<60){rec('LOITER_EXIT_HOLD',`heading=${A.heading.toFixed(1)} target=${desired.toFixed(1)} remaining=${remaining.toFixed(1)}`)}}else if(A.mode==='ENROUTE'&&valid(A.dest)){const rx=57,ry=32,approach=108;let dx=A.dest.x-A.x,dy=A.dest.y-A.y,d=Math.hypot(dx,dy);if(d<=approach){A.loiterCenter={x:A.dest.x,y:A.dest.y};let th=Math.atan2((A.y-A.dest.y)/ry,(A.x-A.dest.x)/rx);if(!Number.isFinite(th))th=0;const tangentHeading=dir=>H(-rx*Math.sin(th)*dir,ry*Math.cos(th)*dir),cw=tangentHeading(1),ccw=tangentHeading(-1);A.loiterDir=Math.abs(cpHeadingDelta(A.heading,cw))<=Math.abs(cpHeadingDelta(A.heading,ccw))?1:-1;A.approachAngle=th;A.mode='LOITER_APPROACH';A.lastMove=now;stallLogged=false;rec('LOITER_APPROACH',`distance=${d.toFixed(2)} dir=${A.loiterDir>0?'CW':'CCW'} heading=${A.heading.toFixed(1)}`)}else{A.heading=H(dx,dy);let q=Math.min(cpEffectiveISRSpeed()*dt,Math.max(.08,d-approach)),ox=A.x,oy=A.y;A.x+=dx/d*q;A.y+=dy/d*q;if(Math.hypot(A.x-ox,A.y-oy)>.0001){A.lastMove=now;stallLogged=false}}}else if(A.mode==='LOITER_APPROACH'&&valid(A.loiterCenter)){const rx=57,ry=32,base=cpEffectiveISRSpeed(),loiterSpeed=base*.70,tx=A.loiterCenter.x+Math.cos(A.approachAngle)*rx,ty=A.loiterCenter.y+Math.sin(A.approachAngle)*ry,dx=tx-A.x,dy=ty-A.y,d=Math.hypot(dx,dy),desired=d>2?H(dx,dy):H(-rx*Math.sin(A.approachAngle)*A.loiterDir,ry*Math.cos(A.approachAngle)*A.loiterDir),delta=cpHeadingDelta(A.heading,desired),maxTurn=105*dt;A.heading+=Math.max(-maxTurn,Math.min(maxTurn,delta));const centerD=Math.hypot(A.x-A.loiterCenter.x,A.y-A.loiterCenter.y),blend=Math.max(0,Math.min(1,(centerD-59)/(108-59))),speed=loiterSpeed+(base-loiterSpeed)*blend,rad=A.heading*Math.PI/180,step=Math.min(speed*dt,Math.max(.35,d));A.x+=Math.sin(rad)*step;A.y-=Math.cos(rad)*step;A.lastMove=now;stallLogged=false;if(d<=3.5&&Math.abs(cpHeadingDelta(A.heading,H(-rx*Math.sin(A.approachAngle)*A.loiterDir,ry*Math.cos(A.approachAngle)*A.loiterDir)))<24){A.loiterAngle=A.approachAngle;A.dest=null;A.mode='LOITER';rec('LOITER_CAPTURE',`dir=${A.loiterDir>0?'CW':'CCW'} merge=${d.toFixed(2)}`)}}else if(A.mode==='LOITER_ENTRY'&&valid(A.loiterCenter)){const rx=57,ry=32;A.loiterAngle=Math.atan2((A.y-A.loiterCenter.y)/ry,(A.x-A.loiterCenter.x)/rx);if(!Number.isFinite(A.loiterAngle))A.loiterAngle=0;A.dest=null;A.mode='LOITER';A.lastMove=now;stallLogged=false}else if(A.mode==='LOITER'&&valid(A.loiterCenter)){const rx=57,ry=32,loiterSpeed=cpEffectiveISRSpeed()*.70,omega=loiterSpeed/Math.max(1,(rx+ry)*.5);A.loiterAngle=(A.loiterAngle+(A.loiterDir||1)*omega*dt)%(Math.PI*2);const nx=A.loiterCenter.x+Math.cos(A.loiterAngle)*rx,ny=A.loiterCenter.y+Math.sin(A.loiterAngle)*ry,dx=nx-A.x,dy=ny-A.y;if(Math.hypot(dx,dy)>.01)A.heading=H(dx,dy);A.x=nx;A.y=ny;A.lastMove=now;stallLogged=false}}}if(running){mirageTick(dt);verdantSmartTick(dt);verdantTrafficTick(dt);cpTempestVesselTick(dt);cpTempestMissionTick(dt,now);cpPriorityNAITick(now);vantageAffinityTick(now);updateTrackMemory(now);networkTick(now);}if(/^02-/.test(campaignMission||''))cpCheckCampaign02();geometry();ui();diagnostic(now);requestAnimationFrame(loop)}function supplyTargetFromPoint(p){if(!supplyRepairMode||supplyPackages<1||!valid(p))return false;const candidates=B.filter(b=>b.degraded&&!b.reconstituting).map(b=>({b,d:Math.hypot(b.x-p.x,b.y-p.y)})).sort((a,b)=>a.d-b.d);if(!candidates.length)return false;const hit=candidates[0];if(hit.d>62){cpNotice('SUPPLY TARGETING','SELECT A HIGHLIGHTED DEGRADED SITE','intel');return false;}reconstituteSite(hit.b);return true}
+$('#diagStatus').textContent=stall?'ISR STALL DETECTED':'NOMINAL';$('#diagStatus').classList.toggle('stall',stall);$('#diag1').textContent=`FPS ${C.fps} | RAF ${C.raf} | GAP ${Math.round(C.maxGap)}ms | ERR ${C.errors}`;$('#diag2').textContent=`ISR POINTER ${C.isr} | MAP POINTER ${C.map} | TRACK POINTER ${C.track} | ORDERS ${C.orders}`;$('#diag3').textContent=`MODE ${A.mode} | POS ${A.x.toFixed(1)},${A.y.toFixed(1)} | DEST ${valid(A.dest)?A.dest.x.toFixed(1)+','+A.dest.y.toFixed(1):'--'} | MOVE AGE ${age}ms`;let vv=window.visualViewport,vw=Math.round(window.innerWidth),vh=Math.round(window.innerHeight),vww=vv?Math.round(vv.width):vw,vvh=vv?Math.round(vv.height):vh,vs=vv?vv.scale:1;$('#viewportDiag').textContent=`VIEWPORT // ${vw}x${vh} -> ${vww}x${vvh} | SCALE ${vs.toFixed(2)}`;}function diagText(){return [`CONTACT IMMINENT v0.11.6.142 OA KESTREL / OA VANTAGE CAMPAIGN RUNTIME DIAGNOSTICS`,new Date().toISOString(),`running=${running} phase=${phase} score=${Math.round(score)} integrity=${integrity} compromise=${compromise().toFixed(2)}`,`fps=${C.fps} raf=${C.raf} maxGapMs=${C.maxGap.toFixed(1)} errors=${C.errors}`,`isrClicks=${C.isr} mapClicks=${C.map} trackClicks=${C.track} orders=${C.orders}`,`mode=${A.mode} pos=${A.x.toFixed(2)},${A.y.toFixed(2)} dest=${valid(A.dest)?A.dest.x.toFixed(2)+','+A.dest.y.toFixed(2):'--'} moveAgeMs=${Math.round(performance.now()-A.lastMove)}`,'','ROLLING DEBUG LOG',...dbg].join('\n')}async function copyDiag(){let t=diagText();try{await navigator.clipboard.writeText(t);log('DIAGNOSTICS // COPIED')}catch(e){rec('COPY_FAIL',String(e));let ta=document.createElement('textarea');ta.value=t;document.body.append(ta);ta.select();document.execCommand('copy');ta.remove();log('DIAGNOSTICS // COPIED')}}function saveDiag(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([diagText()],{type:'text/plain'}));a.download='contact-imminent-v0.11.6.142-debug.txt';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),(cpFusionActive()?600:1000));log('DIAGNOSTICS // SAVED')}function cpFailKestrelTimeout(){
+ if(campaignFinished)return;
+ const id=campaignMission;
+ if(!/^01-0[1-3]$/.test(id||''))return;
+ campaignFinished=true;running=false;stopCollect();window.CP_MENU=true;
+ A.dest=null;A.mode='IDLE';
+ const w=$('#hostileCollectionWarning');if(w)w.classList.add('hidden');
+ const lead=id==='01-01'?'INITIAL OPERATIONAL PICTURE INCOMPLETE':id==='01-02'?'PATTERN OF ACTIVITY INCOMPLETE':'INDICATORS ASSESSED INCOMPLETE';
+ let detail='';
+ if(id==='01-01')detail='<br>CONTACTS IDENTIFIED&nbsp;&nbsp;&nbsp;&nbsp;'+campaignIds+'<br>CORRECT DISPOSITIONS&nbsp;&nbsp;'+campaignCorrect;
+ if(id==='01-02')detail='<br>CONTACTS RESOLVED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+campaignCorrect+'<br>MOBILE CONTACTS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+Math.max(0,campaignCorrect-campaignStationaryAssessed)+'<br>STATIONARY ASSESSED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+campaignStationaryAssessed;
+ if(id==='01-03')detail='<br>CONTACTS RESOLVED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+campaignCorrect+'<br>SITE-PROXIMITY EVENTS&nbsp;&nbsp;&nbsp;'+campaignProximityAssessed;
+ $('#resultTitle').textContent='CONDITIONS NOT SET';
+ $('#resultBody').innerHTML='OA KESTREL<br>'+lead+' // TIME EXPIRED'+detail+
+  '<br>HOSTILE / IRREGULAR&nbsp;&nbsp;&nbsp;'+campaignThreatResolved+
+  '<br>FRIENDLY / NEUTRAL&nbsp;&nbsp;&nbsp;'+campaignNonThreatResolved+
+  '<br>INTELLIGENCE INTEGRITY&nbsp;'+Math.round(integrity)+'%'+
+  '<br>SCORE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+Math.max(0,Math.round(score));
+ $('#resultContinue').classList.add('hidden');
+ $('#resultRetry').classList.remove('hidden');
+ $('#campaignResult').classList.remove('hidden');
+ outcomeFeedback(false);
+}function finish(){if(!running)return;if(cpPolarisId()){cpPolarisFinish(false,'TIME EXPIRED');return;}if(/^02-/.test(campaignMission||'')){cpFinishCampaign02(false);return;}if(/^01-0[1-3]$/.test(campaignMission||'')){cpFailKestrelTimeout();return;}if(campaignMission==='01-04'){cpFinish0104('TIMEOUT');return;}if(campaignMission==='01-05'){cpFinish0105('TIMEOUT');return;}running=false;stopCollect();A.dest=null;A.mode='IDLE';let c=compromise();$('#endTitle').textContent=c<60?'CONDITIONS HAVE BEEN SET':'CONDITIONS NOT SET';$('#fs').textContent=Math.max(0,Math.round(score));$('#fr').textContent=resolved;$('#fi').textContent=ints;$('#fc').textContent=Math.round(c)+'%';$('#end').classList.add('show');ui(true)}function headerMissionTitle(){
+ const id=campaignMission||'';
+ const kestrel={'01-01':'ESTABLISH','01-02':'PATTERN','01-03':'INDICATORS','01-04':'CONTESTED','01-05':'CONDITIONS SET'};
+ if(kestrel[id])return id+' // '+kestrel[id];
+ if(/^02-0[1-5]$/.test(id))return id+' // '+(C02[id]?.title||'VANTAGE');
+ if(/^03-0[1-5]$/.test(id))return id+' // '+(VERDANT_MISSIONS[id]?.title||'VERDANT');
+ if(/^04-0[1-5]$/.test(id))return id+' // '+(MIRAGE_MISSIONS[id]?.title||'MIRAGE');
+ if(/^05-0[1-5]$/.test(id))return id+' // '+(TEMPEST_BRIEFS[id]?.title||'TEMPEST');
+ if(/^06-0[1-5]$/.test(id))return id+' // '+(POLARIS_BRIEFS[id]?.title||'POLARIS');
+ if(id==='ARCADE')return 'ARCADE // SURVIVAL';
+ if(id==='RETRO')return 'RETRO // SURVIVE';
+ if(id==='TUTORIAL')return 'TRAINING // COMMAND ORIENTATION';
+ return 'OA KESTREL // OPERATIONS';
+}function loop(now){if(window.CP_PAUSED){last=now;requestAnimationFrame(loop);return;}C.raf++;let gap=now-C.lastRaf;C.lastRaf=now;if(gap>C.maxGap)C.maxGap=gap;C.fpsFrames++;if(now-C.fpsAt>=1000){C.fps=Math.round(C.fpsFrames*1000/(now-C.fpsAt));C.fpsFrames=0;C.fpsAt=now}let dt=Math.min(.05,(now-last)/1000);last=now;if(running){campaignHintTick(now);cpPolarisWindowTick(now);let elapsed=(now-start)/1000,left=Math.max(0,180-elapsed),np=elapsed<60?1:elapsed<120?2:3;if(campaignMission==='RETRO'){let s=Math.floor(elapsed);$('#clock').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');$('#phase').textContent=headerMissionTitle();if(compromise()>=99.9){running=false;stopCollect();A.dest=null;A.mode='IDLE';$('#endTitle').textContent='OE LOST // SURVIVED '+$('#clock').textContent;$('#fs').textContent=Math.max(0,Math.round(score));$('#fr').textContent=resolved;$('#fi').textContent=ints;$('#fc').textContent=Math.round(compromise())+'%';$('#end').classList.add('show')}}else if(campaignMission==='ARCADE'){arcadeThreatLevel=1+Math.floor(elapsed/75);if(arcadeThreatLevel!==phase){phase=arcadeThreatLevel;let nm='THREAT LEVEL '+arcadeThreatLevel;$('#phase').textContent=headerMissionTitle();banner(nm,1300);sound('level');log(nm)}let s=Math.floor(elapsed);$('#clock').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}else if(/^05-0[1-5]$/.test(campaignMission||'')){let seconds=Math.floor(elapsed);$('#clock').textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');$('#phase').textContent=headerMissionTitle()}else if(/^04-0[1-5]$/.test(campaignMission||'')){$('#phase').textContent=headerMissionTitle();let missionSeconds=Math.floor(elapsed);$('#clock').textContent=String(Math.floor(missionSeconds/60)).padStart(2,'0')+':'+String(missionSeconds%60).padStart(2,'0')}else if(/^03-0[1-5]$/.test(campaignMission||'')){$('#phase').textContent=headerMissionTitle()}else{if(np!==phase){phase=np;let nm=phase===2?'PHASE II // CONTEST':'PHASE III // DOMINATE';$('#phase').textContent=headerMissionTitle();banner(nm,1300);log(nm)}let s=Math.ceil(left);$('#clock').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}if(campaignMission!=='ARCADE'&&campaignMission!=='RETRO'&&campaignMission!=='TUTORIAL'&&!/^05-0[1-5]$/.test(campaignMission||'')&&!/^0[34]-/.test(campaignMission||'')&&left<=0)finish();else{let p=parms();if(campaignMission!=='TUTORIAL'&&!/^05-0[1-5]$/.test(campaignMission||'')&&!/^0[34]-/.test(campaignMission||'')&&(now-lastSpawn)/1000>=p.gap&&T.filter(t=>!t.done).length<p.cap){spawn();lastSpawn=now}T.forEach(t=>{if(t.done||t.stationary||t.maritime)return;t.x+=t.vx*dt;t.y+=t.vy*dt;if(t.x<35||t.x>865)t.vx*=-1;if(t.y<35||t.y>615)t.vy*=-1});naiTick(now);enemy(dt);cpContestedTick(dt);cpIntelDropTick();cpCyberTick();reconstitutionTick(now);cpTrackStallGuard();const postureTarget=(A.mode==='LOITER'||A.mode==='LOITER_ENTRY'||A.mode==='LOITER_APPROACH')?.75:1;A.sensorPosture+=(postureTarget-A.sensorPosture)*Math.min(1,dt/.65);if(A.mode==='LOITER_EXIT'&&valid(A.dest)){const desired=H(A.dest.x-A.x,A.dest.y-A.y),delta=cpHeadingDelta(A.heading,desired),maxTurn=(A.exitTurnCommitted?95:110)*dt;let remaining=Math.abs(delta);if(A.exitTurnCommitted){const dir=A.exitTurnDir||1;remaining=dir>0?(desired-A.heading+360)%360:(A.heading-desired+360)%360;const turn=Math.min(maxTurn,remaining);A.heading=(A.heading+dir*turn+360)%360}else A.heading=(A.heading+Math.max(-maxTurn,Math.min(maxTurn,delta))+360)%360;const rad=A.heading*Math.PI/180,step=cpEffectiveISRSpeed()*dt;A.x+=Math.sin(rad)*step;A.y-=Math.cos(rad)*step;A.lastMove=now;stallLogged=false;const exitAge=now-(A.exitStarted||now),aligned=A.exitTurnCommitted?remaining<7:Math.abs(delta)<7;if(exitAge>=220&&aligned){const committed=A.exitTurnCommitted;A.loiterCenter=null;A.exitTurnCommitted=false;A.exitTurnDir=0;A.mode='ENROUTE';rec('LOITER_EXIT_COMPLETE',`heading=${A.heading.toFixed(1)} delta=${delta.toFixed(1)} age=${Math.round(exitAge)}${committed?' committed-turn':''}`)}else if(now>=A.exitUntil&&exitAge%1000<60){rec('LOITER_EXIT_HOLD',`heading=${A.heading.toFixed(1)} target=${desired.toFixed(1)} remaining=${remaining.toFixed(1)}`)}}else if(A.mode==='ENROUTE'&&valid(A.dest)){const rx=57,ry=32,approach=108;let dx=A.dest.x-A.x,dy=A.dest.y-A.y,d=Math.hypot(dx,dy);if(d<=approach){A.loiterCenter={x:A.dest.x,y:A.dest.y};let th=Math.atan2((A.y-A.dest.y)/ry,(A.x-A.dest.x)/rx);if(!Number.isFinite(th))th=0;const tangentHeading=dir=>H(-rx*Math.sin(th)*dir,ry*Math.cos(th)*dir),cw=tangentHeading(1),ccw=tangentHeading(-1);A.loiterDir=Math.abs(cpHeadingDelta(A.heading,cw))<=Math.abs(cpHeadingDelta(A.heading,ccw))?1:-1;A.approachAngle=th;A.mode='LOITER_APPROACH';A.lastMove=now;stallLogged=false;rec('LOITER_APPROACH',`distance=${d.toFixed(2)} dir=${A.loiterDir>0?'CW':'CCW'} heading=${A.heading.toFixed(1)}`)}else{A.heading=H(dx,dy);let q=Math.min(cpEffectiveISRSpeed()*dt,Math.max(.08,d-approach)),ox=A.x,oy=A.y;A.x+=dx/d*q;A.y+=dy/d*q;if(Math.hypot(A.x-ox,A.y-oy)>.0001){A.lastMove=now;stallLogged=false}}}else if(A.mode==='LOITER_APPROACH'&&valid(A.loiterCenter)){const rx=57,ry=32,base=cpEffectiveISRSpeed(),loiterSpeed=base*.70,tx=A.loiterCenter.x+Math.cos(A.approachAngle)*rx,ty=A.loiterCenter.y+Math.sin(A.approachAngle)*ry,dx=tx-A.x,dy=ty-A.y,d=Math.hypot(dx,dy),desired=d>2?H(dx,dy):H(-rx*Math.sin(A.approachAngle)*A.loiterDir,ry*Math.cos(A.approachAngle)*A.loiterDir),delta=cpHeadingDelta(A.heading,desired),maxTurn=105*dt;A.heading+=Math.max(-maxTurn,Math.min(maxTurn,delta));const centerD=Math.hypot(A.x-A.loiterCenter.x,A.y-A.loiterCenter.y),blend=Math.max(0,Math.min(1,(centerD-59)/(108-59))),speed=loiterSpeed+(base-loiterSpeed)*blend,rad=A.heading*Math.PI/180,step=Math.min(speed*dt,Math.max(.35,d));A.x+=Math.sin(rad)*step;A.y-=Math.cos(rad)*step;A.lastMove=now;stallLogged=false;if(d<=3.5&&Math.abs(cpHeadingDelta(A.heading,H(-rx*Math.sin(A.approachAngle)*A.loiterDir,ry*Math.cos(A.approachAngle)*A.loiterDir)))<24){A.loiterAngle=A.approachAngle;A.dest=null;A.mode='LOITER';rec('LOITER_CAPTURE',`dir=${A.loiterDir>0?'CW':'CCW'} merge=${d.toFixed(2)}`)}}else if(A.mode==='LOITER_ENTRY'&&valid(A.loiterCenter)){const rx=57,ry=32;A.loiterAngle=Math.atan2((A.y-A.loiterCenter.y)/ry,(A.x-A.loiterCenter.x)/rx);if(!Number.isFinite(A.loiterAngle))A.loiterAngle=0;A.dest=null;A.mode='LOITER';A.lastMove=now;stallLogged=false}else if(A.mode==='LOITER'&&valid(A.loiterCenter)){const rx=57,ry=32,loiterSpeed=cpEffectiveISRSpeed()*.70,omega=loiterSpeed/Math.max(1,(rx+ry)*.5);A.loiterAngle=(A.loiterAngle+(A.loiterDir||1)*omega*dt)%(Math.PI*2);const nx=A.loiterCenter.x+Math.cos(A.loiterAngle)*rx,ny=A.loiterCenter.y+Math.sin(A.loiterAngle)*ry,dx=nx-A.x,dy=ny-A.y;if(Math.hypot(dx,dy)>.01)A.heading=H(dx,dy);A.x=nx;A.y=ny;A.lastMove=now;stallLogged=false}}}if(running){mirageTick(dt);verdantSmartTick(dt);verdantTrafficTick(dt);cpTempestVesselTick(dt);cpTempestMissionTick(dt,now);cpPriorityNAITick(now);vantageAffinityTick(now);updateTrackMemory(now);networkTick(now);}if(/^02-/.test(campaignMission||''))cpCheckCampaign02();geometry();ui();diagnostic(now);requestAnimationFrame(loop)}function supplyTargetFromPoint(p){if(!supplyRepairMode||supplyPackages<1||!valid(p))return false;const candidates=B.filter(b=>b.degraded&&!b.reconstituting).map(b=>({b,d:Math.hypot(b.x-p.x,b.y-p.y)})).sort((a,b)=>a.d-b.d);if(!candidates.length)return false;const hit=candidates[0];if(hit.d>62){cpNotice('SUPPLY TARGETING','SELECT A HIGHLIGHTED DEGRADED SITE','intel');return false;}reconstituteSite(hit.b);return true}
 $('#map').addEventListener('pointerdown',e=>{if(!running||!supplyRepairMode)return;const p=point(e);if(supplyTargetFromPoint(p)){e.preventDefault();e.stopImmediatePropagation();}},true);
 function cpTrackUnderISRPointer(e){if(!running)return null;const p=point(e);return T.filter(t=>!t.done&&t.el?.getAttribute('visibility')!=='hidden').map(t=>({t,d:Math.hypot(t.x-p.x,t.y-p.y)})).filter(o=>o.d<=34).sort((a,b)=>a.d-b.d)[0]?.t||null}
-$('#asset').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();if(!running)return;const t=cpTrackUnderISRPointer(e);if(t){C.track++;rec('TRACK_THROUGH_ISR',`${t.id} mode=${A.mode}`);sel=t;ui(true);return}acquire()});$('#map').addEventListener('pointerdown',e=>{e.preventDefault();if(verdantTrafficSel){verdantTrafficSel=null;updateSpotReport(null,false)}if(mirageSiteSel||mirageTrafficSel){mirageSiteSel=null;mirageTrafficSel=null;updateSpotReport(null,false)}C.map++;rec('MAP_POINTER',`mode=${A.mode}`);if(!running)return;if(passiveDeployMode){passivePlace(point(e));return}if(ewoTargetMode){ewoFire(point(e));return}if(!A.controlSelected)return;order(point(e));ui(true)});function actionPointer(el,fn){el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();fn();requestAnimationFrame(()=>el.blur())});el.addEventListener('click',e=>e.preventDefault())}actionPointer($('#collect'),collect);actionPointer($('#isrTask'),()=>{if(A.controlSelected){A.controlSelected=false;ui(true)}else acquire()});actionPointer($('#clear'),()=>decide('CLEAR'));actionPointer($('#intercept'),()=>decide('INTERCEPT'));actionPointer($('#tempestPriority'),cpTempestPrioritize);actionPointer($('#assessRoutine'),()=>mirageSubmitAssessment('ROUTINE'));actionPointer($('#assessElevated'),()=>mirageSubmitAssessment('ELEVATED'));actionPointer($('#assessWarning'),()=>mirageSubmitAssessment('WARNING'));actionPointer($('#passiveDeploy'),passiveToggleDeploy);actionPointer($('#ewoSweep'),ewoSweep);actionPointer($('#supplyUse'),supplyActivate);function deploy(){stopCollect();passiveReset();cpCyberReset();Object.assign(C,{raf:0,isr:0,map:0,track:0,orders:0,errors:0,lastRaf:performance.now(),maxGap:0,fps:0,fpsFrames:0,fpsAt:performance.now()});dbg=[];rec('DEPLOY','diagnostic session started');T.forEach(t=>{t.el?.remove();t.ring?.remove();t.lkp?.g?.remove()});T=[];sel=null;next=1;score=0;integrity=100;decisionCorrect=0;decisionTotal=0;resolved=0;ints=0;phase=1;campaignStationarySpawned=0;stallLogged=false;Object.assign(A,{x:145,y:510,dest:null,mode:'IDLE',heading:0,lastMove:performance.now(),loiterCenter:null,loiterAngle:0,loiterDir:1,approachAngle:0,exitUntil:0,exitStarted:0,exitTurnDir:0,exitTurnCommitted:false,sensorPosture:1,controlSelected:false});if(/^04-0[1-5]$/.test(campaignMission||'')){verdantSmartActive=false;Object.assign(A,{x:450,y:610,dest:null,mode:'IDLE',heading:0,lastMove:performance.now()});mirageReset();updateSpotReport(null,false);}else if(/^03-0[1-5]$/.test(campaignMission||'')){const vc=VERDANT_DEPLOY[campaignMission];verdantSmartActive=true;verdantTrafficSel=null;Object.assign(A,{x:vc.isr.x,y:vc.isr.y,dest:null,mode:'IDLE',heading:0,lastMove:performance.now()});verdantMissionReset();verdantResetSmartRoutes();verdantTrafficReset();updateSpotReport(null,false);}else{verdantSmartActive=false;}cpTempestVesselInit();$('#phase').textContent=campaignMission==='04-01'?'04-01 // INVENTORY':campaignMission==='04-02'?'04-02 // CAPACITY':campaignMission==='04-03'?'04-03 // POSTURE':campaignMission==='04-04'?'04-04 // INDICATIONS':campaignMission==='04-05'?'04-05 // WARNING':/^03-0[1-5]$/.test(campaignMission||'')?(campaignMission+' // '+(VERDANT_MISSIONS[campaignMission]?.title||'VERDANT')):campaignMission==='RETRO'?'SURVIVE':campaignMission==='ARCADE'?'ARCADE // THREAT LEVEL 1':campaignMission==='TUTORIAL'?'TRAINING // COMMAND ORIENTATION':'PHASE I // ESTABLISH';if(/^03-0[1-5]$/.test(campaignMission||''))verdantMissionProgress();$('#log').textContent='';$('#enemyRings').textContent='';let lk=$('#lastKnownPositions');if(lk)lk.textContent='';let df=$('#decisionFeedback');if(df)df.textContent='';$('#end').classList.remove('show');initBlue();running=false;$('#clock').textContent=(campaignMission==='ARCADE'||campaignMission==='RETRO')?'00:00':campaignMission==='TUTORIAL'?'TRAIN':'03:00';let n=campaignMission==='TUTORIAL'?1:5;banner(campaignMission==='TUTORIAL'?'TRAINING ENVIRONMENT':String(n),700);let timer=setInterval(()=>{n--;if(n>0)banner(String(n),700);else{clearInterval(timer);banner(campaignMission==='TUTORIAL'?'TRAINING // SYSTEMS ONLINE':campaignMission==='RETRO'?'SURVIVE':'PREPARE THE OPERATIONAL ENVIRONMENT',1600);setTimeout(()=>{running=true;A.mode='ON_STATION';start=performance.now();lastSpawn=start;A.lastMove=start;if(campaignMission==='01-02'){spawn(false);spawn(true);spawn(true)}
-else if(campaignMission==='01-03'||campaignMission==='01-04'||campaignMission==='01-05'||campaignMission==='ARCADE'||/^02-/.test(campaignMission||'')){spawn();spawn();spawn()}
+$('#asset').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();if(!running)return;const t=cpTrackUnderISRPointer(e);if(t){C.track++;rec('TRACK_THROUGH_ISR',`${t.id} mode=${A.mode}`);sel=t;ui(true);return}acquire()});$('#map').addEventListener('pointerdown',e=>{e.preventDefault();if(verdantTrafficSel){verdantTrafficSel=null;updateSpotReport(null,false)}if(mirageSiteSel||mirageTrafficSel){mirageSiteSel=null;mirageTrafficSel=null;updateSpotReport(null,false)}C.map++;rec('MAP_POINTER',`mode=${A.mode}`);if(!running)return;if(passiveDeployMode){passivePlace(point(e));return}if(ewoTargetMode){ewoFire(point(e));return}if(!A.controlSelected)return;order(point(e));ui(true)});function actionPointer(el,fn){el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();fn();requestAnimationFrame(()=>el.blur())});el.addEventListener('click',e=>e.preventDefault())}actionPointer($('#collect'),collect);actionPointer($('#isrTask'),()=>{if(A.controlSelected){A.controlSelected=false;ui(true)}else acquire()});actionPointer($('#clear'),()=>decide('CLEAR'));actionPointer($('#intercept'),()=>decide('INTERCEPT'));actionPointer($('#tempestPriority'),cpTempestPrioritize);actionPointer($('#assessRoutine'),()=>mirageSubmitAssessment('ROUTINE'));actionPointer($('#assessElevated'),()=>mirageSubmitAssessment('ELEVATED'));actionPointer($('#assessWarning'),()=>mirageSubmitAssessment('WARNING'));actionPointer($('#passiveDeploy'),passiveToggleDeploy);actionPointer($('#ewoSweep'),ewoSweep);actionPointer($('#supplyUse'),supplyActivate);function deploy(){cpRenderStrategicPriorityNAI();stopCollect();passiveReset();cpCyberReset();Object.assign(C,{raf:0,isr:0,map:0,track:0,orders:0,errors:0,lastRaf:performance.now(),maxGap:0,fps:0,fpsFrames:0,fpsAt:performance.now()});dbg=[];rec('DEPLOY','diagnostic session started');T.forEach(t=>{t.el?.remove();t.ring?.remove();t.lkp?.g?.remove()});T=[];sel=null;next=1;score=0;integrity=100;decisionCorrect=0;decisionTotal=0;resolved=0;ints=0;phase=1;campaignStationarySpawned=0;stallLogged=false;Object.assign(A,{x:145,y:510,dest:null,mode:'IDLE',heading:0,lastMove:performance.now(),loiterCenter:null,loiterAngle:0,loiterDir:1,approachAngle:0,exitUntil:0,exitStarted:0,exitTurnDir:0,exitTurnCommitted:false,sensorPosture:1,controlSelected:false});if(/^04-0[1-5]$/.test(campaignMission||'')){verdantSmartActive=false;Object.assign(A,{x:450,y:610,dest:null,mode:'IDLE',heading:0,lastMove:performance.now()});mirageReset();updateSpotReport(null,false);}else if(/^03-0[1-5]$/.test(campaignMission||'')){const vc=VERDANT_DEPLOY[campaignMission];verdantSmartActive=true;verdantTrafficSel=null;Object.assign(A,{x:vc.isr.x,y:vc.isr.y,dest:null,mode:'IDLE',heading:0,lastMove:performance.now()});verdantMissionReset();verdantResetSmartRoutes();verdantTrafficReset();updateSpotReport(null,false);}else{verdantSmartActive=false;}cpTempestVesselInit();$('#phase').textContent=headerMissionTitle();if(/^03-0[1-5]$/.test(campaignMission||''))verdantMissionProgress();$('#log').textContent='';$('#enemyRings').textContent='';let lk=$('#lastKnownPositions');if(lk)lk.textContent='';let df=$('#decisionFeedback');if(df)df.textContent='';$('#end').classList.remove('show');initBlue();running=false;$('#clock').textContent=(campaignMission==='ARCADE'||campaignMission==='RETRO')?'00:00':campaignMission==='TUTORIAL'?'TRAIN':/^03-0[1-5]$/.test(campaignMission||'')?'':'03:00';let n=campaignMission==='TUTORIAL'?1:5;banner(campaignMission==='TUTORIAL'?'TRAINING ENVIRONMENT':String(n),700);let timer=setInterval(()=>{n--;if(n>0)banner(String(n),700);else{clearInterval(timer);banner(campaignMission==='TUTORIAL'?'TRAINING // SYSTEMS ONLINE':campaignMission==='RETRO'?'SURVIVE':'PREPARE THE OPERATIONAL ENVIRONMENT',1600);setTimeout(()=>{running=true;A.mode='ON_STATION';start=performance.now();lastSpawn=start;A.lastMove=start;if(campaignMission==='01-02'){spawn(false);spawn(true);spawn(true)}else if(/^06-0[1-5]$/.test(campaignMission||'')){spawn();spawn();spawn()}
+else if(campaignMission==='01-03'||campaignMission==='01-04'||campaignMission==='01-05'||campaignMission==='ARCADE'||/^02-/.test(campaignMission||'')||/^06-0[1-5]$/.test(campaignMission||'')){spawn();spawn();spawn()}
 else if(/^05-0[1-5]$/.test(campaignMission||'')){cpTempestMissionStart()}
 else if(!/^04-0[1-5]$/.test(campaignMission||'')&&!/^03-0[1-5]$/.test(campaignMission||'')){spawn(false);spawn(false);spawn(true)}
 log(campaignMission==='RETRO'?'MISSION START // CONTACT IMMINENT // RETRO':'MISSION START // CONTACT IMMINENT 0.11.6.142 // OA RUNTIME');if(/^04-0[1-5]$/.test(campaignMission||'')){const mm=mirageMissionConfig();cpNotice(campaignMission+' // '+mm.title,campaignMission==='04-03'?'ESTABLISH BASELINE // IDENTIFY DEVIATION':'ESTABLISH THE OPERATING PICTURE','intel')}else if(/^03-0[1-5]$/.test(campaignMission||'')){const vm=VERDANT_MISSIONS[campaignMission];cpNotice(campaignMission+' // '+vm.title,vm.notice,'intel')}},900)}},850);ui(true)}$('#copyDiag').addEventListener('click',copyDiag);$('#saveDiag').addEventListener('click',saveDiag);$('#again').addEventListener('click',deploy);document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});document.addEventListener('wheel',e=>{if(e.ctrlKey)e.preventDefault()},{passive:false});window.visualViewport?.addEventListener('resize',()=>rec('VIEWPORT',`${Math.round(innerWidth)}x${Math.round(innerHeight)} scale=${visualViewport.scale}`));initBlue();running=false;$('#clock').textContent=(campaignMission==='ARCADE'||campaignMission==='RETRO')?'00:00':campaignMission==='TUTORIAL'?'TRAIN':'03:00';$('#phase').textContent='MISSION STANDBY';ui(true);
 $('#startMission').addEventListener('click',()=>{$('#startScreen').style.display='none';deploy()});
 window.CP_PAUSED=false;window.CP_MENU=true;window.CP_PAUSE_AT=0;
-function cpRenderStrategicPriorityNAI(){
+function strategicPriorityNAIIdentifier(){const mission=String(campaignMission||''),match=mission.match(/^(\d{2}-\d{2})$/);if(match)return 'NAI-'+match[1];const series=({KESTREL:'01',VANTAGE:'02',VERDANT:'03',MIRAGE:'04',TEMPEST:'05',ARCTIC:'06'})[activeOA]||'00';return 'NAI-'+series+'-69'}
+// Pick a point well inside the tactical polygon so the full NAI label is centered
+// on the region, including uneven and concave 3-4 vertex shapes.
+function strategicNAILabelInteriorCenter(pts){
+ if(!Array.isArray(pts)||pts.length<3)return null;
+ const p=pts.map(v=>({x:Number(v.x)*900,y:Number(v.y)*650}));
+ if(p.some(v=>!Number.isFinite(v.x)||!Number.isFinite(v.y)))return null;
+ const minX=Math.min(...p.map(v=>v.x)),maxX=Math.max(...p.map(v=>v.x));
+ const minY=Math.min(...p.map(v=>v.y)),maxY=Math.max(...p.map(v=>v.y));
+ let twiceArea=0,cx=0,cy=0;
+ for(let i=0;i<p.length;i++){const a=p[i],b=p[(i+1)%p.length],cross=a.x*b.y-b.x*a.y;twiceArea+=cross;cx+=(a.x+b.x)*cross;cy+=(a.y+b.y)*cross}
+ const target={x:(minX+maxX)/2,y:(minY+maxY)/2};
+ const edgeDistance=(x,y)=>{let d=Infinity;for(let i=0;i<p.length;i++){const a=p[i],b=p[(i+1)%p.length],dx=b.x-a.x,dy=b.y-a.y,len=dx*dx+dy*dy,t=len?Math.max(0,Math.min(1,((x-a.x)*dx+(y-a.y)*dy)/len)):0;d=Math.min(d,Math.hypot(x-a.x-t*dx,y-a.y-t*dy))}return d};
+ const inside=(x,y)=>{let hit=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const a=p[i],b=p[j];if((a.y>y)!==(b.y>y)&&x<(b.x-a.x)*(y-a.y)/(b.y-a.y)+a.x)hit=!hit}return hit||edgeDistance(x,y)<.15};
+ const halfW=63,halfH=12;
+ let minCX=minX+halfW,maxCX=maxX-halfW,minCY=minY+halfH,maxCY=maxY-halfH;
+ if(minCX>maxCX)minCX=maxCX=(minX+maxX)/2;
+ if(minCY>maxCY)minCY=maxCY=(minY+maxY)/2;
+ const boxSamples=(x,y)=>{const l=x-halfW,r=x+halfW,t=y-halfH,b=y+halfH,out=[{x,y}];for(let i=0;i<=8;i++){const q=i/8;out.push({x:l+(r-l)*q,y:t},{x:l+(r-l)*q,y:b},{x:l,y:t+(b-t)*q},{x:r,y:t+(b-t)*q})}return out};
+ let bestFit=null,bestFitDist=Infinity,bestPartial=null,bestCoverage=-1,bestPartialDist=Infinity;
+ const consider=(x,y)=>{if(x<minCX-1e-6||x>maxCX+1e-6||y<minCY-1e-6||y>maxCY+1e-6)return;const samples=boxSamples(x,y),covered=samples.reduce((n,q)=>n+(inside(q.x,q.y)?1:0),0),dist=(x-target.x)**2+(y-target.y)**2;if(!inside(x,y))return;if(covered===samples.length&&dist<bestFitDist){bestFit={x,y};bestFitDist=dist}if(covered>bestCoverage||(covered===bestCoverage&&dist<bestPartialDist)){bestPartial={x,y};bestCoverage=covered;bestPartialDist=dist}};
+ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+ consider(clamp(target.x,minCX,maxCX),clamp(target.y,minCY,maxCY));
+ const nx=32,ny=32;for(let iy=0;iy<=ny;iy++)for(let ix=0;ix<=nx;ix++)consider(minCX+(maxCX-minCX)*ix/nx,minCY+(maxCY-minCY)*iy/ny);
+ let anchor=bestFit||bestPartial,stepX=(maxCX-minCX)/32,stepY=(maxCY-minCY)/32;
+ for(let pass=0;pass<5&&anchor;pass++){const base={...anchor};for(let iy=-4;iy<=4;iy++)for(let ix=-4;ix<=4;ix++)consider(clamp(base.x+ix*stepX,minCX,maxCX),clamp(base.y+iy*stepY,minCY,maxCY));anchor=bestFit||bestPartial;stepX/=4;stepY/=4}
+ const result=bestFit||bestPartial;return result?{x:result.x/900,y:result.y/650}:null;
+}function cpRenderStrategicPriorityNAI(){
  const poly=$('#strategicPriorityNAIPolygon'),label=$('#strategicPriorityNAILabel');if(!poly||!label)return;
  const saved=readGlobalNAIs()[activeOA],pts=saved?.committed&&Array.isArray(saved.points)?saved.points:[];
  if(pts.length<3){poly.setAttribute('points','');poly.classList.add('hidden');label.classList.add('hidden');return;}
  const tactical=pts.map(p=>({x:Math.max(0,Math.min(900,p.x*900)),y:Math.max(0,Math.min(650,p.y*650))}));
  poly.setAttribute('points',tactical.map(p=>p.x+','+p.y).join(' '));poly.classList.remove('hidden');
- const c=polygonCentroid(pts),lx=Math.max(4,Math.min(770,c.x*900-63)),ly=Math.max(4,Math.min(622,c.y*650+12));
- label.setAttribute('transform','translate('+lx+' '+ly+')');label.classList.remove('hidden');
+ const c=strategicNAILabelInteriorCenter(pts);if(!c){label.classList.add('hidden');return;}const lx=c.x*900-63,ly=c.y*650-12;
+ label.setAttribute('transform','translate('+lx+' '+ly+')');const caption=label.querySelector('text');if(caption)caption.textContent=strategicPriorityNAIIdentifier();label.classList.remove('hidden');
 }
 const VERDANT_MISSIONS={
  '03-01':{title:'CORRIDORS',notice:'ESTABLISH THE TRANSPORTATION PICTURE',goals:[6,3,1]},
@@ -1139,7 +1221,7 @@ function verdantFinishMission(){
  const m=VERDANT_MISSIONS[campaignMission]||VERDANT_MISSIONS['03-01'],v=verdantMissionValues();
  campaignProgressionWrite('ci-c03-'+campaignMission.slice(3)+'-complete','1');cpRefreshVerdant();
  $('#resultTitle').textContent=m.title+' // MISSION COMPLETE';
- $('#resultBody').innerHTML='OA VERDANT // '+campaignMission+' '+m.title+'<br>MISSION COMPLETE // PATTERN OF LIFE DEVELOPED<br><br>OBJECTIVE 1 // '+v[0]+' / '+m.goals[0]+'<br>OBJECTIVE 2 // '+v[1]+' / '+m.goals[1]+'<br>OBJECTIVE 3 // '+v[2]+' / '+m.goals[2]+'<br>SCORE // '+Math.max(0,Math.round(score));
+ $('#resultBody').innerHTML='OA VERDANT // '+campaignMission+' '+m.title+'<br>MISSION COMPLETE // '+m.title+' OBJECTIVES SATISFIED<br><br>OBJECTIVE 1 // '+v[0]+' / '+m.goals[0]+'<br>OBJECTIVE 2 // '+v[1]+' / '+m.goals[1]+'<br>OBJECTIVE 3 // '+v[2]+' / '+m.goals[2]+'<br>SCORE // '+Math.max(0,Math.round(score));
  $('#resultContinue').classList.remove('hidden');$('#resultRetry').classList.add('hidden');$('#campaignResult').classList.remove('hidden');outcomeFeedback(true);ui(true);
 }
 function verdantMissionStats(){
@@ -1540,6 +1622,7 @@ function cpVerdantSymbolAspect(){
  cpVerdantAspectCache=sx>0&&sy>0?sy/sx:1;
  return cpVerdantAspectCache;
 }
+function cpMapRadialDistance(a,b){const k=activeOA==='VERDANT'?cpVerdantSymbolAspect():1;return Math.hypot((a.x-b.x)*k,a.y-b.y)}
 function cpInvalidateVerdantAspect(){
  cpVerdantAspectCache=null;
 }
@@ -1616,10 +1699,9 @@ function cpTempestTrackSeed(t,index){
 function cpTempestAllContacts(){return tempestMissionContacts.filter(t=>t&&!t.done)}
 function cpTempestMetrics(){const active=cpTempestId()?tempestMissionContacts:[];return {resolved, evidence:tempestEvidence,integrity,corroborated:tempestMissionStats.corroborated.size,associations:tempestAssociationEdges.size,prioritized:tempestPrioritized.size,legitimate:tempestMissionStats.benign.size,sustainedMs:tempestSustainedMs,active:active.length,spawned:tempestSpawned}}
 function cpTempestObjectiveExtra(){
- const host=$('#objectiveTracker');if(!host)return;let row=$('#tempestObjectiveExtra');if(!row){row=document.createElement('div');row.id='tempestObjectiveExtra';row.style.cssText='grid-column:1/-1;padding:5px 7px;border:1px solid var(--border);border-radius:4px;font-size:9px;letter-spacing:.06em;color:var(--muted)';host.appendChild(row)}
- const show=['05-04','05-05'].includes(campaignMission);row.hidden=!show;if(!show)return;const m=cpTempestMetrics();row.textContent=campaignMission==='05-04'?'BENIGN RESOLUTIONS // '+Math.min(m.legitimate,3)+' / 3':'SUPPORTED PRIORITY // '+Math.min(m.prioritized,3)+' / 3   //   SUSTAINED // '+Math.min(45,Math.floor(m.sustainedMs/1000))+' / 45 SEC';
-}
-function cpTempestCheck(){
+ const host=$('#objectiveTracker');if(!host)return;host.classList.toggle('has-inline-extra',['05-04','05-05','06-04'].includes(campaignMission));let chip=$('#tempestObjectiveExtra');if(!chip){chip=document.createElement('span');chip.id='tempestObjectiveExtra';chip.className='objective-chip campaign-inline-objective';chip.innerHTML='<em></em><b></b>';host.appendChild(chip)}
+ const show=['05-04','05-05'].includes(campaignMission);chip.hidden=!show;if(!show)return;const m=cpTempestMetrics(),label=chip.querySelector('em'),value=chip.querySelector('b');if(campaignMission==='05-04'){label.textContent='BENIGN';value.textContent=Math.min(m.legitimate,3)+' / 3';chip.title='Benign maritime resolutions'}else{label.textContent='PRIO / HOLD';value.textContent=Math.min(m.prioritized,3)+' / 3  '+Math.min(45,Math.floor(m.sustainedMs/1000))+' / 45s';chip.title='Supported priority vessels / sustained coverage'}
+}function cpTempestCheck(){
  if(!cpTempestId()||campaignMission==='05-01'||campaignFinished)return;
  const m=cpTempestMetrics();if(m.integrity<80){tempestFailureReason='INTELLIGENCE INTEGRITY BELOW 80%';cpTempestFinish(false);return}
  if(cpTempestObjectivesSatisfied(campaignMission,m))cpTempestFinish(true);
@@ -1634,7 +1716,7 @@ function cpTempestFinish(pass){
  $('#resultContinue').classList.toggle('hidden',!pass);$('#resultRetry').classList.toggle('hidden',pass);$('#campaignResult').classList.remove('hidden');outcomeFeedback(pass);cpTempestRefresh();ui(true);
 }
 function cpTempestObserve(t,now){
- if(!t||t.done)return;const inside=D(A,t)<=cpEffectiveISRRadius();
+ if(!t||t.done)return;const inside=cpMapRadialDistance(A,t)<=cpEffectiveISRRadius();
  if(inside&&now-(t.tempestLastSample||0)>=2000){t.tempestLastSample=now;t.tempestObservationCount=(t.tempestObservationCount||0)+1;t.tempestHistory.push({at:now,x:t.x,y:t.y,ais:t.aisAvailable});if(t.tempestHistory.length>12)t.tempestHistory.shift();
   if(t.collectionEvidence&&(t.routeDeviation||t.identityDiscrepancy)&&t.tempestObservationCount>=2)tempestMissionStats.corroborated.add(t.id);
  }
@@ -1767,7 +1849,7 @@ function cpTempestMissionTick(dt,now){
     if(t.done)continue;
     if(t.vesselRef){t.x=t.vesselRef.x;t.y=t.vesselRef.y;t.vx=Math.cos(t.vesselRef.heading*Math.PI/180)*t.vesselRef.speed;t.vy=Math.sin(t.vesselRef.heading*Math.PI/180)*t.vesselRef.speed;}
     else cpTempestAdvanceTrack(t,dt);
-    if(!t.discovered&&D(A,t)<=cpEffectiveISRRadius()){t.discovered=true;rec('TEMPEST_DISCOVERY',`${t.id} // ISR contact established`);}
+    if(!t.discovered&&cpMapRadialDistance(A,t)<=cpEffectiveISRRadius()){t.discovered=true;rec('TEMPEST_DISCOVERY',`${t.id} // ISR contact established`);}
     cpTempestObserve(t,now);
     if(t.collectionEvidence)for(const other of tempestMissionContacts)if(other!==t)cpTempestTryAssociation(t,other);
   }
@@ -1862,12 +1944,12 @@ function cpTempestRaster(){const im=document.getElementById('tempestRaster');if(
 function cpSetOAVisual(oa){cpInvalidateVerdantAspect();const w=$('#mapWrap'),brand=document.querySelector('.brand-block small'),map=$('#map');if(!w)return;const retroDisplay=oa==='RETRO';activeOA=['VANTAGE','VERDANT','MIRAGE','TEMPEST','ARCTIC'].includes(oa)?oa:'KESTREL';['vantage','verdant','mirage','tempest','arctic'].forEach(k=>w.classList.toggle('oa-'+k,activeOA===k.toUpperCase()));if(map)map.setAttribute('preserveAspectRatio',activeOA==='VERDANT'?'none':'xMidYMid meet');if(brand)brand.textContent=retroDisplay?'v0.11.6.142 // OA RETRO // BLANK CANVAS // RETRO CONTACT IMMINENT':'v0.11.6.142 // OA '+(activeOA==='ARCTIC'?'POLARIS':activeOA)+' // GEOMETRIC GRID';initBlue();if(activeOA!=='MIRAGE'){if($('#mirageSites'))$('#mirageSites').textContent='';if($('#mirageTraffic'))$('#mirageTraffic').textContent='';if($('#miragePopulation'))$('#miragePopulation').textContent='';}cpVerdantRaster();cpTempestRaster();cpTempestRoutePreview();cpRenderStrategicPriorityNAI();cpRenderVerdantRoutes();requestAnimationFrame(()=>{window.ciPhysicalPhoneMapFit?.();cpVerdantHexAspect();requestAnimationFrame(()=>{window.ciPhysicalPhoneMapFit?.();cpVerdantHexAspect()})});}
 
 
-function cpRefreshVerdant(){for(let n=1;n<=5;n++){const id='03-0'+n,st=$('#mission03'+String(n).padStart(2,'0')+'Status');if(st)st.textContent=progressionComplete('ci-c03-0'+n+'-complete')?'COMPLETE // REPLAY':'AVAILABLE';}}
-function cpBrief0301(){$('#campaignMenu').classList.add('hidden');$('#briefing0301').classList.remove('hidden')}
-function cpBrief0302(){$('#campaignMenu').classList.add('hidden');$('#briefing0302').classList.remove('hidden')}
-function cpBrief0303(){$('#campaignMenu').classList.add('hidden');$('#briefing0303').classList.remove('hidden')}
-function cpBrief0304(){$('#campaignMenu').classList.add('hidden');$('#briefing0304').classList.remove('hidden')}
-function cpBrief0305(){$('#campaignMenu').classList.add('hidden');$('#briefing0305').classList.remove('hidden')}
+function cpRefreshVerdant(){for(let n=1;n<=5;n++){const id='03-0'+n,b=$('#mission03'+String(n).padStart(2,'0')),st=$('#mission03'+String(n).padStart(2,'0')+'Status'),available=campaignMissionUnlocked(id),done=progressionComplete('ci-c03-0'+n+'-complete');if(b){b.disabled=!available;b.classList.toggle('available',available)}if(st)st.textContent=done?'COMPLETE // REPLAY':available?'AVAILABLE':'LOCKED'}}
+function cpBrief0301(){if(!campaignMissionUnlocked('03-01'))return;$('#campaignMenu').classList.add('hidden');$('#briefing0301').classList.remove('hidden')}
+function cpBrief0302(){if(!campaignMissionUnlocked('03-02'))return;$('#campaignMenu').classList.add('hidden');$('#briefing0302').classList.remove('hidden')}
+function cpBrief0303(){if(!campaignMissionUnlocked('03-03'))return;$('#campaignMenu').classList.add('hidden');$('#briefing0303').classList.remove('hidden')}
+function cpBrief0304(){if(!campaignMissionUnlocked('03-04'))return;$('#campaignMenu').classList.add('hidden');$('#briefing0304').classList.remove('hidden')}
+function cpBrief0305(){if(!campaignMissionUnlocked('03-05'))return;$('#campaignMenu').classList.add('hidden');$('#briefing0305').classList.remove('hidden')}
 const VERDANT_DEPLOY={
  '03-01':{oa:'VERDANT',isr:{x:450,y:610}},
  '03-02':{oa:'VERDANT',isr:{x:450,y:610}},
@@ -1875,13 +1957,14 @@ const VERDANT_DEPLOY={
  '03-04':{oa:'VERDANT',isr:{x:450,y:610}},
  '03-05':{oa:'VERDANT',isr:{x:450,y:610}}
 };
-function cpBegin0301(){missionTransition('03-01 // CORRIDORS','OA VERDANT // LOADING OPERATION',cpBegin0301Now)}
-function cpBegin0302(){missionTransition('03-02 // PATTERN','OA VERDANT // LOADING OPERATION',cpBegin0302Now)}
-function cpBegin0303(){missionTransition('03-03 // TRANSFER','OA VERDANT // LOADING OPERATION',cpBegin0303Now)}
-function cpBegin0304(){missionTransition('03-04 // SIGNATURE','OA VERDANT // LOADING OPERATION',cpBegin0304Now)}
-function cpBegin0305(){missionTransition('03-05 // INTERDICTION','OA VERDANT // LOADING OPERATION',cpBegin0305Now)}
+function cpBegin0301(){if(!campaignMissionUnlocked('03-01'))return;missionTransition('03-01 // CORRIDORS','OA VERDANT // LOADING OPERATION',cpBegin0301Now)}
+function cpBegin0302(){if(!campaignMissionUnlocked('03-02'))return;missionTransition('03-02 // PATTERN','OA VERDANT // LOADING OPERATION',cpBegin0302Now)}
+function cpBegin0303(){if(!campaignMissionUnlocked('03-03'))return;missionTransition('03-03 // TRANSFER','OA VERDANT // LOADING OPERATION',cpBegin0303Now)}
+function cpBegin0304(){if(!campaignMissionUnlocked('03-04'))return;missionTransition('03-04 // SIGNATURE','OA VERDANT // LOADING OPERATION',cpBegin0304Now)}
+function cpBegin0305(){if(!campaignMissionUnlocked('03-05'))return;missionTransition('03-05 // INTERDICTION','OA VERDANT // LOADING OPERATION',cpBegin0305Now)}
 function cpBeginVerdantNow(id){
- const cfg=VERDANT_DEPLOY[id];if(!cfg)return;
+  if(!campaignMissionUnlocked(id))return;
+  const cfg=VERDANT_DEPLOY[id];if(!cfg)return;
  musicSetMode('mission');campaignMenuOA=cfg.oa;campaignMission=id;campaignFinished=false;campaignCompromise=0;cpSetOAVisual(cfg.oa);
  cpHideCampaignOverlays();window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';
  deploy();last=performance.now();
@@ -1924,18 +2007,18 @@ function mirageFinish0403(){const rk=$('#resultKicker');if(rk)rk.textContent='CA
 function mirageFinish0404(){const rk=$('#resultKicker');if(rk)rk.textContent='CAMPAIGN 04 // OA MIRAGE';campaignFinished=true;running=false;stopCollect();window.CP_MENU=true;A.dest=null;A.mode='IDLE';campaignProgressionWrite('ci-c04-04-complete','1');cpRefreshMirage();const v=mirageMissionValues();$('#resultTitle').textContent='INDICATIONS // MISSION COMPLETE';$('#resultBody').innerHTML='OA MIRAGE // 04-04 INDICATIONS<br>CORRELATED INDICATORS DEVELOPED<br><br>INDICATORS // '+v[0]+' / 3<br>CORROBORATED // '+v[1]+' / 2<br>TRACKS // '+v[2]+' / 6<br>SCORE // '+Math.max(0,Math.round(score));$('#resultContinue').classList.remove('hidden');$('#resultRetry').classList.add('hidden');$('#campaignResult').classList.remove('hidden');outcomeFeedback(true);ui(true)}
 function mirageWarningReady(){if(mirageAssessment)return;mirageEnding=false;const evidence=mirageTraffic.filter(t=>t.indicatorDeveloped&&t.indicator).slice(0,3);const summary=$('#mirageEvidenceSummary');if(summary){['mirageEvidence1','mirageEvidence2','mirageEvidence3'].forEach((id,i)=>{const el=$('#'+id),t=evidence[i];if(el)el.textContent=t?(t.indicator+' // '+(t.indicatorCorroborated?'CORROBORATED':'OBSERVED')+(t.indicatorCorroborated?' // '+((mirageMissionConfig().associations||{})[t.id]||'ASSOCIATED SITE'):'') ):'INDICATOR // PENDING'});summary.hidden=false}cpNotice('ASSESSMENT REQUIRED','MULTIPLE INDICATORS EXCEED BASELINE // ISSUE ANALYTIC JUDGMENT','intel');const a=$('#mirageAssessment');if(a)a.hidden=false;ui(true)}
 function mirageSubmitAssessment(level){if(campaignMission!=='04-05'||mirageAssessment)return;mirageAssessment=level;const correct=level==='WARNING';score+=correct?100:-40;campaignFinished=true;running=false;stopCollect();window.CP_MENU=true;A.dest=null;A.mode='IDLE';if(correct){campaignProgressionWrite('ci-c04-05-complete','1');progressionCollectUnlocks();}cpRefreshMirage();const v=mirageMissionValues();$('#mirageAssessment').hidden=true;const es=$('#mirageEvidenceSummary');if(es)es.hidden=true;const rk=$('#resultKicker');if(rk)rk.textContent='CAMPAIGN 04 // OA MIRAGE';$('#resultTitle').textContent=correct?'WARNING // CAMPAIGN COMPLETE':'WARNING // REASSESS';const reasoning=correct?'MULTIPLE INDEPENDENT INDICATORS, CORROBORATED INFRASTRUCTURE ASSOCIATIONS, AND DEPARTURE FROM ESTABLISHED BASELINE SUPPORT WARNING OF HOSTILE PREPARATION.':'ASSESSMENT NOT SUPPORTED. THREE INDEPENDENT INDICATORS EXCEED THE ESTABLISHED BASELINE AND TWO ARE CORROBORATED THROUGH ASSESSED INFRASTRUCTURE RELATIONSHIPS. THIS CONVERGENCE SUPPORTS WARNING RATHER THAN '+level+'.';$('#resultBody').innerHTML='OA MIRAGE // 04-05 WARNING<br>ASSESSMENT // '+level+'<br>CONFIDENCE // '+(correct?'HIGH':'LOW')+'<br><br>INDICATORS // '+v[0]+' / 3<br>CORROBORATED // '+v[1]+' / 2<br>TRACKS // '+v[2]+' / 6<br><br>'+reasoning+'<br>SCORE // '+Math.max(0,Math.round(score));$('#resultContinue').classList.toggle('hidden',!correct);$('#resultRetry').classList.toggle('hidden',correct);$('#campaignResult').classList.remove('hidden');outcomeFeedback(correct);ui(true)}
-function cpRefreshMirage(){const done1=progressionComplete('ci-c04-01-complete'),done2=progressionComplete('ci-c04-02-complete'),done3=progressionComplete('ci-c04-03-complete'),done4=progressionComplete('ci-c04-04-complete'),done5=progressionComplete('ci-c04-05-complete');[['0401',true,done1],['0402',done1||devProgressionBypassActive(),done2],['0403',done2||devProgressionBypassActive(),done3],['0404',done3||devProgressionBypassActive(),done4],['0405',done4||devProgressionBypassActive(),done5]].forEach(([n,available,done])=>{const st=$('#mission'+n+'Status'),b=$('#mission'+n);if(st)st.textContent=done?'COMPLETE // REPLAY':available?'AVAILABLE':'LOCKED';if(b){b.disabled=!available;b.classList.toggle('available',available)}})}
-function cpBrief0401(){$('#campaignMenu').classList.add('hidden');$('#briefing0401').classList.remove('hidden')}
-function cpBrief0402(){$('#campaignMenu').classList.add('hidden');$('#briefing0402').classList.remove('hidden')}
-function cpBrief0403(){$('#campaignMenu').classList.add('hidden');$('#briefing0403').classList.remove('hidden')}
-function cpBrief0404(){$('#campaignMenu').classList.add('hidden');$('#briefing0404').classList.remove('hidden')}
-function cpBrief0405(){$('#campaignMenu').classList.add('hidden');$('#briefing0405').classList.remove('hidden')}
-function cpBegin0401(){missionTransition('04-01 // INVENTORY','OA MIRAGE // LOADING OPERATION',cpBegin0401Now)}
-function cpBegin0402(){missionTransition('04-02 // CAPACITY','OA MIRAGE // LOADING OPERATION',cpBegin0402Now)}
-function cpBegin0403(){missionTransition('04-03 // POSTURE','OA MIRAGE // LOADING OPERATION',cpBegin0403Now)}
-function cpBegin0404(){missionTransition('04-04 // INDICATIONS','OA MIRAGE // LOADING OPERATION',cpBegin0404Now)}
-function cpBegin0405(){missionTransition('04-05 // WARNING','OA MIRAGE // LOADING OPERATION',cpBegin0405Now)}
-function cpBeginMirageNow(id){musicSetMode('mission');campaignMenuOA='MIRAGE';campaignMission=id;campaignFinished=false;campaignCompromise=0;cpSetOAVisual('MIRAGE');cpHideCampaignOverlays();window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();last=performance.now()}
+function cpRefreshMirage(){for(let n=1;n<=5;n++){const id='04-0'+n,done=progressionComplete('ci-c04-0'+n+'-complete'),available=campaignMissionUnlocked(id),st=$('#mission04'+String(n).padStart(2,'0')+'Status'),b=$('#mission04'+String(n).padStart(2,'0'));if(st)st.textContent=done?'COMPLETE // REPLAY':available?'AVAILABLE':'LOCKED';if(b){b.disabled=!available;b.classList.toggle('available',available)}}}
+function cpBrief0401(){if(!campaignMissionUnlocked('04-01'))return;$('#campaignMenu').classList.add('hidden');$('#briefing0401').classList.remove('hidden')}
+function cpBrief0402(){if(!campaignMissionUnlocked('04-02'))return;$('#campaignMenu').classList.add('hidden');$('#briefing0402').classList.remove('hidden')}
+function cpBrief0403(){if(!campaignMissionUnlocked('04-03'))return;$('#campaignMenu').classList.add('hidden');$('#briefing0403').classList.remove('hidden')}
+function cpBrief0404(){if(!campaignMissionUnlocked('04-04'))return;$('#campaignMenu').classList.add('hidden');$('#briefing0404').classList.remove('hidden')}
+function cpBrief0405(){if(!campaignMissionUnlocked('04-05'))return;$('#campaignMenu').classList.add('hidden');$('#briefing0405').classList.remove('hidden')}
+function cpBegin0401(){if(!campaignMissionUnlocked('04-01'))return;missionTransition('04-01 // INVENTORY','OA MIRAGE // LOADING OPERATION',cpBegin0401Now)}
+function cpBegin0402(){if(!campaignMissionUnlocked('04-02'))return;missionTransition('04-02 // CAPACITY','OA MIRAGE // LOADING OPERATION',cpBegin0402Now)}
+function cpBegin0403(){if(!campaignMissionUnlocked('04-03'))return;missionTransition('04-03 // POSTURE','OA MIRAGE // LOADING OPERATION',cpBegin0403Now)}
+function cpBegin0404(){if(!campaignMissionUnlocked('04-04'))return;missionTransition('04-04 // INDICATIONS','OA MIRAGE // LOADING OPERATION',cpBegin0404Now)}
+function cpBegin0405(){if(!campaignMissionUnlocked('04-05'))return;missionTransition('04-05 // WARNING','OA MIRAGE // LOADING OPERATION',cpBegin0405Now)}
+function cpBeginMirageNow(id){if(!campaignMissionUnlocked(id))return;musicSetMode('mission');campaignMenuOA='MIRAGE';campaignMission=id;campaignFinished=false;campaignCompromise=0;cpSetOAVisual('MIRAGE');cpHideCampaignOverlays();window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();last=performance.now()}
 function cpBegin0401Now(){cpBeginMirageNow('04-01')}
 function cpBegin0402Now(){cpBeginMirageNow('04-02')}
 function cpBegin0403Now(){cpBeginMirageNow('04-03')}
@@ -1946,19 +2029,92 @@ function cpBegin0405Now(){cpBeginMirageNow('04-05')}
 
 
 
-function cpTempestUnlocked(id){if(id==='05-01')return devProgressionBypassActive()||progressionComplete('ci-c04-05-complete');const n=Number(id.slice(-2));return devProgressionBypassActive()||progressionComplete('ci-c05-'+String(n-1).padStart(2,'0')+'-complete')}
+function cpTempestUnlocked(id){return campaignMissionUnlocked(id)}
 function cpTempestRefresh(){
  const pane=$('#campaignPaneTempest');if(!pane)return;
- const first=$('#mission0501Dev');if(first){const done=progressionComplete('ci-c05-01-complete'),available=cpTempestUnlocked('05-01');first.hidden=!available;first.disabled=!available;first.classList.toggle('available',available);const s=first.querySelector('span');if(s)s.textContent=done?'COMPLETE // REPLAY':available?'AVAILABLE':'LOCKED'}
+ const first=$('#mission0501Dev');if(first){const done=progressionComplete('ci-c05-01-complete'),available=cpTempestUnlocked('05-01');first.hidden=false;first.disabled=!available;first.classList.toggle('available',available);const s=first.querySelector('span');if(s)s.textContent=done?'COMPLETE // REPLAY':available?'AVAILABLE':'LOCKED'}
  let list=pane.querySelector('.tempest-mission-list');if(!list){list=document.createElement('div');list.className='campaign-list c05-list tempest-mission-list';pane.appendChild(list)}
+ if(first&&first.parentElement!==list)list.insertBefore(first,list.firstChild);
  ['05-02','05-03','05-04','05-05'].forEach((id,i)=>{let b=document.getElementById('mission'+id.replace('-',''));if(!b){b=document.createElement('button');b.type='button';b.id='mission'+id.replace('-','');b.className='mission-row';b.innerHTML='<b>'+id+' // '+TEMPEST_BRIEFS[id].title+'</b><span></span>';b.addEventListener('click',()=>cpTempestBrief(id));list.appendChild(b)}const available=cpTempestUnlocked(id),done=progressionComplete('ci-c05-'+id.slice(-2)+'-complete'),sp=b.querySelector('span');b.disabled=!available;b.classList.toggle('available',available);if(sp)sp.textContent=done?'COMPLETE // REPLAY':available?'AVAILABLE':'LOCKED'});
 }
 function cpTempestBrief(id){if(!cpTempestUnlocked(id))return;tempestBriefingMission=id;let o=$('#briefingTempest');if(!o){o=document.createElement('div');o.id='briefingTempest';o.className='gameoverlay';o.innerHTML='<div class="menupanel briefingpanel briefingpanel-tempest"><div class="briefing-scroll"><div class="menu-kicker">CAMPAIGN 05 // OA TEMPEST</div><div class="menu-title small" id="tempestBriefTitle"></div><p class="brief-copy" id="tempestBriefCopy"></p><div class="objectives"><div>MISSION OBJECTIVES</div><div id="tempestBriefGoals"></div><div>EXECUTION GUIDANCE</div><p id="tempestBriefGuidance"></p></div></div><div class="briefing-actions"><button id="tempestBriefBegin" class="menu-primary">BEGIN OPERATION</button><button id="tempestBriefBack" class="menu-secondary active">BACK TO CAMPAIGN</button></div></div>';document.body.appendChild(o);$('#tempestBriefBegin').addEventListener('click',()=>cpBeginTempest(tempestBriefingMission));$('#tempestBriefBack').addEventListener('click',()=>{o.classList.add('hidden');$('#campaignMenu').classList.remove('hidden')})}
- const b=TEMPEST_BRIEFS[id];$('#tempestBriefTitle').textContent=id+' // '+b.title;$('#tempestBriefCopy').textContent=b.brief;$('#tempestBriefGoals').innerHTML=b.goals.map(x=>'<p>'+x+'</p>').join('');$('#tempestBriefGuidance').textContent=id==='05-01'?'Use ISR to discover unknown maritime tracks, collect evidence reports, then clear confirmed benign traffic or intercept confirmed hostile contacts. Base every disposition on collected evidence to protect intelligence integrity.':id==='05-04'||id==='05-05'?'Select and collect maritime tracks inside ISR coverage, resolve contacts from evidence, then prioritize corroborated high-interest vessels before their 3-minute window closes.':id==='05-03'?'Collect both tracks and observe each repeatedly under ISR to establish a unique shared-port or coordinated-movement association.':'Collect contacts and observe them repeatedly inside ISR coverage; AIS gaps alone do not establish intent.';$('#campaignMenu').classList.add('hidden');o.classList.remove('hidden')
+ const b=TEMPEST_BRIEFS[id];$('#tempestBriefTitle').textContent=id+' // '+b.title;$('#tempestBriefBegin').textContent=id==='05-05'?'BEGIN FINAL OPERATION':'BEGIN OPERATION';$('#tempestBriefCopy').textContent=b.brief;$('#tempestBriefGoals').innerHTML=b.goals.map(x=>'<p>'+x+'</p>').join('');$('#tempestBriefGuidance').textContent=id==='05-01'?'Use ISR to discover unknown maritime tracks, collect evidence reports, then clear confirmed benign traffic or intercept confirmed hostile contacts. Base every disposition on collected evidence to protect intelligence integrity.':id==='05-04'||id==='05-05'?'Select and collect maritime tracks inside ISR coverage, resolve contacts from evidence, then prioritize corroborated high-interest vessels before their 3-minute window closes.':id==='05-03'?'Collect both tracks and observe each repeatedly under ISR to establish a unique shared-port or coordinated-movement association.':'Collect contacts and observe them repeatedly inside ISR coverage; AIS gaps alone do not establish intent.';$('#campaignMenu').classList.add('hidden');o.classList.remove('hidden')
 }function cpBeginTempest(id){if(!cpTempestUnlocked(id))return;missionTransition(id+' // '+TEMPEST_BRIEFS[id].title,'OA TEMPEST // LOADING OPERATION',()=>cpBeginTempestNow(id))}
 function cpBeginTempestNow(id){if(!cpTempestUnlocked(id))return;musicSetMode('mission');campaignMenuOA='TEMPEST';campaignMission=id;campaignIds=0;campaignCorrect=0;campaignThreatResolved=0;campaignNonThreatResolved=0;campaignCollectionInterrupted=0;campaignFinished=false;campaignCompromise=0;tempestFailureReason='';cpSetOAVisual('TEMPEST');cpHideCampaignOverlays();$('#briefingTempest')?.classList.add('hidden');window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();last=performance.now()}
-function cpHideCampaignOverlays(){['campaignMenu','briefing0101','briefing0102','briefing0103','briefing0104','briefing0105','briefing0301','briefing0302','briefing0303','briefing0304','briefing0305','briefing0401','briefing0402','briefing0403','briefing0404','briefing0405','briefingTempest','campaignResult'].forEach(id=>$('#'+id)?.classList.add('hidden'))}
-let campaignMenuOA='KESTREL';function selectCampaignOA(oa){campaignMenuOA=['VANTAGE','VERDANT','MIRAGE','TEMPEST','ARCTIC'].includes(oa)?oa:'KESTREL';document.querySelectorAll('[data-campaign-oa]').forEach(b=>b.classList.toggle('selected',b.dataset.campaignOa===campaignMenuOA));$('#campaignPaneKestrel')?.classList.toggle('hidden',campaignMenuOA!=='KESTREL');$('#campaignPaneVantage')?.classList.toggle('hidden',campaignMenuOA!=='VANTAGE');$('#campaignPaneVerdant')?.classList.toggle('hidden',campaignMenuOA!=='VERDANT');$('#campaignPaneMirage')?.classList.toggle('hidden',campaignMenuOA!=='MIRAGE');$('#campaignPaneTempest')?.classList.toggle('hidden',campaignMenuOA!=='TEMPEST');$('#campaignPaneArctic')?.classList.toggle('hidden',campaignMenuOA!=='ARCTIC');cpTempestRefresh()}
+/* CAMPAIGN 06 // POLARIS // FIVE-MISSION FIELDING */
+const POLARIS_BRIEFS={
+ '06-01':{title:'ICE WATCH',brief:'Initial reporting indicates unfamiliar movement across the POLARIS archipelago. Routine research, rescue, and supply activity remains active. Establish a clean baseline before elevating any contact.',goals:['Resolve 8 contacts correctly','Collect supporting ISR on 4 contacts','Maintain at least 80% intelligence integrity'],guide:'Task ISR over the active corridors. Collect each unknown before classifying; clear routine research, rescue, and supply tracks, and intercept only confirmed threats.'},
+ '06-02':{title:'DRIFT SIGNATURE',brief:'The baseline shows recurrent movement around the island corridors. Determine which contacts follow established patterns and which depart from them.',goals:['Resolve 9 contacts correctly','Re-observe 4 contacts after they leave ISR coverage','Maintain at least 80% intelligence integrity'],guide:'Observe a contact, allow it to leave ISR coverage, then reacquire it. Repeated observations develop track history and distinguish routine drift from anomalous movement.'},
+ '06-03':{title:'RELAY SILENCE',brief:'Several remote relay sites report intermittent traffic and unexplained signal loss. Correlate independently observed contacts with the sites before drawing conclusions.',goals:['Resolve 9 contacts correctly','Establish 3 evidence-supported relay associations','Maintain at least 80% intelligence integrity'],guide:'The blue infrastructure sites are the relay network. Re-observe a contact near the same site at least twice, collect it, then issue the supported disposition. Each unique contact/site link counts once.'},
+ '06-04':{title:'POLAR WINDOW',brief:'Polar communications alternate between a clear satellite look window and a predictable signal shadow. Evidence gathered during a clear window is required to establish the northern route picture.',goals:['Resolve 10 contacts correctly','Collect evidence from 5 contacts during clear windows','Maintain at least 80% intelligence integrity'],guide:'The satellite look cycle is deterministic: CLEAR WINDOW for 40 seconds, then SIGNAL SHADOW for 20 seconds. The objective ribbon shows the current state. Collect distinct contacts during clear windows; use shadow periods to reposition ISR.'},
+ '06-05':{title:'NORTH PASSAGE',brief:'Integrate the POLARIS picture across research, rescue, supply, and unidentified movement. Establish which contacts support the remote relay network while preserving legitimate activity.',goals:['Resolve 12 contacts correctly','Collect evidence from 8 distinct contacts','Establish 2 evidence-supported relay associations','Maintain at least 80% intelligence integrity'],guide:'Combine repeated observation near relay sites with evidence-based classification. A location alone does not establish hostile intent; preserve routine research, rescue, and supply traffic.'}
+};
+const POLARIS_OBJECTIVES={
+ '06-01':{resolve:8,metric:'evidence',metricLabel:'EVIDENCE',metricTarget:4,third:'integrity',thirdLabel:'INTEGRITY'},
+ '06-02':{resolve:9,metric:'reobserved',metricLabel:'REOBSERVE',metricTarget:4,third:'integrity',thirdLabel:'INTEGRITY'},
+ '06-03':{resolve:9,metric:'relay',metricLabel:'RELAY LINK',metricTarget:3,third:'integrity',thirdLabel:'INTEGRITY',thirdTarget:80},
+ '06-04':{resolve:10,metric:'clearEvidence',metricLabel:'CLEAR WINDOW',metricTarget:5,third:'integrity',thirdLabel:'INTEGRITY'},
+ '06-05':{resolve:12,metric:'evidence',metricLabel:'EVIDENCE',metricTarget:8,third:'relay',thirdLabel:'RELAY LINK',thirdTarget:2}
+};
+let polarisEvidence=new Set(),polarisClearEvidence=new Set(),polarisRepeatTracks=new Set(),polarisRelayLinks=new Set(),polarisLastWindowState=null,polarisBriefingMission='';
+function cpPolarisId(id=campaignMission){return /^06-0[1-5]$/.test(id||'')}
+function cpPolarisUnlocked(id){return campaignMissionUnlocked(id)}
+function cpPolarisReset(){polarisEvidence=new Set();polarisClearEvidence=new Set();polarisRepeatTracks=new Set();polarisRelayLinks=new Set();polarisLastWindowState=null}
+function cpPolarisWindowOpen(now=performance.now()){const elapsed=Math.max(0,(now-start)/1000);return elapsed%60<40}
+function cpPolarisMetricValue(id=campaignMission){if(id==='06-01')return polarisEvidence.size;if(id==='06-02')return polarisRepeatTracks.size;if(id==='06-03')return polarisRelayLinks.size;if(id==='06-04')return polarisClearEvidence.size;if(id==='06-05')return polarisEvidence.size;return 0}
+function cpPolarisThirdValue(id=campaignMission){return id==='06-05'?polarisRelayLinks.size:integrity}
+function cpPolarisCounts(){return {resolved:campaignCorrect,evidence:polarisEvidence.size,clearEvidence:polarisClearEvidence.size,reobserved:polarisRepeatTracks.size,relay:polarisRelayLinks.size,integrity}}
+function cpPolarisObjectiveExtra(){const host=$('#objectiveTracker');if(!host)return;host.classList.toggle('has-inline-extra',['05-04','05-05','06-04'].includes(campaignMission));let chip=$('#polarisObjectiveExtra');if(!chip){chip=document.createElement('span');chip.id='polarisObjectiveExtra';chip.className='objective-chip campaign-inline-objective';chip.innerHTML='<em></em><b></b>';host.appendChild(chip)}const show=campaignMission==='06-04';chip.hidden=!show;if(!show)return;const elapsed=Math.max(0,(performance.now()-start)/1000),within=elapsed%60,open=within<40,remaining=Math.ceil(open?40-within:60-within),label=chip.querySelector('em'),value=chip.querySelector('b');label.textContent='WINDOW';value.textContent=(open?'CLEAR ':'SHADOW ')+String(Math.floor(remaining/60)).padStart(2,'0')+':'+String(remaining%60).padStart(2,'0');chip.title=open?'Polar satellite look window is clear':'Polar signal shadow: reposition ISR';chip.classList.toggle('window-shadow',!open)}function cpPolarisWindowTick(now){if(campaignMission!=='06-04'||!running)return;const open=cpPolarisWindowOpen(now);if(polarisLastWindowState===null){polarisLastWindowState=open;banner(open?'POLAR WINDOW // CLEAR':'POLAR SIGNAL SHADOW',1100);return}if(open!==polarisLastWindowState){polarisLastWindowState=open;const message=open?'POLAR WINDOW // CLEAR':'POLAR SIGNAL SHADOW // REPOSITION ISR';banner(message,1300);log(message);sound('level')}}
+function cpPolarisRecordEvidence(t,source='ISR COLLECTION'){if(!cpPolarisId()||!t)return;const before=polarisEvidence.size;polarisEvidence.add(t.id);if(campaignMission==='06-04'&&cpPolarisWindowOpen())polarisClearEvidence.add(t.id);if(polarisEvidence.size!==before)rec('POLARIS_EVIDENCE',t.id+' // '+source+(campaignMission==='06-04'&&cpPolarisWindowOpen()?' // CLEAR WINDOW':''));cpPolarisCheck();ui(true)}
+function cpPolarisRecordObservation(t){if(!cpPolarisId()||!t?.intel)return;if(['06-02','06-05'].includes(campaignMission)&&t.intel.observations>=2){const before=polarisRepeatTracks.size;polarisRepeatTracks.add(t.id);if(polarisRepeatTracks.size!==before){cpNotice('POLAR TRACK REACQUIRED',t.id+' // REPEATED ISR HISTORY','intel');cpPolarisCheck()}}}
+function cpPolarisRecordResolution(t,correct){if(!cpPolarisId()||!t||!correct)return;if(['06-03','06-05'].includes(campaignMission)&&t.intel?.observations>=2){Object.entries(t.intel.siteObs||{}).forEach(([site,count])=>{if(count>=2)polarisRelayLinks.add(t.id+'@'+site)})}cpPolarisCheck()}
+function cpPolarisComplete(){const id=campaignMission,cfg=POLARIS_OBJECTIVES[id],m=cpPolarisCounts();return !!cfg&&m.resolved>=cfg.resolve&&cpPolarisMetricValue(id)>=cfg.metricTarget&&m.integrity>=80&&(cfg.third!=='relay'||m.relay>=cfg.thirdTarget)}
+function cpPolarisCheck(){if(!cpPolarisId()||campaignFinished)return;if(integrity<80){cpPolarisFinish(false,'INTELLIGENCE INTEGRITY BELOW 80%');return}if(cpPolarisComplete())cpPolarisFinish(true,'')}
+function cpPolarisFinish(pass,reason=''){
+ if(campaignFinished)return;const id=campaignMission,brief=POLARIS_BRIEFS[id],cfg=POLARIS_OBJECTIVES[id],m=cpPolarisCounts();
+ campaignFinished=true;running=false;stopCollect();window.CP_MENU=true;A.dest=null;A.mode='IDLE';campaignMenuOA='ARCTIC';
+ if(pass){campaignProgressionWrite('ci-c06-'+id.slice(-2)+'-complete','1');if(id==='06-05')progressionCollectUnlocks()}
+ const rk=$('#resultKicker');if(rk)rk.textContent='CAMPAIGN 06 // OA POLARIS';
+ $('#resultTitle').textContent=pass?brief.title+' // MISSION COMPLETE':brief.title+' // OBJECTIVES INCOMPLETE';
+ const relayTarget=cfg.metric==='relay'?cfg.metricTarget:(cfg.third==='relay'?cfg.thirdTarget:0);
+ $('#resultBody').innerHTML='OA POLARIS // '+id+' '+brief.title+'<br><br>CONTACTS RESOLVED&nbsp;&nbsp;'+m.resolved+' / '+cfg.resolve+'<br>UNIQUE EVIDENCE&nbsp;&nbsp;&nbsp;&nbsp;'+m.evidence+(cfg.metric==='evidence'?' / '+cfg.metricTarget:'')+(cfg.metric==='clearEvidence'?'<br>CLEAR-WINDOW EVIDENCE&nbsp;'+m.clearEvidence+' / '+cfg.metricTarget:'')+(cfg.metric==='reobserved'?'<br>REOBSERVED TRACKS&nbsp;&nbsp;&nbsp;'+m.reobserved+' / '+cfg.metricTarget:'')+(relayTarget?'<br>RELAY ASSOCIATIONS&nbsp;&nbsp;'+m.relay+' / '+relayTarget:'')+'<br>INTELLIGENCE INTEGRITY&nbsp;'+Math.round(m.integrity)+'%'+(reason?'<br>'+reason:'');
+ $('#resultContinue').classList.toggle('hidden',!pass);$('#resultRetry').classList.toggle('hidden',pass);$('#campaignResult').classList.remove('hidden');outcomeFeedback(pass);cpPolarisRefresh();ui(true);
+}
+function cpPolarisRefresh(){const pane=$('#campaignPaneArctic');if(!pane)return;let list=pane.querySelector('.polaris-mission-list');if(!list){list=document.createElement('div');list.className='campaign-list c06-list polaris-mission-list';pane.appendChild(list)}Object.keys(POLARIS_BRIEFS).forEach(id=>{let b=document.getElementById('mission'+id.replace('-',''));if(!b){b=document.createElement('button');b.type='button';b.id='mission'+id.replace('-','');b.className='mission-row';b.innerHTML='<b>'+id+' // '+POLARIS_BRIEFS[id].title+'</b><span></span>';b.addEventListener('click',()=>cpPolarisBrief(id));list.appendChild(b)}const available=cpPolarisUnlocked(id),done=progressionComplete('ci-c06-'+id.slice(-2)+'-complete'),s=b.querySelector('span');b.disabled=!available;b.classList.toggle('available',available);if(s)s.textContent=done?'COMPLETE // REPLAY':available?'AVAILABLE':'LOCKED'})}
+function cpPolarisBrief(id){if(!cpPolarisUnlocked(id))return;polarisBriefingMission=id;let o=$('#briefingPolaris');if(!o){o=document.createElement('div');o.id='briefingPolaris';o.className='gameoverlay hidden';o.innerHTML='<div class="menupanel briefingpanel briefingpanel-polaris"><div class="briefing-scroll"><div class="menu-kicker">CAMPAIGN 06 // OA POLARIS</div><div class="menu-title small" id="polarisBriefTitle"></div><p class="brief-copy" id="polarisBriefCopy"></p><div class="objectives"><div>MISSION OBJECTIVES</div><div id="polarisBriefGoals"></div><div>EXECUTION GUIDANCE</div><p id="polarisBriefGuidance"></p></div></div><div class="briefing-actions"><button id="polarisBriefBegin" class="menu-primary">BEGIN OPERATION</button><button id="polarisBriefBack" class="menu-secondary active">BACK TO CAMPAIGN</button></div></div>';document.body.appendChild(o);$('#polarisBriefBegin').addEventListener('click',()=>cpPolarisBegin(polarisBriefingMission));$('#polarisBriefBack').addEventListener('click',()=>{o.classList.add('hidden');$('#campaignMenu').classList.remove('hidden')})}const b=POLARIS_BRIEFS[id];$('#polarisBriefTitle').textContent=id+' // '+b.title;$('#polarisBriefBegin').textContent=id==='06-05'?'BEGIN FINAL OPERATION':'BEGIN OPERATION';$('#polarisBriefCopy').textContent=b.brief;$('#polarisBriefGoals').innerHTML=b.goals.map(x=>'<p>'+x+'</p>').join('');$('#polarisBriefGuidance').textContent=b.guide;$('#campaignMenu').classList.add('hidden');o.classList.remove('hidden')}
+function cpPolarisBegin(id){if(!cpPolarisUnlocked(id))return;missionTransition(id+' // '+POLARIS_BRIEFS[id].title,'OA POLARIS // LOADING OPERATION',()=>cpPolarisBeginNow(id))}
+function cpPolarisBeginNow(id){if(!cpPolarisUnlocked(id))return;musicSetMode('mission');campaignMenuOA='ARCTIC';campaignMission=id;campaignIds=0;campaignCorrect=0;campaignThreatResolved=0;campaignNonThreatResolved=0;campaignCollectionInterrupted=0;campaignFinished=false;campaignCompromise=0;cpPolarisReset();cpSetOAVisual('ARCTIC');cpHideCampaignOverlays();$('#briefingPolaris')?.classList.add('hidden');window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();last=performance.now()}
+$('#resultRetry')?.addEventListener('click',e=>{if(!cpPolarisId())return;e.preventDefault();e.stopImmediatePropagation();cpPolarisBegin(campaignMission)},true);
+function cpHideCampaignOverlays(){['campaignMenu','briefing0101','briefing0102','briefing0103','briefing0104','briefing0105','briefing0301','briefing0302','briefing0303','briefing0304','briefing0305','briefing0401','briefing0402','briefing0403','briefing0404','briefing0405','briefingTempest','briefingPolaris','campaignResult'].forEach(id=>$('#'+id)?.classList.add('hidden'))}
+let campaignMenuOA='KESTREL';function refreshCampaignOAClassification(now=performance.now()){
+ const areas={
+  KESTREL:{num:'01',name:'KESTREL',theme:'FOUNDATION',pane:'campaignPaneKestrel'},
+  VANTAGE:{num:'02',name:'VANTAGE',theme:'NETWORK',pane:'campaignPaneVantage'},
+  VERDANT:{num:'03',name:'VERDANT',theme:'PATTERN OF LIFE',pane:'campaignPaneVerdant'},
+  MIRAGE:{num:'04',name:'MIRAGE',theme:'CAPABILITY',pane:'campaignPaneMirage'},
+  TEMPEST:{num:'05',name:'TEMPEST',theme:'FOUNDATION',pane:'campaignPaneTempest'},
+  ARCTIC:{num:'06',name:'POLARIS',theme:'NORTHERN APPROACHES',pane:'campaignPaneArctic'}
+ };
+ const keep=(el)=>{if(!el)return '';if(!el.dataset.ciIdentityText)el.dataset.ciIdentityText=el.textContent;return el.dataset.ciIdentityText;};
+ Object.entries(areas).forEach(([oa,cfg])=>{
+  const classified=!globalOAIdentityRevealed(oa),mask=classified?homeOAScrambledName(oa,now):'';
+  const tab=document.querySelector('[data-campaign-oa="'+oa+'"]');
+  const tabName=tab?.querySelector('b'),tabTheme=tab?.querySelector('span');
+  if(tab){tab.classList.toggle('oa-classified',classified);tab.classList.toggle('oa-revealed',!classified);tab.classList.toggle('oa-scrambling',classified&&mask.includes('[')&&!mask.includes('[REDACTED]'));}
+  if(tabName){const original=keep(tabName);tabName.textContent=classified?cfg.num+' // '+mask:original;}
+  if(tabTheme){const original=keep(tabTheme);tabTheme.textContent=classified?mask:original;tabTheme.classList.toggle('oa-classified',classified);tabTheme.classList.toggle('oa-scrambling',classified&&mask.includes('[')&&!mask.includes('[REDACTED]'));}
+  const pane=document.getElementById(cfg.pane);if(!pane)return;
+  const heading=pane.querySelector('.campaign-section-title');
+  if(heading){keep(heading);heading.textContent=classified?'CAMPAIGN '+cfg.num+' // OA '+mask+' // '+mask:heading.dataset.ciIdentityText;heading.classList.toggle('oa-classified',classified);heading.classList.toggle('oa-scrambling',classified&&mask.includes('[')&&!mask.includes('[REDACTED]'));}
+  pane.querySelectorAll('.mission-row b').forEach(label=>{
+   const original=keep(label),prefix=(original.match(/^\s*\d{2}-\d{2}\s*\/\/\s*/) || [''])[0];
+   label.textContent=classified?prefix+mask:original;
+   label.classList.toggle('oa-classified',classified);
+   label.classList.toggle('oa-scrambling',classified&&mask.includes('[')&&!mask.includes('[REDACTED]'));
+  });
+ });
+}
+function selectCampaignOA(oa){campaignMenuOA=['VANTAGE','VERDANT','MIRAGE','TEMPEST','ARCTIC'].includes(oa)?oa:'KESTREL';document.querySelectorAll('[data-campaign-oa]').forEach(b=>b.classList.toggle('selected',b.dataset.campaignOa===campaignMenuOA));$('#campaignPaneKestrel')?.classList.toggle('hidden',campaignMenuOA!=='KESTREL');$('#campaignPaneVantage')?.classList.toggle('hidden',campaignMenuOA!=='VANTAGE');$('#campaignPaneVerdant')?.classList.toggle('hidden',campaignMenuOA!=='VERDANT');$('#campaignPaneMirage')?.classList.toggle('hidden',campaignMenuOA!=='MIRAGE');$('#campaignPaneTempest')?.classList.toggle('hidden',campaignMenuOA!=='TEMPEST');$('#campaignPaneArctic')?.classList.toggle('hidden',campaignMenuOA!=='ARCTIC');const activeCampaignPane=document.querySelector('#campaignMenu .campaign-pane:not(.hidden)');if(activeCampaignPane)activeCampaignPane.scrollTop=0;cpTempestRefresh();cpPolarisRefresh();refreshCampaignOAClassification()}
 function cpCheck0501(){
  if(campaignMission!=='05-01'||campaignFinished)return;
  if(resolved>=10&&tempestEvidence>=8&&integrity>=80)cpFinish0501(true);
@@ -1990,12 +2146,12 @@ function cpBegin0501Now(){
  deploy();
  last=performance.now();
 }
-function cpCampaignMenu(){ciFirstVisitMark('campaign');refreshProgressionBadges();['briefing0301','briefing0302','briefing0303','briefing0304','briefing0305','briefing0401','briefing0402','briefing0403','briefing0404','briefing0405'].forEach(id=>$('#'+id)?.classList.add('hidden'));cpSetOAVisual(campaignMenuOA);selectCampaignOA(campaignMenuOA);cpRefreshCampaign02();cpRefreshVerdant();cpRefreshMirage();cpTempestRefresh();clearTutorialState();musicSetMode('menu');cpRefreshCampaign();window.CP_MENU=true;window.CP_PAUSED=false;running=false;stopCollect();$('#mainMenu').classList.add('hidden');$('#pauseMenu').classList.add('hidden');$('#briefing0101').classList.add('hidden');$('#briefing0102').classList.add('hidden');$('#briefing0103').classList.add('hidden');$('#briefing0104').classList.add('hidden');$('#briefing0105').classList.add('hidden');$('#campaignResult').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')}
+function cpCampaignMenu(){ciFirstVisitMark('campaign');progressionMarkRead('campaign');refreshProgressionBadges();['briefing0301','briefing0302','briefing0303','briefing0304','briefing0305','briefing0401','briefing0402','briefing0403','briefing0404','briefing0405','briefingPolaris'].forEach(id=>$('#'+id)?.classList.add('hidden'));cpSetOAVisual(campaignMenuOA);selectCampaignOA(campaignMenuOA);cpRefreshCampaign02();cpRefreshVerdant();cpRefreshMirage();cpTempestRefresh();cpPolarisRefresh();clearTutorialState();musicSetMode('menu');cpRefreshCampaign();window.CP_MENU=true;window.CP_PAUSED=false;running=false;stopCollect();$('#mainMenu').classList.add('hidden');$('#pauseMenu').classList.add('hidden');$('#briefing0101').classList.add('hidden');$('#briefing0102').classList.add('hidden');$('#briefing0103').classList.add('hidden');$('#briefing0104').classList.add('hidden');$('#briefing0105').classList.add('hidden');$('#campaignResult').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')}
 function cpBrief0101(){$('#campaignMenu').classList.add('hidden');$('#briefing0101').classList.remove('hidden')}
 function cpUnlocked0102(){
   if(devProgressionBypassActive())return true;
   const key='ci-c01-0102-unlocked';
-  if(!devProgressionSimulationActive()&&sessionStorage.getItem(key)==='1'){localStorage.setItem(key,'1');return true}
+  if(!devProgressionSimulationActive()&&!devProgressionBypassActive()&&sessionStorage.getItem(key)==='1'){localStorage.setItem(key,'1');return true}
   return progressionComplete(key);
 }
 function cpRefreshCampaign(){
@@ -2032,30 +2188,30 @@ function cpRefreshCampaign(){
   if(st)st.textContent=done?'COMPLETE // REPLAY':available?'AVAILABLE':'LOCKED';
  });
 }
-function cpBrief0102(){if(!cpUnlocked0102())return;$('#campaignMenu').classList.add('hidden');$('#briefing0102').classList.remove('hidden')}
+function cpBrief0102(){if(!campaignMissionUnlocked('01-02'))return;if(!cpUnlocked0102())return;$('#campaignMenu').classList.add('hidden');$('#briefing0102').classList.remove('hidden')}
 function cpUnlocked0103(){return devProgressionBypassActive()||progressionComplete('ci-c01-0103-unlocked')}
-function cpBrief0103(){if(!cpUnlocked0103())return;$('#campaignMenu').classList.add('hidden');$('#briefing0103').classList.remove('hidden')}
+function cpBrief0103(){if(!campaignMissionUnlocked('01-03'))return;if(!cpUnlocked0103())return;$('#campaignMenu').classList.add('hidden');$('#briefing0103').classList.remove('hidden')}
 function cpUnlocked0104(){return devProgressionBypassActive()||progressionComplete('ci-c01-0104-unlocked')}
-function cpBrief0104(){if(!cpUnlocked0104())return;$('#campaignMenu').classList.add('hidden');$('#briefing0104').classList.remove('hidden')}
+function cpBrief0104(){if(!campaignMissionUnlocked('01-04'))return;if(!cpUnlocked0104())return;$('#campaignMenu').classList.add('hidden');$('#briefing0104').classList.remove('hidden')}
 function cpUnlocked0105(){return devProgressionBypassActive()||progressionComplete('ci-c01-0105-unlocked')}
-function cpBrief0105(){if(!cpUnlocked0105())return;$('#campaignMenu').classList.add('hidden');$('#briefing0105').classList.remove('hidden')}
+function cpBrief0105(){if(!campaignMissionUnlocked('01-05'))return;if(!cpUnlocked0105())return;$('#campaignMenu').classList.add('hidden');$('#briefing0105').classList.remove('hidden')}
 const tutorialIntelSeen=new Set();function clearTutorialState(){tutorialStep=0;tutorialIntelSeen.clear();const g=$('#tutorialGuide');if(g)g.classList.add('hidden');const n=$('#tutorialNext');if(n){n.textContent='CONTINUE';n.classList.add('hidden')} }
 function missionTransition(title,sub,fn){clearTutorialState();document.querySelectorAll('.gameoverlay').forEach(el=>el.classList.add('hidden'));const m=$('#missionLoad');$('#missionLoadTitle').textContent=title||'OA KESTREL';$('#missionLoadSub').textContent=sub||'ESTABLISHING TACTICAL PICTURE';m.classList.remove('hidden');m.classList.add('show');window.CP_MENU=true;setTimeout(()=>{m.classList.remove('show');m.classList.add('hidden');window.CP_MENU=false;fn()},3000)}
 function trainingPrime(){passiveCredits=9999;ewoUses=0;supplyPackages=1;const d=B.slice(0,2);d.forEach(b=>{b.exposure=100;b.degraded=true;b.reconstituting=false;cpRenderBlueSite(b);b.el.classList.add('training-degraded')});campaignCompromise=cpCompromiseFloor();ui(true)}
-function cpBegin0105(){missionTransition('01-05 // CONDITIONS SET','OA KESTREL // LOADING OPERATION',cpBegin0105Now)}
-function cpBegin0105Now(){musicSetMode('mission');campaignMission='01-05';campaignIds=0;campaignCorrect=0;campaignThreatResolved=0;campaignNonThreatResolved=0;campaignStationaryAssessed=0;campaignStationarySpawned=0;campaignProximityAssessed=0;campaignCollectionInterrupted=0;campaignCompromise=0;campaignFinished=false;cpIntelDropReset();cpHideCampaignOverlays();let w=$('#hostileCollectionWarning');if(w)w.classList.add('hidden');window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();last=performance.now()}
-function cpBegin0104(){missionTransition('01-04 // CONTESTED','OA KESTREL // LOADING OPERATION',cpBegin0104Now)}
-function cpBegin0104Now(){musicSetMode('mission');campaignMission='01-04';campaignIds=0;campaignCorrect=0;campaignThreatResolved=0;campaignNonThreatResolved=0;campaignStationaryAssessed=0;campaignStationarySpawned=0;campaignProximityAssessed=0;campaignCollectionInterrupted=0;campaignCompromise=0;campaignFinished=false;cpIntelDropReset();cpHideCampaignOverlays();let w=$('#hostileCollectionWarning');if(w)w.classList.add('hidden');window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();last=performance.now()}
+function cpBegin0105(){if(!campaignMissionUnlocked('01-05'))return;missionTransition('01-05 // CONDITIONS SET','OA KESTREL // LOADING OPERATION',cpBegin0105Now)}
+function cpBegin0105Now(){if(!campaignMissionUnlocked('01-05'))return;musicSetMode('mission');campaignMission='01-05';campaignIds=0;campaignCorrect=0;campaignThreatResolved=0;campaignNonThreatResolved=0;campaignStationaryAssessed=0;campaignStationarySpawned=0;campaignProximityAssessed=0;campaignCollectionInterrupted=0;campaignCompromise=0;campaignFinished=false;cpIntelDropReset();cpHideCampaignOverlays();let w=$('#hostileCollectionWarning');if(w)w.classList.add('hidden');window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();last=performance.now()}
+function cpBegin0104(){if(!campaignMissionUnlocked('01-04'))return;missionTransition('01-04 // CONTESTED','OA KESTREL // LOADING OPERATION',cpBegin0104Now)}
+function cpBegin0104Now(){if(!campaignMissionUnlocked('01-04'))return;musicSetMode('mission');campaignMission='01-04';campaignIds=0;campaignCorrect=0;campaignThreatResolved=0;campaignNonThreatResolved=0;campaignStationaryAssessed=0;campaignStationarySpawned=0;campaignProximityAssessed=0;campaignCollectionInterrupted=0;campaignCompromise=0;campaignFinished=false;cpIntelDropReset();cpHideCampaignOverlays();let w=$('#hostileCollectionWarning');if(w)w.classList.add('hidden');window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();last=performance.now()}
 
-function cpBegin0103(){missionTransition('01-03 // INDICATORS','OA KESTREL // LOADING OPERATION',cpBegin0103Now)}
-function cpBegin0103Now(){musicSetMode('mission');campaignMission='01-03';campaignIds=0;campaignCorrect=0;campaignThreatResolved=0;campaignNonThreatResolved=0;campaignStationaryAssessed=0;campaignStationarySpawned=0;campaignProximityAssessed=0;campaignFinished=false;cpHideCampaignOverlays();window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();last=performance.now()}
+function cpBegin0103(){if(!campaignMissionUnlocked('01-03'))return;missionTransition('01-03 // INDICATORS','OA KESTREL // LOADING OPERATION',cpBegin0103Now)}
+function cpBegin0103Now(){if(!campaignMissionUnlocked('01-03'))return;musicSetMode('mission');campaignMission='01-03';campaignIds=0;campaignCorrect=0;campaignThreatResolved=0;campaignNonThreatResolved=0;campaignStationaryAssessed=0;campaignStationarySpawned=0;campaignProximityAssessed=0;campaignFinished=false;cpHideCampaignOverlays();window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();last=performance.now()}
 
-function cpBegin0102(){missionTransition('01-02 // PATTERN','OA KESTREL // LOADING OPERATION',cpBegin0102Now)}
-function cpBegin0102Now(){musicSetMode('mission');campaignMission='01-02';campaignIds=0;campaignCorrect=0;campaignThreatResolved=0;campaignNonThreatResolved=0;campaignStationaryAssessed=0;campaignStationarySpawned=0;campaignFinished=false;cpHideCampaignOverlays();window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();last=performance.now()}
+function cpBegin0102(){if(!campaignMissionUnlocked('01-02'))return;missionTransition('01-02 // PATTERN','OA KESTREL // LOADING OPERATION',cpBegin0102Now)}
+function cpBegin0102Now(){if(!campaignMissionUnlocked('01-02'))return;musicSetMode('mission');campaignMission='01-02';campaignIds=0;campaignCorrect=0;campaignThreatResolved=0;campaignNonThreatResolved=0;campaignStationaryAssessed=0;campaignStationarySpawned=0;campaignFinished=false;cpHideCampaignOverlays();window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();last=performance.now()}
 
 function cpBegin0101(){missionTransition('01-01 // ESTABLISH','OA KESTREL // LOADING OPERATION',cpBegin0101Now)}
 function cpBegin0101Now(){musicSetMode('mission');campaignMission='01-01';campaignIds=0;campaignCorrect=0;campaignThreatResolved=0;campaignNonThreatResolved=0;campaignFinished=false;cpHideCampaignOverlays();window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();last=performance.now()}
-function outcomeFeedback(pass){const overlay=$('#campaignResult');if(pass){playAsset(missionSuccessAudio,.9,'sfx');banner('MISSION COMPLETE // CONDITIONS SET',2200);overlay.classList.remove('loss-flash');overlay.classList.add('win-flash')}else{playAsset(missionFailAudio,.95,'sfx');banner('MISSION FAILURE // CONDITIONS NOT SET',2600);overlay.classList.remove('win-flash');overlay.classList.add('loss-flash')}}
+function outcomeFeedback(pass){const overlay=$('#campaignResult'),region=String(campaignMission||'').slice(0,2),oa={'01':'KESTREL','02':'VANTAGE','03':'VERDANT','04':'MIRAGE','05':'TEMPEST','06':'POLARIS'}[region],kicker=$('#resultKicker');if(kicker&&oa)kicker.textContent='CAMPAIGN '+region+' // OA '+oa;$('#resultReturnCommand')?.classList.toggle('hidden',pass);if(pass){playAsset(missionSuccessAudio,.9,'sfx');banner('MISSION COMPLETE // CONDITIONS SET',2200);overlay.classList.remove('loss-flash');overlay.classList.add('win-flash')}else{playAsset(missionFailAudio,.95,'sfx');banner('MISSION FAILURE // CONDITIONS NOT SET',2600);overlay.classList.remove('win-flash');overlay.classList.add('loss-flash')}}
 function cpCheck0101(){if(campaignMission!=='01-01'||campaignFinished)return;if(campaignCorrect>=10){campaignFinished=true;running=false;stopCollect();window.CP_MENU=true;const pass=integrity>=80;if(pass){campaignProgressionWrite('ci-c01-01-complete','1');campaignProgressionWrite('ci-c01-0102-unlocked','1');campaignSessionProgressionWrite('ci-c01-0102-unlocked','1');cpRefreshCampaign()}$('#resultTitle').textContent=pass?'CONDITIONS HAVE BEEN SET':'CONDITIONS NOT SET';$('#resultBody').innerHTML='OA KESTREL<br>INITIAL OPERATIONAL PICTURE '+(pass?'ESTABLISHED':'INCOMPLETE')+'<br><br>CONTACTS IDENTIFIED&nbsp;&nbsp;&nbsp;&nbsp;'+campaignIds+'<br>CORRECT DISPOSITIONS&nbsp;&nbsp;'+campaignCorrect+'<br>HOSTILE / IRREGULAR&nbsp;&nbsp;&nbsp;'+campaignThreatResolved+'<br>FRIENDLY / NEUTRAL&nbsp;&nbsp;&nbsp;'+campaignNonThreatResolved+'<br>INTELLIGENCE INTEGRITY&nbsp;'+Math.round(integrity)+'%<br>SCORE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+Math.max(0,Math.round(score));$('#resultContinue').classList.toggle('hidden',!pass);$('#resultRetry').classList.toggle('hidden',pass);$('#campaignResult').classList.remove('hidden');outcomeFeedback(pass)}}
 function cpCheck0102(){
 if(campaignMission!=='01-02'||campaignFinished)return;
@@ -2149,16 +2305,16 @@ const C02={
  '02-04':{title:'NETWORK',sub:'BUILD THE OBSERVED NETWORK',guide:'Develop distinct supported relationships between affiliated contacts. Three supported relationships establish the observed network; continue resolving contacts while controlling OE compromise.',need:'Develop 3 supported relationships and 1 established network, resolve 12 contacts correctly, and hold OE below 60%.',pass:s=>s.supported>=3&&s.established>=1&&campaignCorrect>=12&&campaignCompromise<60},
  '02-05':{title:'DISRUPTION',sub:'RESOLVE THE NETWORK UNDER PRESSURE',guide:'Maintain the established network picture while resolving contacts under pressure. Develop three supported relationships to establish the network, preserve Intelligence Integrity, and finish below the OE compromise limit.',need:'Develop 3 supported relationships and 1 established network, resolve 14 contacts, maintain 80% integrity, and finish OE below 50%.',pass:s=>s.supported>=3&&s.established>=1&&campaignCorrect>=14&&integrity>=80&&campaignCompromise<50}
 };
-function c02Unlocked(id){if(devProgressionBypassActive())return true;let n=Number(id.slice(-1));if(n===1)return progressionComplete('ci-c01-complete');return progressionComplete('ci-c02-0'+(n-1)+'-complete')}
+function c02Unlocked(id){return campaignMissionUnlocked(id)}
 function cpRefreshCampaign02(){Object.keys(C02).forEach(id=>{let b=$('#mission'+id.replace('-','')),s=$('#mission'+id.replace('-','')+'Status');if(!b)return;let u=c02Unlocked(id),done=progressionComplete('ci-c02-'+id.slice(-2)+'-complete');b.disabled=!u;b.classList.toggle('available',u);if(s)s.textContent=done?'COMPLETE // REPLAY':u?'AVAILABLE':'LOCKED'})}
-function cpBrief02(id){if(!C02[id]||!c02Unlocked(id))return;let m=C02[id];$('#campaignMenu').classList.add('hidden');$('#briefing02').classList.remove('hidden');$('#briefing02Kicker').textContent='CAMPAIGN 02 // OA VANTAGE';$('#briefing02Title').textContent=id+' // '+m.title;$('#briefing02Copy').textContent=m.sub;$('#briefing02Need').textContent=m.need;$('#briefing02Guide').textContent=m.guide||'';$('#briefing02Begin').dataset.mission=id}
-function cpBegin02(id){let m=C02[id];if(!m)return;missionTransition(id+' // '+m.title,'OA VANTAGE // LOADING OPERATION',()=>cpBegin02Now(id))}
-function cpBegin02Now(id){musicSetMode('mission');campaignMenuOA='VANTAGE';cpSetOAVisual('VANTAGE');campaignMission=id;campaignIds=0;campaignCorrect=0;campaignThreatResolved=0;campaignNonThreatResolved=0;campaignCollectionInterrupted=0;campaignCompromise=0;campaignFinished=false;networkAssociations.clear();networkLastPair.clear();campaign02AssocEvents=0;campaign02PatternTracks.clear();campaign02ContinuityTracks.clear();resetCampaignHints();cpIntelDropReset();cpHideCampaignOverlays();$('#briefing02').classList.add('hidden');window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();last=performance.now()}
+function cpBrief02(id){if(!C02[id]||!c02Unlocked(id))return;let m=C02[id];$('#campaignMenu').classList.add('hidden');$('#briefing02').classList.remove('hidden');$('#briefing02Kicker').textContent='CAMPAIGN 02 // OA VANTAGE';$('#briefing02Title').textContent=id+' // '+m.title;$('#briefing02Copy').textContent=m.sub;$('#briefing02Need').textContent=m.need;$('#briefing02Guide').textContent=m.guide||'';$('#briefing02Begin').textContent=id==='02-05'?'BEGIN FINAL OPERATION':'BEGIN OPERATION';$('#briefing02Begin').dataset.mission=id}
+function cpBegin02(id){if(!campaignMissionUnlocked(id))return;let m=C02[id];if(!m)return;missionTransition(id+' // '+m.title,'OA VANTAGE // LOADING OPERATION',()=>cpBegin02Now(id))}
+function cpBegin02Now(id){if(!campaignMissionUnlocked(id))return;musicSetMode('mission');campaignMenuOA='VANTAGE';cpSetOAVisual('VANTAGE');campaignMission=id;campaignIds=0;campaignCorrect=0;campaignThreatResolved=0;campaignNonThreatResolved=0;campaignCollectionInterrupted=0;campaignCompromise=0;campaignFinished=false;networkAssociations.clear();networkLastPair.clear();campaign02AssocEvents=0;campaign02PatternTracks.clear();campaign02ContinuityTracks.clear();resetCampaignHints();cpIntelDropReset();cpHideCampaignOverlays();$('#briefing02').classList.add('hidden');window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();last=performance.now()}
 function resetCampaignHints(){campaignHintSig='';campaignHintAt=performance.now();campaignHintLevel=0}
 function campaignHintTick(now){if(campaignMission!=='02-05'||!running||campaignFinished)return;const s=campaign02Stats(),sig=[campaignCorrect,s.established,campaignCollectionInterrupted,Math.round(campaignCompromise/5)].join(':');if(sig!==campaignHintSig){campaignHintSig=sig;campaignHintAt=now;campaignHintLevel=0;return}const idle=now-campaignHintAt;if(idle>65000&&campaignHintLevel<2){campaignHintLevel=2;cpNotice('ANALYST ASSIST // DISRUPTION','Develop 3 supported relationships to establish the observed network, then interrupt hostile collection while keeping OE below 50%.','intel')}else if(idle>35000&&campaignHintLevel<1){campaignHintLevel=1;cpNotice('ANALYST ASSIST','Maintain coverage around VANTAGE activity areas. Distinct affiliated contacts observed together develop supported relationships.','intel')}}
 function cpCheckCampaign02(){if(!isCampaign02()||campaignFinished)return;if(usesThreatEnvironment()&&campaignCompromise>=60){cpFinishCampaign02(false);return}let m=C02[campaignMission],s=campaign02Stats();if(m&&m.pass(s))cpFinishCampaign02(true)}
 function cpFinishCampaign02(pass){if(campaignFinished)return;campaignMenuOA='VANTAGE';const rk=$('#resultKicker');if(rk)rk.textContent='CAMPAIGN 02 // OA VANTAGE';campaignFinished=true;running=false;stopCollect();window.CP_MENU=true;let id=campaignMission,m=C02[id],s=campaign02Stats();if(pass){campaignProgressionWrite('ci-c02-'+id.slice(-2)+'-complete','1');if(id==='02-05'){campaignProgressionWrite('ci-c02-complete','1');progressionCollectUnlocks()}cpRefreshCampaign02()}$('#resultTitle').textContent=pass?'NETWORK PICTURE ADVANCED':'NETWORK PICTURE INCOMPLETE';$('#resultBody').innerHTML='OA VANTAGE // '+id+' '+m.title+'<br><br>CONTACTS RESOLVED&nbsp;&nbsp;'+campaignCorrect+'<br>CONTINUITY TRACKS&nbsp;&nbsp;&nbsp;'+s.continuity+'<br>PATTERN TRACKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+s.patterns+'<br>ASSOCIATION EVENTS&nbsp;&nbsp;&nbsp;'+s.associations+'<br>SUPPORTED LINKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+s.supported+'<br>ESTABLISHED LINKS&nbsp;&nbsp;&nbsp;&nbsp;'+s.established+'<br>INTEL INTEGRITY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+Math.round(integrity)+'%';$('#resultContinue').classList.toggle('hidden',!pass);$('#resultRetry').classList.toggle('hidden',pass);$('#campaignResult').classList.remove('hidden');outcomeFeedback(pass)}
-function tutorialGuide(step,title,text,button=false){tutorialStep=step;if(campaignMission==='TUTORIAL'&&(step===2||step===3||step===4)&&!T.some(t=>!t.done)){spawn(false);const q=T[T.length-1];if(q){q.truth='FRIENDLY';q.type='UNKNOWN';q.x=430;q.y=315;q.vx=.25;q.vy=.1}}const g=$('#tutorialGuide');g.classList.remove('hidden');$('#tutorialTitle').textContent=title;$('#tutorialText').textContent=text;const n=$('#tutorialNext');n.textContent=step>=12?'RETURN TO MENU':'CONTINUE';n.classList.toggle('hidden',!button)}
+function tutorialGuide(step,title,text,button=false){tutorialStep=step;if(campaignMission==='TUTORIAL'&&(step===2||step===3||step===4)&&!T.some(t=>!t.done)){spawn(false);const q=T[T.length-1];if(q){q.truth='FRIENDLY';q.type='UNKNOWN';q.x=430;q.y=315;q.vx=.25;q.vy=.1}}const g=$('#tutorialGuide');const map=$('#mapWrap');if(map&&g.parentElement!==map)map.appendChild(g);g.classList.remove('hidden');$('#tutorialTitle').textContent=title;$('#tutorialText').textContent=text;const n=$('#tutorialNext');n.textContent=step>=12?'RETURN TO MENU':'CONTINUE';n.classList.toggle('hidden',!button)}
 function tutorialMenu(){window.CP_MENU=true;clearTutorialState();$('#mainMenu').classList.add('hidden');$('#tutorialBriefing').classList.remove('hidden')}
 function tutorialBegin(){missionTransition('TRAINING // OA KESTREL','FULL SYSTEMS WALKTHROUGH',tutorialBeginNow)}
 function tutorialBeginNow(){musicSetMode('mission');campaignMission='TUTORIAL';campaignFinished=false;$('#phase').textContent='TRAINING // SYSTEMS';cpHideCampaignOverlays();$('#tutorialBriefing').classList.add('hidden');window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();setTimeout(()=>{if(campaignMission!=='TUTORIAL')return;trainingPrime();spawn(false);const t=T[T.length-1];if(t){t.truth='FRIENDLY';t.x=430;t.y=315;t.vx=.25;t.vy=.1;}tutorialGuide(1,'1 // ACQUIRE ISR-01','Select ISR-01 on the map. Guidance advances only after you complete each action.')},2100)}
@@ -2207,16 +2363,22 @@ function cpSetPause(v){
 }
 
 /* COMMAND PROGRESSION // persistent unread unlock tracking */
-const PROGRESSION_NOTICE_KEY='ci-progression-notices-v1';
+const PROGRESSION_NOTICE_KEY='ci-progression-notices-v2';
+const PROGRESSION_NOTICE_LEGACY_KEY='ci-progression-notices-v1';
 const PROGRESSION_MILESTONES=[
-    ['ci-c01-complete','profile','WIDE AREA COLLECTION'],
-    ['ci-c02-complete','profile','RAPID TASKING'],
-    ['ci-c01-complete','arcade','KESTREL'],
-    ['ci-c02-complete','arcade','VANTAGE'],
-    ['ci-c03-05-complete','arcade','VERDANT'],
-    ['ci-c04-05-complete','arcade','MIRAGE'],
-    ['ci-c05-05-complete','arcade','TEMPEST'],
-    ['ci-c06-05-complete','arcade','POLARIS']
+ ['ci-c01-complete','profile','WIDE AREA COLLECTION'],
+ ['ci-c02-complete','profile','RAPID TASKING'],
+ ['ci-c03-05-complete','profile','PERSISTENT ORBIT'],
+ ['ci-c04-05-complete','profile','HARDENED LINK'],
+ ['ci-c01-01-complete','campaign','01-02 // PATTERN AVAILABLE'],['ci-c01-02-complete','campaign','01-03 // INDICATORS AVAILABLE'],['ci-c01-03-complete','campaign','01-04 // CONTESTED AVAILABLE'],['ci-c01-04-complete','campaign','01-05 // CONDITIONS SET AVAILABLE'],
+ ['ci-c02-01-complete','campaign','02-02 // PATTERN AVAILABLE'],['ci-c02-02-complete','campaign','02-03 // ASSOCIATION AVAILABLE'],['ci-c02-03-complete','campaign','02-04 // NETWORK AVAILABLE'],['ci-c02-04-complete','campaign','02-05 // DISRUPTION AVAILABLE'],
+ ['ci-c03-01-complete','campaign','03-02 // PATTERN AVAILABLE'],['ci-c03-02-complete','campaign','03-03 // TRANSFER AVAILABLE'],['ci-c03-03-complete','campaign','03-04 // SIGNATURE AVAILABLE'],['ci-c03-04-complete','campaign','03-05 // INTERDICTION AVAILABLE'],
+ ['ci-c04-01-complete','campaign','04-02 // CAPACITY AVAILABLE'],['ci-c04-02-complete','campaign','04-03 // POSTURE AVAILABLE'],['ci-c04-03-complete','campaign','04-04 // INDICATIONS AVAILABLE'],['ci-c04-04-complete','campaign','04-05 // WARNING AVAILABLE'],
+ ['ci-c05-01-complete','campaign','05-02 // DARK TRANSIT AVAILABLE'],['ci-c05-02-complete','campaign','05-03 // SHADOW NETWORK AVAILABLE'],['ci-c05-03-complete','campaign','05-04 // INTERDICTION WINDOW AVAILABLE'],['ci-c05-04-complete','campaign','05-05 // MARITIME FUSION AVAILABLE'],
+ ['ci-c06-01-complete','campaign','06-02 // DRIFT SIGNATURE AVAILABLE'],['ci-c06-02-complete','campaign','06-03 // RELAY SILENCE AVAILABLE'],['ci-c06-03-complete','campaign','06-04 // POLAR WINDOW AVAILABLE'],['ci-c06-04-complete','campaign','06-05 // NORTH PASSAGE AVAILABLE'],
+ ['ci-c01-complete','global','OA:VANTAGE'],['ci-c02-complete','global','OA:VERDANT'],['ci-c03-05-complete','global','OA:MIRAGE'],['ci-c04-05-complete','global','OA:TEMPEST'],['ci-c05-05-complete','global','OA:ARCTIC'],
+ ['ci-c01-01-complete','global','COLLECTION PLANNING: KESTREL'],['ci-c02-01-complete','global','COLLECTION PLANNING: VANTAGE'],['ci-c03-01-complete','global','COLLECTION PLANNING: VERDANT'],['ci-c04-01-complete','global','COLLECTION PLANNING: MIRAGE'],['ci-c05-01-complete','global','COLLECTION PLANNING: TEMPEST'],['ci-c06-01-complete','global','COLLECTION PLANNING: POLARIS'],
+ ['ci-c01-complete','arcade','KESTREL'],['ci-c02-complete','arcade','VANTAGE'],['ci-c03-05-complete','arcade','VERDANT'],['ci-c04-05-complete','arcade','MIRAGE'],['ci-c05-05-complete','arcade','TEMPEST'],['ci-c06-05-complete','arcade','POLARIS']
 ];
 function progressionSnapshot(){
     return PROGRESSION_MILESTONES
@@ -2224,13 +2386,17 @@ function progressionSnapshot(){
         .map(m=>m[1]+':'+m[2]);
 }
 function progressionNoticeState(){
-    let state;
-    try{state=JSON.parse(localStorage.getItem(PROGRESSION_NOTICE_KEY)||'null')}catch(e){}
-    if(!state||!Array.isArray(state.seen)||!Array.isArray(state.unread)){
-        state={seen:progressionSnapshot(),unread:[]};
-        if(!devProgressionSimulationActive())localStorage.setItem(PROGRESSION_NOTICE_KEY,JSON.stringify(state));
-    }
-    return state;
+ let state;
+ try{state=JSON.parse(localStorage.getItem(PROGRESSION_NOTICE_KEY)||'null')}catch(e){}
+ if(!state||!Array.isArray(state.seen)||!Array.isArray(state.unread)){
+  let legacy;
+  try{legacy=JSON.parse(localStorage.getItem(PROGRESSION_NOTICE_LEGACY_KEY)||'null')}catch(e){}
+  const seen=Array.isArray(legacy?.seen)?legacy.seen:[];
+  const unread=Array.isArray(legacy?.unread)?legacy.unread:[];
+  state={seen:[...new Set([...seen,...progressionSnapshot()])],unread:[...new Set(unread)]};
+  if(!devProgressionSimulationActive()&&!devProgressionBypassActive())localStorage.setItem(PROGRESSION_NOTICE_KEY,JSON.stringify(state));
+ }
+ return state;
 }
 /* CI persistent first-visit indicators v1 */
 const CI_FIRST_VISITS_KEY='ci-first-visits-v1';
@@ -2256,7 +2422,7 @@ function ciFirstVisitSeen(destination){
 }
 
 function ciFirstVisitMark(destination){
-    if(devProgressionSimulationActive())return;
+    if(devProgressionSimulationActive()||devProgressionBypassActive())return;
     if(!CI_FIRST_VISIT_DESTINATIONS.includes(destination))return;
     const visited=ciFirstVisitsRead();
     if(visited.has(destination))return;
@@ -2282,7 +2448,7 @@ function refreshProgressionBadges(){
     }
 
     if(campaign){
-        campaign.hidden=ciFirstVisitSeen('campaign');
+        campaign.hidden=ciFirstVisitSeen('campaign')&&!state.unread.some(k=>k.startsWith('campaign:'));
     }
 
     const areas=[
@@ -2293,8 +2459,8 @@ function refreshProgressionBadges(){
     if(global){
         global.hidden=!areas.some(oa=>
             globalOAIdentityRevealed(oa)&&
-            !ciFirstVisitSeen('oa:'+oa)
-        );
+            !ciFirstVisitSeen('oa:'+oa)||state.unread.includes('global:OA:'+oa)
+        )||state.unread.some(k=>k.startsWith('global:'));
     }
 
     document.querySelectorAll('.globe-oa-marker').forEach(marker=>{
@@ -2304,15 +2470,10 @@ function refreshProgressionBadges(){
 
         badge.hidden=!areas.includes(oa)||
             !globalOAIdentityRevealed(oa)||
-            ciFirstVisitSeen('oa:'+oa);
+            ciFirstVisitSeen('oa:'+oa)&&!state.unread.includes('global:OA:'+oa);
     });
 }
-function progressionMarkRead(section){
-    const state=progressionNoticeState();
-    state.unread=state.unread.filter(k=>!k.startsWith(section+':'));
-    if(!devProgressionSimulationActive())localStorage.setItem(PROGRESSION_NOTICE_KEY,JSON.stringify(state));
-    refreshProgressionBadges();
-}
+function progressionMarkRead(section){const state=progressionNoticeState();state.unread=state.unread.filter(k=>!k.startsWith(section+":"));if(!devProgressionSimulationActive()&&!devProgressionBypassActive())localStorage.setItem(PROGRESSION_NOTICE_KEY,JSON.stringify(state));refreshProgressionBadges();}
 refreshProgressionBadges();
 /* COMMAND PROGRESSION // sequential tactical unlock announcements */
 const progressionAnnouncementQueue=[];
@@ -2349,8 +2510,14 @@ function progressionShowNextAnnouncement(){
     if(section==='profile'){
         title.textContent='NEW ISR CAPABILITY AVAILABLE';
         detail.textContent='COMMAND PROFILE // '+reward;
+    }else if(section==='campaign'){
+        title.textContent='CAMPAIGN MISSION AVAILABLE';
+        detail.textContent=reward;
+    }else if(section==='global'){
+        title.textContent=reward.startsWith('OA:')?'NEW OPERATIONAL AREA AVAILABLE':'COLLECTION PLANNING AVAILABLE';
+        detail.textContent='GLOBAL OPERATIONS // '+reward.replace(/^OA:/,'');
     }else{
-        title.textContent='NEW OPERATIONAL AREA AVAILABLE';
+        title.textContent='NEW ARCADE AREA AVAILABLE';
         detail.textContent='ARCADE // OA '+reward;
     }
 
@@ -2369,25 +2536,25 @@ function progressionShowNextAnnouncement(){
     },3000);
 }
 function progressionCollectUnlocks(){
-    if(devProgressionSimulationActive())return [];
+    if(devProgressionSimulationActive()||devProgressionBypassActive())return [];
     const state=progressionNoticeState();
     const current=progressionSnapshot();
     const added=current.filter(k=>!state.seen.includes(k));
     if(!added.length)return [];
     state.seen.push(...added);
     state.unread.push(...added);
-    if(!devProgressionSimulationActive())localStorage.setItem(PROGRESSION_NOTICE_KEY,JSON.stringify(state));
+    if(!devProgressionSimulationActive()&&!devProgressionBypassActive())localStorage.setItem(PROGRESSION_NOTICE_KEY,JSON.stringify(state));
     refreshProgressionBadges();
     progressionQueueAnnouncements(added);
     return added;
 }
 function refreshCommandProfile(){
-  const c1=localStorage.getItem('ci-c01-complete')==='1',c2=localStorage.getItem('ci-c02-complete')==='1',done=(c1?1:0)+(c2?1:0);
-  const a=$('#profileC01'),b=$('#profileC02'),tier=$('#profileTier'),bar=$('#profileProgress'),txt=$('#profileProgressText'),isr=$('#profileISR');
-  if(a)a.textContent=c1?'COMPLETE':'IN PROGRESS';if(b)b.textContent=c2?'COMPLETE':'IN PROGRESS';
-  if(tier)tier.textContent=done>=2?'NETWORK QUALIFIED':done===1?'OPERATIONAL':'FOUNDATION';if(bar)bar.style.width=(done*50)+'%';if(txt)txt.textContent='OPERATIONAL EXPERIENCE // '+done+' / 2 CAMPAIGNS COMPLETE';
+  const c1=localStorage.getItem('ci-c01-complete')==='1',c2=localStorage.getItem('ci-c02-complete')==='1',c3=localStorage.getItem('ci-c03-05-complete')==='1',c4=localStorage.getItem('ci-c04-05-complete')==='1',done=[c1,c2,c3,c4].filter(Boolean).length;
+  const cards=[['#profileC01',c1],['#profileC02',c2],['#profileC03',c3],['#profileC04',c4]],tier=$('#profileTier'),bar=$('#profileProgress'),txt=$('#profileProgressText'),isr=$('#profileISR');
+  cards.forEach(([selector,complete])=>{const el=$(selector);if(el)el.textContent=complete?'COMPLETE':'IN PROGRESS'});
+  if(tier)tier.textContent=done>=2?'NETWORK QUALIFIED':done===1?'OPERATIONAL':'FOUNDATION';if(bar)bar.style.width=(done*25)+'%';if(txt)txt.textContent='OPERATIONAL EXPERIENCE // '+done+' / 4 CAMPAIGNS COMPLETE';
   if(isr){const names={'#dce5e8':'TACTICAL WHITE','#4da3ff':'ISR BLUE','#d8a83e':'COMMAND GOLD','#55d66b':'FIELD GREEN'};isr.textContent=visualSettings.isrSymbol+' // '+(names[visualSettings.isrColor]||'CUSTOM');}
-  normalizeISRCapability();const cap=$('#profileCapability'),help=$('#profileCapabilityHelp');const capNames={STANDARD:'STANDARD SENSOR',WIDE:'WIDE AREA COLLECTION',RAPID:'RAPID TASKING'};if(cap)cap.textContent=capNames[isrCapability]||capNames.STANDARD;document.querySelectorAll('[data-isr-capability]').forEach(btn=>{const k=btn.dataset.isrCapability,u=isrCapabilityUnlocked(k);btn.disabled=!u;btn.classList.toggle('selected',k===isrCapability);});if(help)help.textContent=(c1&&c2)?'ALL CURRENT PACKAGES UNLOCKED // ONE ACTIVE AT A TIME':(!c1&&!c2?'COMPLETE CAMPAIGNS TO UNLOCK ISR CAPABILITIES':(!c1?'COMPLETE CAMPAIGN 01 TO UNLOCK WIDE AREA':'COMPLETE CAMPAIGN 02 TO UNLOCK RAPID TASKING'));
+  normalizeISRCapability();const cap=$('#profileCapability'),help=$('#profileCapabilityHelp');const capNames={STANDARD:'STANDARD SENSOR',WIDE:'WIDE AREA COLLECTION',RAPID:'RAPID TASKING',ORBIT:'PERSISTENT ORBIT',HARDENED:'HARDENED LINK'};if(cap)cap.textContent=capNames[isrCapability]||capNames.STANDARD;document.querySelectorAll('[data-isr-capability]').forEach(btn=>{const k=btn.dataset.isrCapability,u=isrCapabilityUnlocked(k);btn.disabled=!u;btn.classList.toggle('selected',k===isrCapability);});if(help){const locked=[];if(!c1)locked.push('WIDE AREA // C01');if(!c2)locked.push('RAPID TASKING // C02');if(!c3)locked.push('PERSISTENT ORBIT // C03');if(!c4)locked.push('HARDENED LINK // C04');help.textContent=locked.length?'UNLOCKS // '+locked.join(' // ')+' // ONE ACTIVE AT A TIME':'ALL PACKAGES EARNED // ONE ACTIVE AT A TIME';}
 }
 function setISRCapability(k){if(!isrCapabilityUnlocked(k))return;isrCapability=k;localStorage.setItem(ISR_CAPABILITY_KEY,k);refreshCommandProfile();sound('click')}
 function rotateCommandBackground(){const maps=["url('assets/maps/oa-kestrel-overscan.png')","url('assets/maps/oa-vantage-overscan.png')","url('assets/maps/oa-verdant-overscan.png')","url('assets/maps/oa-mirage-overscan.png')","url('assets/maps/oa-tempest-overscan.png')"];const raw=sessionStorage.getItem('ci-command-bg-index');let last=raw===null?-1:Number(raw),next;if(last<0||!Number.isFinite(last))next=Math.floor(Math.random()*maps.length);else if(maps.length>1){const choices=maps.map((_,i)=>i).filter(i=>i!==last);next=choices[Math.floor(Math.random()*choices.length)]}else next=0;sessionStorage.setItem('ci-command-bg-index',String(next));const home=document.getElementById('mainMenu');if(home)home.style.setProperty('--ci-command-bg',maps[next]);document.documentElement.style.setProperty('--ci-command-bg',maps[next])}
@@ -2397,7 +2564,7 @@ function closeCommandProfile(){$('#commandProfileMenu').classList.add('hidden');
 
 // v0.10.0 // GLOBAL FOUNDATION PROTOTYPE
 let globalSelectedOA=null;
-const GLOBAL_OA={KESTREL:'MOUNTAIN-COAST // FOUNDATION',VANTAGE:'URBAN-INDUSTRIAL // NETWORK',VERDANT:'TROPICAL RIVER-COAST // PREVIEW',MIRAGE:'ARID ROUTE-LOGISTICS // PREVIEW',TEMPEST:'MARITIME ARCHIPELAGO // PREVIEW',ARCTIC:'POLARIS // POLAR ARCHIPELAGO / ICE / MOUNTAIN CORRIDORS',RETRO:'LEGACY SIMULATION // CONTACT IMMINENT // NO TERRAIN'};
+const GLOBAL_OA={KESTREL:'MOUNTAIN-COAST // FOUNDATION',VANTAGE:'URBAN-INDUSTRIAL // NETWORK',VERDANT:'TROPICAL RIVER-COAST // PREVIEW',MIRAGE:'ARID ROUTE-LOGISTICS // PREVIEW',TEMPEST:'MARITIME ARCHIPELAGO // PREVIEW',ARCTIC:'POLARIS // HIGH-NORTH ISLANDS',RETRO:'LEGACY SIMULATION // CONTACT IMMINENT // NO TERRAIN'};
 /* GLOBAL OA IDENTITY CLASSIFICATION
    Display-only progression; existing activity unlocks remain unchanged. */
 function globalOAIdentityRevealed(oa){
@@ -2481,9 +2648,10 @@ function refreshGlobalOAStatus(){
         String(classified).padStart(2,'0')+
         ' CLASSIFIED';
 }
-function openGlobal(){ciFirstVisitMark('global');refreshProgressionBadges();refreshGlobalOAStatus();window.CP_MENU=true;document.body.classList.remove('retro-mode');$('#objectiveTracker')?.classList.remove('retro-objectives-hidden');globalSelectedOA=null;$('#mainMenu').classList.add('hidden');$('#globalMenu').classList.remove('hidden');document.querySelectorAll('[data-global-oa]').forEach(b=>b.classList.remove('selected'));$('#globalOAName').textContent='NO OA SELECTED';$('#globalOADetail').textContent='Select an operational-area marker on the globe to inspect the regional picture.';$('#globalCampaign').style.display='';$('#globalArcade').style.display='';$('#globalTraining').style.display='';$('#globalPlanNAI').style.display='';$('#globalCampaign').disabled=true;$('#globalArcade').disabled=true;$('#globalTraining').disabled=true;$('#globalPlanNAI').disabled=true;}
+function openGlobal(){ciFirstVisitMark('global');progressionMarkRead('global');refreshProgressionBadges();refreshGlobalOAStatus();window.CP_MENU=true;document.body.classList.remove('retro-mode');$('#objectiveTracker')?.classList.remove('retro-objectives-hidden');globalSelectedOA=null;$('#globalMenu').classList.remove('retro-global-selection');$('#mainMenu').classList.add('hidden');$('#globalMenu').classList.remove('hidden');document.querySelectorAll('[data-global-oa]').forEach(b=>b.classList.remove('selected'));$('#globalOAName').textContent='NO OA SELECTED';$('#globalOADetail').textContent='Select an operational-area marker on the globe to inspect the regional picture.';$('#globalCampaign').style.display='';$('#globalArcade').style.display='';$('#globalPlanNAI').style.display='';$('#globalCampaign').disabled=true;$('#globalArcade').disabled=true;$('#globalPlanNAI').disabled=true;}
 function closeGlobal(){$('#globalMenu').classList.add('hidden');$('#mainMenu').classList.remove('hidden');rotateCommandBackground();}
-function selectGlobalOA(oa,playerVisit=false){if(playerVisit&&globalOAIdentityRevealed(oa)){ciFirstVisitMark('oa:'+oa);refreshProgressionBadges();}globalSelectedOA=oa;document.querySelectorAll('[data-global-oa]').forEach(b=>b.classList.toggle('selected',b.dataset.globalOa===oa));const num=GLOBAL_OA_NUM[oa]||'--';$('#globalOAName').textContent=oa==='RETRO'?'R0 // RETRO STATION // CONTACT IMMINENT':'OA '+num+' // '+globalOADisplayName(oa);$('#globalOADetail').textContent=globalOAIdentityRevealed(oa)?(GLOBAL_OA[oa]||oa)+' // REGIONAL PICTURE AVAILABLE':'REGIONAL INTELLIGENCE // CLASSIFIED';const retro=oa==='RETRO',campaignReady=oa==='KESTREL'||(['VANTAGE','VERDANT','MIRAGE'].includes(oa)&&globalOAIdentityRevealed(oa))||(devProgressionBypassActive()&&['MIRAGE','TEMPEST','ARCTIC'].includes(oa)),arcadeReady=oa==='RETRO'||arcadeOAAllowed().includes(oa);$('#globalCampaign').style.display=retro?'none':'';$('#globalTraining').style.display=retro?'none':'';$('#globalPlanNAI').style.display=retro?'none':'';$('#globalPlanNAI').classList.toggle('hidden',retro);$('#globalArcade').style.display='';$('#globalCampaign').disabled=!campaignReady;$('#globalArcade').disabled=!arcadeReady;$('#globalTraining').disabled=false;$('#globalPlanNAI').disabled=retro;refreshGlobalTaskingDetail(oa);}
+function globalPlanningUnlocked(oa){if(!oa||oa==='RETRO')return false;if(devProgressionBypassActive())return true;const series=({KESTREL:'01',VANTAGE:'02',VERDANT:'03',MIRAGE:'04',TEMPEST:'05',ARCTIC:'06'})[oa];return !!series&&progressionComplete('ci-c'+series+'-01-complete')}
+function selectGlobalOA(oa,playerVisit=false){if(playerVisit&&globalOAIdentityRevealed(oa)){ciFirstVisitMark('oa:'+oa);refreshProgressionBadges();}globalSelectedOA=oa;$('#globalMenu').classList.toggle('retro-global-selection',oa==='RETRO');document.querySelectorAll('[data-global-oa]').forEach(b=>b.classList.toggle('selected',b.dataset.globalOa===oa));const num=GLOBAL_OA_NUM[oa]||'--';$('#globalOAName').textContent=oa==='RETRO'?'R0 // RETRO STATION // CONTACT IMMINENT':'OA '+num+' // '+globalOADisplayName(oa);$('#globalOADetail').textContent=globalOAIdentityRevealed(oa)?'REGIONAL PICTURE AVAILABLE':'REGIONAL INTELLIGENCE // CLASSIFIED';const retro=oa==='RETRO',campaignReady=!retro&&globalOAIdentityRevealed(oa),arcadeReady=oa==='RETRO'||arcadeOAAllowed().includes(oa);$('#globalCampaign').style.display=retro?'none':'';$('#globalPlanNAI').style.display=retro?'none':'';$('#globalPlanNAI').classList.toggle('hidden',retro);$('#globalArcade').style.display='';$('#globalCampaign').disabled=!campaignReady;$('#globalArcade').disabled=!arcadeReady;const planUnlocked=globalPlanningUnlocked(oa);$('#globalPlanNAI').disabled=!planUnlocked;$('#globalPlanNAI').title=planUnlocked?'':'Complete the first campaign mission in this region to unlock collection planning.';$('#globalPlanNAI').setAttribute('aria-label',planUnlocked?'Collection planning':'Collection planning locked. Complete the first campaign mission in this region to unlock it.');refreshGlobalTaskingDetail(oa);}
 
 let globalActivityContext=false;
 function cpRetroGrid(){const g=$('#retroGrid');if(!g)return;g.textContent='';const ns='http://www.w3.org/2000/svg';for(let x=45;x<900;x+=45){let l=document.createElementNS(ns,'line');l.setAttribute('x1',x);l.setAttribute('y1','0');l.setAttribute('x2',x);l.setAttribute('y2','650');l.setAttribute('class',x%225===0?'retro-major':'retro-minor');g.appendChild(l)}for(let y=45;y<650;y+=45){let l=document.createElementNS(ns,'line');l.setAttribute('x1','0');l.setAttribute('y1',y);l.setAttribute('x2','900');l.setAttribute('y2',y);l.setAttribute('class',y%225===0?'retro-major':'retro-minor');g.appendChild(l)}}
@@ -2492,9 +2660,7 @@ function globalRetroActivity(){missionTransition('RETRO // ARCADE','BLANK CANVAS
 function globalCampaignActivity(){
  if(!globalSelectedOA)return;
  if(globalSelectedOA==='RETRO'){globalRetroActivity();return;}
- const implemented=['KESTREL','VANTAGE','VERDANT','MIRAGE'].includes(globalSelectedOA);
- const devPreview=devProgressionBypassActive()&&['MIRAGE','TEMPEST','ARCTIC'].includes(globalSelectedOA);
- if(!implemented&&!devPreview)return;
+if(!globalOAIdentityRevealed(globalSelectedOA))return;
  globalActivityContext=true;
  campaignMenuOA=globalSelectedOA;
  closeGlobal();
@@ -2506,7 +2672,7 @@ function globalArcadeActivity(){
  if(!globalSelectedOA||!arcadeOAAllowed().includes(globalSelectedOA))return;
  globalActivityContext=true;setArcadeOA(globalSelectedOA);closeGlobal();arcadeMenu();document.body.classList.add('global-context-arcade');
 }
-function globalTrainingActivity(){if(!globalSelectedOA)return;closeGlobal();tutorialMenu();}
+function globalTrainingActivity(){closeGlobal();tutorialMenu();}
 function setGlobalRate(rate){document.documentElement.style.setProperty('--global-rate',rate);document.querySelectorAll('[data-global-rate]').forEach(b=>b.classList.toggle('selected',Number(b.dataset.globalRate)===rate));$('#globalRateLabel').textContent=rate+'X';const mult=rate;document.querySelectorAll('.orbit').forEach((el,i)=>{const base=[24,34,19][i]||24;el.style.animationDuration=(base/mult)+'s'});}
 // v0.11.6.142 // LEAN LIVE GLOBAL GLOBE
 const GLOBAL_OA_GEO={KESTREL:{lat:42,lon:-118},VANTAGE:{lat:35,lon:20},VERDANT:{lat:-4,lon:-70},MIRAGE:{lat:-21,lon:49},TEMPEST:{lat:-24,lon:143},ARCTIC:{lat:73,lon:28}};
@@ -2645,16 +2811,19 @@ function drawGlobalGlobe(now){drawGlobalSpace(now);const c=$('#globalGlobeCanvas
     }
     el.classList.toggle('active',active);
 }}{let ll=globeOrbitLatLon(GLOBAL_RETRO_ORBIT,globalGlobe.orbitT),q=globeProject(ll.lat,ll.lon,cx,cy,r),el=ov.querySelector('.globe-retro-station');if(el){el.style.left=(q.x*sx)+'px';el.style.top=(q.y*sy)+'px';el.classList.toggle('backside',q.z<=0);el.classList.toggle('selected',globalSelectedOA==='RETRO')}}}
-let homeOALastFrame=0;
+let homeOALastFrame=0,campaignOALastFrame=0;
 function globalGlobeFrame(now){
     const home=document.getElementById('mainMenu');
     if(home&&!home.classList.contains('hidden')&&now-homeOALastFrame>=100){
         homeOALastFrame=now;
         refreshHomeOAClassification(now);
     }
+    const campaignMenu=document.getElementById('campaignMenu');
+    if(campaignMenu&&!campaignMenu.classList.contains('hidden')&&now-campaignOALastFrame>=100){campaignOALastFrame=now;refreshCampaignOAClassification(now);}
     const visible=!$('#globalMenu')?.classList.contains('hidden');if(visible&&(!GLOBAL_FRAME_MS||now-globalLastFrame>=GLOBAL_FRAME_MS)){globalLastFrame=now;drawGlobalGlobe(now)}requestAnimationFrame(globalGlobeFrame)} requestAnimationFrame(globalGlobeFrame);
 const GLOBAL_DESCENT_IMAGE={KESTREL:'assets/maps/oa-kestrel-overscan.png',VANTAGE:'assets/maps/oa-vantage-overscan.png',VERDANT:'assets/maps/oa-verdant-overscan.png',MIRAGE:'assets/maps/oa-mirage-overscan.png',TEMPEST:'assets/maps/oa-tempest-overscan.png',ARCTIC:'assets/maps/oa-arctic-basemap.png'};
 const GLOBAL_MAP_IMAGE={KESTREL:'assets/maps/oa-kestrel-basemap.png',VANTAGE:'assets/maps/oa-vantage-basemap.png',VERDANT:'assets/maps/oa-verdant-basemap.png',MIRAGE:'assets/maps/oa-mirage-basemap.png',TEMPEST:'assets/maps/oa-tempest-basemap.png',ARCTIC:'assets/maps/oa-arctic-basemap.png'};
+const GLOBAL_PLANNING_IMAGE={...GLOBAL_MAP_IMAGE,TEMPEST:'assets/maps/oa-tempest-approved.png'};
 function resetGlobalOAEntryOverlays(){['#mainMenu','#globalMenu','#globalPlanning','#campaignMenu'].forEach(sel=>$(sel)?.classList.add('hidden'));}
 function enterSelectedGlobalOA(oa){resetGlobalOAEntryOverlays();if(oa==='VERDANT'){campaignMenuOA='VERDANT';cpCampaignMenu();selectCampaignOA('VERDANT');return}if(oa==='MIRAGE'||oa==='TEMPEST'){campaignMenuOA=oa;cpCampaignMenu();selectCampaignOA(oa);return}campaignMenuOA=oa;cpCampaignMenu();}
 let globalDescentTimer=0;
@@ -2673,9 +2842,9 @@ function onSeg(a,b,c){return Math.min(a.x,b.x)-1e-9<=c.x&&c.x<=Math.max(a.x,b.x)
 function segCross(a,b,c,d){const o1=orient(a,b,c),o2=orient(a,b,d),o3=orient(c,d,a),o4=orient(c,d,b),eps=1e-9;if(((o1>eps&&o2<-eps)||(o1<-eps&&o2>eps))&&((o3>eps&&o4<-eps)||(o3<-eps&&o4>eps)))return true;if(Math.abs(o1)<=eps&&onSeg(a,b,c))return true;if(Math.abs(o2)<=eps&&onSeg(a,b,d))return true;if(Math.abs(o3)<=eps&&onSeg(c,d,a))return true;if(Math.abs(o4)<=eps&&onSeg(c,d,b))return true;return false;}
 function planningSelfIntersects(){const p=globalPlanningPoints,n=p.length;if(n<4)return false;for(let i=0;i<n;i++){const i2=(i+1)%n;for(let j=i+1;j<n;j++){const j2=(j+1)%n;if(i===j||i2===j||j2===i)continue;if(segCross(p[i],p[i2],p[j],p[j2]))return true;}}return false;}
 function planningValid(){return globalPlanningPoints.length>=3&&globalPlanningPoints.length<=4&&!planningSelfIntersects()&&planningAreaFraction()>0.00005&&planningAreaFraction()<=GLOBAL_NAI_MAX_AREA;}
-function refreshGlobalTaskingDetail(oa){const p=readGlobalNAIs()[oa];if(!p)return;$('#globalOADetail').textContent=globalOAIdentityRevealed(oa)?GLOBAL_OA[oa]+' // PRIORITY NAI TASKED // '+(p.points?.length||0)+'-POINT AREA // REGIONAL PICTURE AVAILABLE':'REGIONAL INTELLIGENCE // CLASSIFIED';}
+function refreshGlobalTaskingDetail(oa){const p=readGlobalNAIs()[oa];if(!p)return;$('#globalOADetail').textContent=globalOAIdentityRevealed(oa)?'NAI TASKED // '+(p.points?.length||0)+' CONTROL POINTS':'REGIONAL INTELLIGENCE // CLASSIFIED';}
 function openGlobalPlanning(){if(!globalSelectedOA)return;openGlobalPlanningDirect();}
-function openGlobalPlanningDirect(){if(!globalSelectedOA)return;const oa=globalSelectedOA,saved=readGlobalNAIs()[oa];globalPlanningPoints=(saved?.points||[]).map(p=>({x:p.x,y:p.y}));globalPlanningCommitted=!!saved?.committed;globalPlanningDrag=-1;$('#planningOAName').textContent='OA '+({'KESTREL':'01','VANTAGE':'02','VERDANT':'03','MIRAGE':'04','TEMPEST':'05','ARCTIC':'06'}[oa])+' // '+(oa==='ARCTIC'?'POLARIS':oa);$('#planningMap').style.backgroundImage="linear-gradient(rgba(4,10,13,.08),rgba(4,10,13,.08)),url('"+GLOBAL_MAP_IMAGE[oa]+"')";$('#globalPlanning').classList.remove('hidden');renderGlobalPlanning();}
+function openGlobalPlanningDirect(){if(!globalSelectedOA)return;const oa=globalSelectedOA,saved=readGlobalNAIs()[oa];globalPlanningPoints=(saved?.points||[]).map(p=>({x:p.x,y:p.y}));globalPlanningCommitted=!!saved?.committed;globalPlanningDrag=-1;$('#planningOAName').textContent='OA '+({'KESTREL':'01','VANTAGE':'02','VERDANT':'03','MIRAGE':'04','TEMPEST':'05','ARCTIC':'06'}[oa])+' // '+(oa==='ARCTIC'?'POLARIS':oa);$('#planningMap').style.backgroundImage="linear-gradient(rgba(4,10,13,.08),rgba(4,10,13,.08)),url('"+GLOBAL_PLANNING_IMAGE[oa]+"')";$('#globalPlanning').classList.remove('hidden');renderGlobalPlanning();}
 function closeGlobalPlanning(){$('#globalPlanning').classList.add('hidden');globalPlanningDrag=-1;}
 function eventPlanningPoint(e){const r=$('#planningMap').getBoundingClientRect();return{x:Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)),y:Math.max(0,Math.min(1,(e.clientY-r.top)/r.height))};}
 function placeGlobalNAI(e){if(!globalSelectedOA||globalPlanningCommitted||globalPlanningDrag>=0||globalPlanningPoints.length>=4||e.target.closest?.('.planning-vertex'))return;globalPlanningPoints.push(eventPlanningPoint(e));renderGlobalPlanning();}
@@ -2684,7 +2853,7 @@ function movePlanningDrag(e){if(globalPlanningDrag<0||globalPlanningCommitted)re
 function endPlanningDrag(){globalPlanningDrag=-1;}
 function renderGlobalPlanning(){const poly=$('#planningNAIPolygon'),vg=$('#planningNAIVertices'),pts=globalPlanningPoints,area=planningAreaFraction(),cross=planningSelfIntersects(),valid=planningValid(),over=pts.length>=3&&area>GLOBAL_NAI_MAX_AREA;poly.setAttribute('points',pts.map(p=>`${p.x*900},${p.y*650}`).join(' '));poly.classList.toggle('hidden',pts.length<2);poly.classList.toggle('invalid',over||cross);poly.classList.toggle('committed',globalPlanningCommitted);vg.innerHTML='';pts.forEach((p,i)=>{const ns='http://www.w3.org/2000/svg',g=document.createElementNS(ns,'g');g.setAttribute('class','planning-vertex'+(globalPlanningCommitted?' committed':''));g.setAttribute('transform',`translate(${p.x*900} ${p.y*650})`);g.innerHTML=`<circle r="18" class="planning-vertex-hit"></circle><circle r="7" class="planning-vertex-dot"></circle><text x="0" y="-13" text-anchor="middle">${i+1}</text>`;g.addEventListener('pointerdown',e=>startPlanningDrag(e,i));vg.appendChild(g);});const c=polygonCentroid(pts);$('#planningCoord').textContent=c?'CENTROID // '+String(Math.round(c.x*900)).padStart(3,'0')+' / '+String(Math.round(c.y*650)).padStart(3,'0'):'CENTROID // --- / ---';$('#planningVertexCount').textContent=pts.length+' / 4';$('#planningArea').textContent=(pts.length<3?'0':Math.round(area/GLOBAL_NAI_MAX_AREA*100))+'%';$('#planningArea').classList.toggle('planning-invalid',over||cross);$('#planningCommit').disabled=!valid||globalPlanningCommitted;$('#planningUndo').disabled=!pts.length||globalPlanningCommitted;$('#planningRevise').classList.toggle('hidden',!globalPlanningCommitted);if(globalPlanningCommitted){$('#planningStatus').textContent='COMMITTED';$('#planningPrompt').textContent='PRIORITY NAI // COLLECTION TASKED';}else if(cross){$('#planningStatus').textContent='INVALID GEOMETRY';$('#planningPrompt').textContent='INVALID GEOMETRY // EDGES MAY NOT CROSS';}else if(over){$('#planningStatus').textContent='AREA EXCEEDED';$('#planningPrompt').textContent='AUTHORIZED AREA EXCEEDED // REDUCE POLYGON';}else if(valid){$('#planningStatus').textContent='READY';$('#planningPrompt').textContent='COLLECTION AREA VALID // COMMIT WHEN READY';}else if(pts.length){const need=Math.max(0,3-pts.length);$('#planningStatus').textContent='DRAFT';$('#planningPrompt').textContent=need?'DEFINE AREA OF INTELLIGENCE INTEREST // '+need+' MORE POINT'+(need===1?'':'S')+' REQUIRED':'OPTIONAL FOURTH POINT // OR COMMIT';}else{$('#planningStatus').textContent='NOT TASKED';$('#planningPrompt').textContent='DEFINE AREA OF INTELLIGENCE INTEREST // 3-4 CONTROL POINTS';}}
 function undoGlobalPlanningPoint(){if(globalPlanningCommitted||!globalPlanningPoints.length)return;globalPlanningPoints.pop();renderGlobalPlanning();}
-function clearGlobalPlanning(){globalPlanningPoints=[];globalPlanningCommitted=false;if(globalSelectedOA){const all=readGlobalNAIs();delete all[globalSelectedOA];localStorage.setItem(GLOBAL_NAI_KEY,JSON.stringify(all));$('#globalOADetail').textContent=GLOBAL_OA[globalSelectedOA]+' // REGIONAL PICTURE AVAILABLE';if(activeOA===globalSelectedOA)cpRenderStrategicPriorityNAI();}renderGlobalPlanning();}
+function clearGlobalPlanning(){globalPlanningPoints=[];globalPlanningCommitted=false;if(globalSelectedOA){const all=readGlobalNAIs();delete all[globalSelectedOA];localStorage.setItem(GLOBAL_NAI_KEY,JSON.stringify(all));$('#globalOADetail').textContent='REGIONAL PICTURE AVAILABLE';if(activeOA===globalSelectedOA)cpRenderStrategicPriorityNAI();}renderGlobalPlanning();}
 function reviseGlobalPlanning(){if(!globalSelectedOA)return;globalPlanningCommitted=false;renderGlobalPlanning();}
 function commitGlobalPlanning(){if(!globalSelectedOA||!planningValid())return;globalPlanningCommitted=true;const all=readGlobalNAIs();all[globalSelectedOA]={points:globalPlanningPoints.map(p=>({x:p.x,y:p.y})),committed:true,updated:Date.now()};localStorage.setItem(GLOBAL_NAI_KEY,JSON.stringify(all));renderGlobalPlanning();refreshGlobalTaskingDetail(globalSelectedOA);if(activeOA===globalSelectedOA)cpRenderStrategicPriorityNAI();}
 let planningSuppressClick=false;
@@ -2768,121 +2937,28 @@ const eventPanel=$('#eventPanel'),devPanel=$('#devPanel');if(eventPanel){eventPa
 requestAnimationFrame(loop)})();
 
 
-/* CI content-aware mission briefing sizing v1 */
+/* CI campaign briefing layout: pinned headings/actions, internally scrolling details */
 (function () {
-  const selector = '.gameoverlay[id^="briefing"] > .briefingpanel';
-
-  function fitBriefing(panel) {
-    const overlay = panel.parentElement;
-    if (!overlay || overlay.classList.contains('hidden')) return;
-
-    const bounds = overlay.getBoundingClientRect();
-    const availableWidth = Math.max(1, bounds.width - 24);
-    const availableHeight = Math.max(1, bounds.height - 24);
-
-    if (panel.classList.contains('briefingpanel-tempest')) {
-      panel.style.setProperty('box-sizing', 'border-box', 'important');
-      panel.style.setProperty('width', Math.min(640, availableWidth) + 'px', 'important');
-      panel.style.setProperty('max-width', availableWidth + 'px', 'important');
-      panel.style.setProperty('height', 'auto', 'important');
-      panel.style.setProperty('max-height', availableHeight + 'px', 'important');
-      panel.style.setProperty('display', 'flex', 'important');
-      panel.style.setProperty('flex-direction', 'column', 'important');
-      panel.style.setProperty('overflow', 'hidden', 'important');
-      const body = panel.querySelector('.briefing-scroll');
-      if (body) {
-        body.style.setProperty('flex', '1 1 auto', 'important');
-        body.style.setProperty('min-height', '0', 'important');
-        body.style.setProperty('overflow-y', 'auto', 'important');
-      }
-      const actions = panel.querySelector('.briefing-actions');
-      if (actions) actions.style.setProperty('flex', '0 0 auto', 'important');
-      return;
-    }
-
-    const compactTarget = 290;
-    const minimumWidth = Math.min(420, availableWidth);
-    const maximumWidth = Math.min(760, availableWidth);
-
-    panel.style.setProperty('box-sizing', 'border-box', 'important');
-    panel.style.setProperty('height', 'auto', 'important');
-    panel.style.setProperty('max-height', 'none', 'important');
-    panel.style.setProperty('overflow', 'visible', 'important');
-
-    let chosenWidth = minimumWidth;
-
-    for (let width = minimumWidth; ; width = Math.min(width + 20, maximumWidth)) {
-      panel.style.setProperty('width', width + 'px', 'important');
-      panel.style.setProperty('max-width', availableWidth + 'px', 'important');
-
-      chosenWidth = width;
-
-      if (panel.scrollHeight <= compactTarget || width >= maximumWidth) break;
-    }
-
-    panel.style.setProperty('width', chosenWidth + 'px', 'important');
-
-    const contentHeight = panel.scrollHeight;
-
-    if (contentHeight > availableHeight) {
-      panel.style.setProperty('max-height', availableHeight + 'px', 'important');
-      panel.style.setProperty('overflow-y', 'auto', 'important');
-      panel.style.setProperty('overscroll-behavior', 'contain');
-    }
-
-    const buttons = panel.querySelectorAll('button');
-    const lastButton = buttons[buttons.length - 1];
-
-    if (lastButton && contentHeight <= availableHeight) {
-      const panelRect = panel.getBoundingClientRect();
-      const buttonRect = lastButton.getBoundingClientRect();
-
-      if (buttonRect.bottom > panelRect.bottom + 1) {
-        console.warn('[CI briefing] Button extends beyond panel:', overlay.id);
-      }
-    }
+  const selector = '.gameoverlay[id^="briefing"] > .briefingpanel:not(.briefingpanel-tempest):not(.briefingpanel-polaris)';
+  function prepare(panel) {
+    if (panel.querySelector(':scope > .ci-briefing-scroll')) return;
+    const heading=document.createElement('div'),body=document.createElement('div'),actions=document.createElement('div');
+    heading.className='ci-briefing-heading';body.className='ci-briefing-scroll';actions.className='ci-briefing-actions';
+    [...panel.children].forEach(child=>{if(child.matches('.menu-kicker,.menu-title'))heading.appendChild(child);else if(child.matches('button'))actions.appendChild(child);else body.appendChild(child)});
+    panel.append(heading,body,actions);
   }
-
-  function fitVisibleBriefings() {
-    document.querySelectorAll(selector).forEach(fitBriefing);
+  function fit(panel) {
+    const overlay=panel.parentElement;if(!overlay||overlay.classList.contains('hidden'))return;prepare(panel);
+    const bounds=overlay.getBoundingClientRect(),width=Math.max(1,bounds.width-24),height=Math.max(1,bounds.height-24);
+    [['box-sizing','border-box'],['width',Math.min(760,width)+'px'],['max-width',width+'px'],['height','auto'],['max-height',height+'px'],['min-height','0'],['display','flex'],['flex-direction','column'],['overflow','hidden']].forEach(([k,v])=>panel.style.setProperty(k,v,'important'));
+    const body=panel.querySelector(':scope > .ci-briefing-scroll');if(body)[['flex','1 1 auto'],['min-height','0'],['overflow-x','hidden'],['overflow-y','auto'],['overscroll-behavior','contain']].forEach(([k,v])=>body.style.setProperty(k,v,'important'));
+    const actions=panel.querySelector(':scope > .ci-briefing-actions');if(actions)actions.style.setProperty('flex','0 0 auto','important');
   }
-
-  const observer = new MutationObserver(function (mutations) {
-    if (mutations.some(m =>
-      m.type === 'attributes' &&
-      m.attributeName === 'class' &&
-      m.target.matches?.('.gameoverlay[id^="briefing"]')
-    )) {
-      requestAnimationFrame(fitVisibleBriefings);
-    }
-  });
-
-  function initialize() {
-    document.querySelectorAll('.gameoverlay[id^="briefing"]').forEach(overlay => {
-      observer.observe(overlay, {
-        attributes: true,
-        attributeFilter: ['class']
-      });
-    });
-
-    window.addEventListener('resize', () => {
-      requestAnimationFrame(fitVisibleBriefings);
-    });
-
-    window.visualViewport?.addEventListener('resize', () => {
-      requestAnimationFrame(fitVisibleBriefings);
-    });
-
-    fitVisibleBriefings();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initialize);
-  } else {
-    initialize();
-  }
+  function fitVisible(){document.querySelectorAll(selector).forEach(fit)}
+  const observer=new MutationObserver(ms=>{if(ms.some(m=>m.type==='attributes'&&m.attributeName==='class'&&m.target.matches?.('.gameoverlay[id^="briefing"]')))requestAnimationFrame(fitVisible)});
+  function initialize(){document.querySelectorAll('.gameoverlay[id^="briefing"]').forEach(overlay=>{const panel=overlay.querySelector(':scope > .briefingpanel');if(panel&&!panel.classList.contains('briefingpanel-tempest')&&!panel.classList.contains('briefingpanel-polaris'))prepare(panel);observer.observe(overlay,{attributes:true,attributeFilter:['class']})});window.addEventListener('resize',()=>requestAnimationFrame(fitVisible));window.visualViewport?.addEventListener('resize',()=>requestAnimationFrame(fitVisible));fitVisible()}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initialize);else initialize();
 })();
-
 /* CI adaptive gameplay sidebar controller v1 */
 (() => {
     function initializeAdaptiveSidebar() {

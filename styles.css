@@ -3002,3 +3002,509 @@ body.dev-mode-active #settingsMenu #devProgressionState {
   #campaignMenu #campaignBack{margin:3px 0!important}
   #campaignMenu .campaignpanel>.menu-version{margin-top:4px!important}
 }
+/* TEMPEST // restore compact gameplay header and inline phase clock
+   Restore the established gameplay header height. The phase remains centered, with
+   the timer beside it; the command rail stays fixed and never becomes a scroller. */
+@media (min-width:681px) and (max-height:700px){
+  #app>header{
+    height:70px!important;
+    min-height:70px!important;
+    flex:0 0 70px!important;
+    padding:6px 14px!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,.85fr)!important;
+    column-gap:10px!important;
+  }
+  #app>header .brand-block{min-width:0!important;align-self:center!important}
+  #app>header .brand-block .header-objectives{
+    position:static!important;
+    left:auto!important;right:auto!important;bottom:auto!important;
+    width:100%!important;max-height:none!important;
+    margin:4px 0 0!important;padding:0!important;
+    justify-content:flex-start!important;flex-wrap:nowrap!important;
+    overflow:hidden!important;white-space:nowrap!important;
+  }
+  #app>header .clock{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    align-items:center!important;
+    justify-self:stretch!important;
+    gap:clamp(5px,1vw,12px)!important;
+    min-width:0!important;
+    text-align:left!important;
+  }
+  #app>header .clock small{
+    display:block!important;min-width:0!important;max-width:none!important;
+    margin:0!important;font-size:clamp(7px,.75vw,10px)!important;
+    line-height:1.1!important;white-space:nowrap!important;
+    overflow:hidden!important;text-overflow:ellipsis!important;
+    text-align:right!important;
+  }
+  #app>header .clock b{
+    display:block!important;
+    font-size:clamp(17px,2.4vh,23px)!important;
+    line-height:1!important;letter-spacing:.13em!important;
+    white-space:nowrap!important;
+  }
+  #app>header .status{min-width:0!important;font-size:clamp(7px,.75vw,10px)!important}
+  #app>.layout{
+    height:calc(100dvh - 70px)!important;
+    min-height:0!important;
+  }
+  #app>.layout>aside{
+    min-height:0!important;
+    overflow:hidden!important;
+    overflow-y:hidden!important;
+    overflow-x:hidden!important;
+  }
+}
+
+/* Keep the pre-existing 64px phone-landscape header tier and flex-sized map/rail. */
+@media (min-width:681px) and (max-height:500px){
+  #app>header{
+    height:64px!important;
+    min-height:64px!important;
+    flex:0 0 64px!important;
+    padding:7px 18px!important;
+  }
+  #app>.layout{height:auto!important}
+  #app>header .brand-block .header-objectives{margin-top:3px!important}
+}
+/* TEMPEST // full-width objectives and complete phase labels
+   The objective ribbon spans the header, with long TEMPEST support text on row two.
+   The complete phase label wraps as needed; the timer stays in the reserved right cell. */
+@media (min-width:681px) and (max-height:700px){
+  #app>header{
+    position:relative!important;
+    height:70px!important;min-height:70px!important;flex:0 0 70px!important;
+    padding:6px 14px 20px!important;
+    grid-template-columns:minmax(0,1.05fr) minmax(250px,1.25fr) minmax(150px,.75fr)!important;
+    column-gap:10px!important;
+    align-items:center!important;
+  }
+  #app>header .brand-block{min-width:0!important;align-self:center!important}
+  #app>header .brand-block .header-objectives{
+    position:absolute!important;left:14px!important;right:14px!important;bottom:2px!important;
+    z-index:3!important;width:auto!important;max-height:18px!important;
+    display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;
+    align-items:center!important;justify-content:flex-start!important;
+    gap:0 clamp(5px,.7vw,9px)!important;margin:0!important;padding:0!important;
+    overflow:hidden!important;white-space:normal!important;line-height:8px!important;
+  }
+  #app>header .brand-block .header-objectives .objective-title,
+  #app>header .brand-block .header-objectives .objective-chip{
+    flex:0 0 auto!important;min-width:0!important;line-height:8px!important;
+  }
+  #app>header .brand-block .header-objectives .objective-title{
+    font-size:clamp(6px,.58vw,7.5px)!important;letter-spacing:.06em!important
+  }
+  #app>header .brand-block .header-objectives em{
+    font-size:clamp(5.5px,.53vw,7px)!important;letter-spacing:0!important
+  }
+  #app>header .brand-block .header-objectives b{
+    font-size:clamp(6px,.58vw,7.5px)!important;letter-spacing:0!important
+  }
+  #app>header .brand-block .header-objectives #tempestObjectiveExtra:not([hidden]){
+    display:block!important;flex:1 0 100%!important;min-width:0!important;width:auto!important;
+    box-sizing:border-box!important;margin:0!important;padding:0!important;
+    border:0!important;border-radius:0!important;
+    color:var(--muted)!important;font-size:clamp(5.5px,.55vw,6.5px)!important;
+    line-height:8px!important;letter-spacing:.02em!important;
+    white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+  }
+  #app>header .brand-block .header-objectives #tempestObjectiveExtra[hidden]{display:none!important}
+  #app>header .clock{
+    display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+    align-items:center!important;justify-self:stretch!important;
+    gap:clamp(4px,.55vw,8px)!important;min-width:0!important;
+    text-align:left!important;
+  }
+  #app>header .clock small{
+    display:block!important;min-width:0!important;max-width:none!important;
+    margin:0!important;font-size:clamp(5.5px,.65vw,8px)!important;
+    line-height:1.12!important;letter-spacing:.025em!important;
+    white-space:normal!important;overflow:visible!important;
+    text-overflow:clip!important;overflow-wrap:normal!important;word-break:normal!important;
+    text-align:right!important;
+  }
+  #app>header .clock b{
+    display:block!important;font-size:clamp(17px,2.4vh,23px)!important;
+    line-height:1!important;letter-spacing:.12em!important;white-space:nowrap!important;
+  }
+  #app>header .status{min-width:0!important;font-size:clamp(7px,.72vw,9px)!important}
+  #app>.layout{height:calc(100dvh - 70px)!important;min-height:0!important}
+  #app>.layout>aside{
+    min-height:0!important;overflow:hidden!important;
+    overflow-y:hidden!important;overflow-x:hidden!important;
+  }
+}
+
+/* Preserve the compact phone tier while keeping two objective lines inside its header. */
+@media (min-width:681px) and (max-height:500px){
+  #app>header{
+    height:64px!important;min-height:64px!important;flex:0 0 64px!important;
+    padding:5px 14px 20px!important;
+  }
+  #app>.layout{height:auto!important}
+  #app>header .brand-block .header-objectives{bottom:2px!important;max-height:18px!important}
+}
+/* MISSION HEADER // unified mission identity, centered clock, fixed rail
+   Every mode uses its mission identity above a centered clock. Objectives span the
+   header; the right command rail remains fixed and non-scrolling. */
+@media (min-width:681px) and (max-height:700px){
+  #app>header{
+    position:relative!important;height:70px!important;min-height:70px!important;flex:0 0 70px!important;
+    padding:6px 14px 20px!important;
+    grid-template-columns:minmax(0,1.05fr) minmax(250px,1.25fr) minmax(150px,.75fr)!important;
+    column-gap:10px!important;align-items:center!important;
+  }
+  #app>header .brand-block{min-width:0!important;align-self:center!important}
+  #app>header .brand-block .header-objectives{
+    position:absolute!important;left:14px!important;right:14px!important;bottom:2px!important;z-index:3!important;
+    width:auto!important;max-height:18px!important;display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;
+    align-items:center!important;justify-content:flex-start!important;gap:0 clamp(5px,.7vw,9px)!important;
+    margin:0!important;padding:0!important;overflow:hidden!important;white-space:normal!important;line-height:8px!important;
+  }
+  #app>header .brand-block .header-objectives .objective-title,
+  #app>header .brand-block .header-objectives .objective-chip{flex:0 0 auto!important;min-width:0!important;line-height:8px!important}
+  #app>header .brand-block .header-objectives .objective-title{font-size:clamp(6px,.58vw,7.5px)!important;letter-spacing:.06em!important}
+  #app>header .brand-block .header-objectives em{font-size:clamp(5.5px,.53vw,7px)!important;letter-spacing:0!important}
+  #app>header .brand-block .header-objectives b{font-size:clamp(6px,.58vw,7.5px)!important;letter-spacing:0!important}
+  #app>header .brand-block .header-objectives #tempestObjectiveExtra:not([hidden]){
+    display:block!important;flex:1 0 100%!important;min-width:0!important;width:auto!important;box-sizing:border-box!important;
+    margin:0!important;padding:0!important;border:0!important;border-radius:0!important;color:var(--muted)!important;
+    font-size:clamp(5.5px,.55vw,6.5px)!important;line-height:8px!important;letter-spacing:.02em!important;
+    white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+  }
+  #app>header .brand-block .header-objectives #tempestObjectiveExtra[hidden]{display:none!important}
+  #app>header .clock{
+    display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
+    justify-self:stretch!important;min-width:0!important;width:100%!important;height:100%!important;gap:1px!important;text-align:center!important;
+  }
+  #app>header .clock small{
+    display:block!important;min-width:0!important;max-width:100%!important;margin:0!important;
+    font-size:clamp(5.5px,.65vw,8px)!important;line-height:1.12!important;letter-spacing:.025em!important;
+    white-space:normal!important;overflow:visible!important;text-overflow:clip!important;
+    overflow-wrap:normal!important;word-break:normal!important;text-align:center!important;
+  }
+  #app>header .clock b{display:block!important;font-size:clamp(17px,2.4vh,23px)!important;line-height:1!important;letter-spacing:.12em!important;white-space:nowrap!important}
+  #app>header .status{
+    min-width:0!important;display:grid!important;grid-template-columns:auto auto!important;grid-auto-flow:row!important;
+    justify-content:end!important;align-content:center!important;gap:2px 9px!important;font-size:clamp(7px,.72vw,9px)!important;
+  }
+  #app>header>.status>span:last-child{display:none!important}
+  #app>.layout{height:calc(100dvh - 70px)!important;min-height:0!important}
+  #app>.layout>aside{min-height:0!important;overflow:hidden!important;overflow-y:hidden!important;overflow-x:hidden!important}
+}
+@media (min-width:681px) and (max-height:500px){
+  #app>header{height:64px!important;min-height:64px!important;flex:0 0 64px!important;padding:5px 14px 20px!important}
+  #app>.layout{height:auto!important}
+  #app>header .brand-block .header-objectives{bottom:2px!important;max-height:18px!important}
+}
+#app>header>.status>span:last-child{display:none!important}
+/* CAMPAIGN 05 BRIEFING PARITY // 04-01 typography and restrained gold hierarchy
+   Keep Campaign 05's scroll-safe action area while matching the 04-01 briefing's
+   typography, restrained gold objective heading, neutral objective copy, and button treatment. */
+#briefingTempest>.briefingpanel-tempest{
+  width:min(780px,calc(100vw - 32px))!important;max-width:calc(100vw - 32px)!important;
+  padding:18px 22px!important;gap:0!important
+}
+#briefingTempest .briefing-scroll{padding-right:4px!important}
+#briefingTempest .briefing-scroll .menu-kicker{font-size:10px!important;line-height:1.25!important;letter-spacing:.18em!important;color:#83978f!important}
+#briefingTempest .briefing-scroll .menu-title.small{
+  margin:7px 0 10px!important;font-size:26px!important;line-height:1.05!important;
+  letter-spacing:4px!important;color:#eef3f1!important;text-align:center!important
+}
+#briefingTempest .briefing-scroll .brief-copy{
+  margin:10px 0!important;font-size:12px!important;line-height:1.45!important;
+  color:#b9c7c2!important;text-align:left!important
+}
+#briefingTempest .briefing-scroll .objectives{
+  margin:10px 0!important;padding:11px 13px!important;font-size:11px!important;line-height:1.4!important;
+  color:#9fb1aa!important;border:0!important;border-left:2px solid rgba(216,168,62,.48)!important;
+  border-bottom:1px solid rgba(104,115,105,.28)!important;border-radius:0!important;background:rgba(7,16,15,.42)!important
+}
+#briefingTempest .briefing-scroll .objectives>div{
+  margin:0 0 7px!important;font-size:10px!important;letter-spacing:1.5px!important;color:#d8a83e!important
+}
+#briefingTempest .briefing-scroll .objectives p{margin:5px 0!important;color:#b9c7c2!important}
+#briefingTempest .briefing-actions{
+  margin-top:8px!important;padding-top:8px!important;border-top:1px solid rgba(104,115,105,.28)!important;
+  background:linear-gradient(180deg,rgba(6,16,15,.985),rgba(5,13,13,.985))!important
+}
+#briefingTempest .briefing-actions button{
+  height:40px!important;min-height:40px!important;margin:0!important;padding:7px 12px!important;
+  font-size:11px!important;letter-spacing:.16em!important
+}
+#briefingTempest .briefing-actions .menu-primary{
+  border-color:rgba(216,168,62,.78)!important;color:#f0c75f!important;
+  background:linear-gradient(90deg,rgba(54,43,16,.42),rgba(21,25,20,.70))!important
+}
+#briefingTempest .briefing-actions .menu-secondary{background:rgba(7,16,15,.58)!important}
+@media(max-height:700px){
+  #briefingTempest>.briefingpanel-tempest{max-height:calc(100dvh - 16px)!important;padding:8px 14px!important}
+  #briefingTempest .briefing-scroll .menu-title.small{margin:4px 0 6px!important;font-size:clamp(18px,4vh,23px)!important}
+  #briefingTempest .briefing-scroll .brief-copy{margin:5px 0!important;font-size:clamp(9px,1.8vh,11px)!important;line-height:1.3!important}
+  #briefingTempest .briefing-scroll .objectives{margin:5px 0!important;padding:7px 9px!important;font-size:clamp(8px,1.55vh,9.5px)!important;line-height:1.2!important}
+  #briefingTempest .briefing-scroll .objectives>div{margin-bottom:4px!important;font-size:clamp(8px,1.5vh,9px)!important}
+  #briefingTempest .briefing-scroll .objectives p{margin:2px 0!important}
+  #briefingTempest .briefing-actions{margin-top:5px!important;padding-top:5px!important}
+  #briefingTempest .briefing-actions button{height:30px!important;min-height:30px!important;padding:4px 9px!important;font-size:9px!important}
+}
+/* CAMPAIGN 06 // POLARIS // compact area tabs and scroll-safe 04-01 briefing parity */
+@media(min-width:681px){#campaignMenu .campaign-oa-tabs{grid-template-columns:repeat(6,minmax(0,1fr))!important}}
+@media(max-width:680px){#campaignMenu .campaign-oa-tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+#campaignMenu #campaignPaneArctic .campaign-section-title{color:#d8a83e!important;border-bottom-color:rgba(216,168,62,.25)!important}
+#campaignMenu .polaris-mission-list{margin:5px 0 7px!important}
+#campaignMenu .polaris-mission-list .mission-row{height:38px!important;min-height:38px!important;margin:3px 0!important}
+#briefingPolaris{box-sizing:border-box!important;overflow:hidden!important;padding:12px!important}
+#briefingPolaris>.briefingpanel-polaris{box-sizing:border-box!important;display:flex!important;flex-direction:column!important;width:min(780px,calc(100vw - 32px))!important;max-width:calc(100vw - 32px)!important;max-height:calc(100dvh - 24px)!important;min-height:0!important;overflow:hidden!important;padding:18px 22px!important;gap:0!important}
+#briefingPolaris .briefing-scroll{flex:1 1 auto!important;min-height:0!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;scrollbar-width:thin;padding-right:4px!important}
+#briefingPolaris .briefing-scroll .menu-kicker{font-size:10px!important;line-height:1.25!important;letter-spacing:.18em!important;color:#83978f!important}
+#briefingPolaris .briefing-scroll .menu-title.small{margin:7px 0 10px!important;font-size:26px!important;line-height:1.05!important;letter-spacing:4px!important;color:#eef3f1!important;text-align:center!important}
+#briefingPolaris .briefing-scroll .brief-copy{margin:10px 0!important;font-size:12px!important;line-height:1.45!important;color:#b9c7c2!important;text-align:left!important}
+#briefingPolaris .briefing-scroll .objectives{margin:10px 0!important;padding:11px 13px!important;font-size:11px!important;line-height:1.4!important;color:#9fb1aa!important;border:0!important;border-left:2px solid rgba(216,168,62,.48)!important;border-bottom:1px solid rgba(104,115,105,.28)!important;border-radius:0!important;background:rgba(7,16,15,.42)!important}
+#briefingPolaris .briefing-scroll .objectives>div{margin:0 0 7px!important;font-size:10px!important;letter-spacing:1.5px!important;color:#d8a83e!important}
+#briefingPolaris .briefing-scroll .objectives p{margin:5px 0!important;color:#b9c7c2!important}
+#briefingPolaris .briefing-actions{flex:0 0 auto!important;display:grid!important;gap:5px!important;margin-top:8px!important;padding-top:8px!important;border-top:1px solid rgba(104,115,105,.28)!important;background:linear-gradient(180deg,rgba(6,16,15,.985),rgba(5,13,13,.985))!important}
+#briefingPolaris .briefing-actions button{box-sizing:border-box!important;width:100%!important;height:40px!important;min-height:40px!important;margin:0!important;padding:7px 12px!important;font-size:11px!important;letter-spacing:.16em!important}
+#briefingPolaris .briefing-actions .menu-primary{border-color:rgba(216,168,62,.78)!important;color:#f0c75f!important;background:linear-gradient(90deg,rgba(54,43,16,.42),rgba(21,25,20,.70))!important}
+#briefingPolaris .briefing-actions .menu-secondary{background:rgba(7,16,15,.58)!important}
+#briefingPolaris .briefing-actions button[hidden]{display:none!important}
+@media(max-height:700px){
+  #briefingPolaris{padding:8px!important}
+  #briefingPolaris>.briefingpanel-polaris{max-height:calc(100dvh - 16px)!important;padding:8px 14px!important}
+  #briefingPolaris .briefing-scroll .menu-title.small{margin:4px 0 6px!important;font-size:clamp(18px,4vh,23px)!important}
+  #briefingPolaris .briefing-scroll .brief-copy{margin:5px 0!important;font-size:clamp(9px,1.8vh,11px)!important;line-height:1.3!important}
+  #briefingPolaris .briefing-scroll .objectives{margin:5px 0!important;padding:7px 9px!important;font-size:clamp(8px,1.55vh,9.5px)!important;line-height:1.2!important}
+  #briefingPolaris .briefing-scroll .objectives>div{margin-bottom:4px!important;font-size:clamp(8px,1.5vh,9px)!important}
+  #briefingPolaris .briefing-scroll .objectives p{margin:2px 0!important}
+  #briefingPolaris .briefing-actions{margin-top:5px!important;padding-top:5px!important}
+  #briefingPolaris .briefing-actions button{height:30px!important;min-height:30px!important;padding:4px 9px!important;font-size:9px!important}
+}
+/* campaign-inline-objective-ribbon-v1: supplemental campaign metrics stay beside integrity */
+#app>header .brand-block .header-objectives.has-inline-extra{flex-wrap:nowrap!important;white-space:nowrap!important;overflow:hidden!important;gap:0 clamp(4px,.55vw,8px)!important;max-height:18px!important;line-height:8px!important}
+#app>header .brand-block .header-objectives .campaign-inline-objective[hidden]{display:none!important}
+#app>header .brand-block .header-objectives #tempestObjectiveExtra:not([hidden]),#app>header .brand-block .header-objectives #polarisObjectiveExtra:not([hidden]){position:static!important;display:inline-flex!important;flex:0 0 auto!important;align-items:baseline!important;gap:3px!important;width:auto!important;min-width:0!important;max-width:none!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;line-height:8px!important;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;color:var(--muted)!important;font-size:clamp(5.5px,.55vw,7px)!important;letter-spacing:0!important}
+#app>header .brand-block .header-objectives .campaign-inline-objective em{font-size:clamp(5.5px,.53vw,7px)!important;letter-spacing:0!important;color:var(--muted)!important}
+#app>header .brand-block .header-objectives .campaign-inline-objective b{font-size:clamp(6px,.58vw,7.5px)!important;letter-spacing:0!important;color:#e8eeee!important}
+#app>header .brand-block .header-objectives #polarisObjectiveExtra.window-shadow b{color:#d8a83e!important}
+/* CI campaign briefing parity: fixed headings/actions, scroll only briefing details */
+.gameoverlay[id^="briefing"]>.briefingpanel:not(.briefingpanel-tempest):not(.briefingpanel-polaris){padding:18px 22px!important;gap:0!important}
+.gameoverlay[id^="briefing"] .ci-briefing-heading{flex:0 0 auto!important;min-width:0!important}
+.gameoverlay[id^="briefing"] .ci-briefing-heading .menu-kicker{font-size:10px!important;line-height:1.25!important;letter-spacing:.18em!important;color:#83978f!important}
+.gameoverlay[id^="briefing"] .ci-briefing-heading .menu-title.small{margin:7px 0 10px!important;font-size:26px!important;line-height:1.05!important;letter-spacing:4px!important;color:#eef3f1!important;text-align:center!important}
+.gameoverlay[id^="briefing"] .ci-briefing-scroll{padding-right:4px!important;scrollbar-width:thin}
+.gameoverlay[id^="briefing"] .ci-briefing-scroll .brief-copy{margin:10px 0!important;font-size:12px!important;line-height:1.45!important;color:#b9c7c2!important;text-align:left!important}
+.gameoverlay[id^="briefing"] .ci-briefing-scroll .objectives{margin:10px 0!important;padding:11px 13px!important;font-size:11px!important;line-height:1.4!important;color:#9fb1aa!important;border:0!important;border-left:2px solid rgba(216,168,62,.48)!important;border-bottom:1px solid rgba(104,115,105,.28)!important;border-radius:0!important;background:rgba(7,16,15,.42)!important}
+.gameoverlay[id^="briefing"] .ci-briefing-scroll .objectives>div{margin:0 0 7px!important;font-size:10px!important;letter-spacing:1.5px!important;color:#d8a83e!important}
+.gameoverlay[id^="briefing"] .ci-briefing-scroll .objectives p{margin:5px 0!important;color:#b9c7c2!important}
+.gameoverlay[id^="briefing"] .ci-briefing-actions{flex:0 0 auto!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:5px!important;margin-top:8px!important;padding-top:8px!important;border-top:1px solid rgba(104,115,105,.28)!important;background:linear-gradient(180deg,rgba(6,16,15,.985),rgba(5,13,13,.985))!important}
+.gameoverlay[id^="briefing"] .ci-briefing-actions button{box-sizing:border-box!important;width:100%!important;height:40px!important;min-height:40px!important;margin:0!important;padding:7px 12px!important;font-size:11px!important;letter-spacing:.16em!important}
+.gameoverlay[id^="briefing"] .ci-briefing-actions .menu-primary{border-color:rgba(216,168,62,.78)!important;color:#f0c75f!important;background:linear-gradient(90deg,rgba(54,43,16,.42),rgba(21,25,20,.70))!important}
+.gameoverlay[id^="briefing"] .ci-briefing-actions .menu-secondary{background:rgba(7,16,15,.58)!important}
+.gameoverlay[id^="briefing"] .ci-briefing-actions button[hidden]{display:none!important}
+@media(max-height:700px){
+  .gameoverlay[id^="briefing"]>.briefingpanel:not(.briefingpanel-tempest):not(.briefingpanel-polaris){padding:8px 14px!important}
+  .gameoverlay[id^="briefing"] .ci-briefing-heading .menu-title.small{margin:4px 0 6px!important;font-size:clamp(18px,4vh,23px)!important}
+  .gameoverlay[id^="briefing"] .ci-briefing-scroll .brief-copy{margin:5px 0!important;font-size:clamp(9px,1.8vh,11px)!important;line-height:1.3!important}
+  .gameoverlay[id^="briefing"] .ci-briefing-scroll .objectives{margin:5px 0!important;padding:7px 9px!important;font-size:clamp(8px,1.55vh,9.5px)!important;line-height:1.2!important}
+  .gameoverlay[id^="briefing"] .ci-briefing-scroll .objectives>div{margin-bottom:4px!important;font-size:clamp(8px,1.5vh,9px)!important}
+  .gameoverlay[id^="briefing"] .ci-briefing-scroll .objectives p{margin:2px 0!important}
+  .gameoverlay[id^="briefing"] .ci-briefing-actions{margin-top:5px!important;padding-top:5px!important}
+  .gameoverlay[id^="briefing"] .ci-briefing-actions button{height:30px!important;min-height:30px!important;padding:4px 9px!important;font-size:9px!important}
+}
+/* CAMPAIGN 03 // objective-driven and timeless; preserve the roadway / mission identifier. */
+body.verdant-timeless-ui #app>header .clock b{display:none!important}
+body.verdant-timeless-ui #app>header .clock{align-self:center!important;min-width:0!important}
+body.verdant-timeless-ui #app>header .clock small{display:block!important;max-width:none!important;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important}
+
+/* CAMPAIGN 06 // shared compact mission rows and a visible Polaris campaign title. */
+#campaignMenu #campaignPaneArctic .campaign-section-title{display:block!important;visibility:visible!important;flex:0 0 auto!important}
+#campaignMenu .polaris-mission-list .mission-row{height:auto!important;min-height:28px!important;margin:3px 0!important}
+@media(max-width:1000px),(max-height:700px){#campaignMenu .polaris-mission-list .mission-row{height:27px!important;min-height:27px!important;margin:2px 0!important}}
+
+/* GLOBAL OPERATIONS // RETRO has one activity and a fixed, non-scrolling right rail. */
+#globalMenu.retro-global-selection .global-panel{overflow:hidden!important;min-height:0!important}
+#globalMenu.retro-global-selection .global-kv,
+#globalMenu.retro-global-selection .global-divider,
+#globalMenu.retro-global-selection #globalOADetail,
+#globalMenu.retro-global-selection .global-note,
+#globalMenu.retro-global-selection>.global-shell>.global-stage>.global-panel>.global-panel-kicker{display:none!important}
+#globalMenu.retro-global-selection .global-panel-title{font-size:16px!important;margin:2px 0 6px!important}
+#globalMenu.retro-global-selection .global-oa-name{margin:2px 0 6px!important;font-size:11px!important}
+#globalMenu.retro-global-selection .global-activities{display:grid!important;grid-template-columns:1fr!important;gap:3px!important;margin:3px 0!important}
+#globalMenu.retro-global-selection .global-activities .global-panel-kicker{display:block!important;margin-bottom:1px!important}
+#globalMenu.retro-global-selection #globalCampaign,
+#globalMenu.retro-global-selection #globalPlanNAI{display:none!important}
+#globalMenu.retro-global-selection #globalArcade{height:30px!important;min-height:30px!important;margin:0!important}
+#globalMenu.retro-global-selection #globalBack{height:30px!important;min-height:30px!important;margin:auto 0 0!important}
+
+/* COMMAND PROFILE // five package choices fit in two compact desktop rows. */
+.capability-buttons{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important}
+.capability-buttons button{min-width:0!important;padding:6px!important}
+.capability-buttons button b{font-size:7px!important;letter-spacing:.07em!important}
+.capability-buttons button small{font-size:6px!important;line-height:1.2!important}
+@media(max-width:560px){.capability-buttons{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+/* GLOBAL OPERATIONS // shared Training control stays on the globe, outside OA-specific activities. */
+#globalMenu .orbital-scene .global-map-training{position:absolute!important;right:12px!important;bottom:12px!important;z-index:20!important;width:min(210px,38%)!important;height:36px!important;min-height:36px!important;margin:0!important;padding:0 8px!important;font-size:8px!important;letter-spacing:.1em!important;border-color:rgba(216,168,62,.72)!important;color:#e4c46f!important;background:rgba(8,15,18,.94)!important;box-shadow:0 3px 14px rgba(0,0,0,.45)!important}
+#globalMenu .global-activities #globalPlanNAI{grid-column:1/-1!important}
+#globalMenu.retro-global-selection .global-activities #globalArcade{grid-column:1/-1!important}
+
+/* RETRO // retain the collection summary through PICTURE NOMINAL in the fixed rail. */
+#globalMenu.retro-global-selection .global-kv{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:4px 8px!important;margin:3px 0!important;font-size:7px!important;line-height:1.2!important}
+#globalMenu.retro-global-selection .global-panel>.global-panel-kicker:first-child{display:block!important;margin-bottom:1px!important}
+#globalMenu.retro-global-selection .global-divider{display:block!important;flex:0 0 1px!important;height:1px!important;margin:6px 0!important}
+#globalMenu.retro-global-selection .global-panel-title{font-size:17px!important;margin:2px 0 5px!important}
+#globalMenu.retro-global-selection .global-oa-name{margin:3px 0 6px!important;font-size:11px!important}
+#globalMenu.retro-global-selection .global-activities{margin-top:4px!important}
+@media(max-width:680px){#globalMenu .orbital-scene .global-map-training{right:8px!important;bottom:8px!important;width:min(180px,43%)!important;height:30px!important;min-height:30px!important;font-size:7px!important}}
+
+/* TRAINING GUIDANCE // keep the command rail and objective ribbon clear. */
+#mapWrap .tutorial-guide:not(.hidden){
+  position:absolute!important;left:auto!important;right:12px!important;top:auto!important;bottom:12px!important;
+  transform:none!important;box-sizing:border-box!important;width:min(460px,calc(100% - 24px))!important;
+  max-width:calc(100% - 24px)!important;max-height:min(36%,220px)!important;min-height:0!important;
+  display:flex!important;flex-direction:column!important;overflow:hidden!important;padding:9px 12px!important;
+  z-index:90!important;background:rgba(7,13,17,.97)!important
+}
+#mapWrap .tutorial-guide>.tutorial-kicker,#mapWrap .tutorial-guide>b{flex:0 0 auto!important}
+#mapWrap .tutorial-guide>b{margin:3px 0 5px!important;font-size:clamp(11px,1.4vw,16px)!important;line-height:1.12!important}
+#mapWrap .tutorial-guide>p{flex:1 1 auto!important;min-height:0!important;overflow-x:hidden!important;overflow-y:auto!important;
+  overscroll-behavior:contain!important;margin:0!important;font-size:clamp(9px,1vw,12px)!important;line-height:1.3!important}
+#mapWrap .tutorial-guide>button{flex:0 0 auto!important;width:100%!important;min-height:32px!important;height:32px!important;
+  margin-top:6px!important;padding:4px 8px!important;font-size:clamp(10px,1.15vw,14px)!important}
+
+/* GLOBE COMMANDS // reset and training use matching size, color, and weight. */
+#globalMenu .orbital-scene .global-map-training,
+#globalMenu .orbital-scene .global-globe-reset{
+  box-sizing:border-box!important;width:min(210px,38%)!important;min-width:0!important;height:36px!important;min-height:36px!important;
+  margin:0!important;padding:0 8px!important;border:1px solid rgba(216,168,62,.72)!important;border-radius:6px!important;
+  color:#e4c46f!important;background:rgba(8,15,18,.94)!important;box-shadow:0 3px 14px rgba(0,0,0,.45)!important;
+  font-size:8px!important;letter-spacing:.1em!important
+}
+#globalMenu .orbital-scene .global-globe-reset{
+  position:absolute!important;left:12px!important;right:auto!important;top:auto!important;bottom:12px!important;z-index:20!important
+}
+#globalMenu .orbital-scene .global-map-training:hover,
+#globalMenu .orbital-scene .global-globe-reset:hover{background:rgba(217,170,24,.12)!important;color:#ffe18a!important}
+
+/* CAMPAIGN SELECTOR // place each area's theme below its title in the six-column view. */
+#campaignMenu .campaign-oa-tabs button{
+  box-sizing:border-box!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+  justify-content:center!important;gap:2px!important;min-width:0!important;height:42px!important;min-height:42px!important;
+  overflow:hidden!important;padding:3px 5px!important;text-align:left!important;white-space:normal!important
+}
+#campaignMenu .campaign-oa-tabs button>b,
+#campaignMenu .campaign-oa-tabs button>span{
+  display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important
+}
+#campaignMenu .campaign-oa-tabs button>b{font-size:clamp(6px,.72vw,8px)!important;line-height:1.1!important}
+#campaignMenu .campaign-oa-tabs button>span{font-size:clamp(5px,.62vw,7px)!important;line-height:1.1!important;color:var(--muted)!important}
+#campaignMenu .campaign-oa-tabs button.selected>span{color:#d8a83e!important}
+@media(max-width:680px){
+  #globalMenu .orbital-scene .global-map-training,#globalMenu .orbital-scene .global-globe-reset{
+    width:min(180px,43%)!important;height:30px!important;min-height:30px!important;font-size:7px!important
+  }
+  #globalMenu .orbital-scene .global-map-training{right:8px!important;bottom:8px!important}
+  #globalMenu .orbital-scene .global-globe-reset{left:8px!important;bottom:8px!important}
+  #campaignMenu .campaign-oa-tabs button{height:34px!important;min-height:34px!important}
+}
+/* COLLECTION PLANNING // fixed, compact rail shared across every operational area. */
+#globalPlanning .planning-side{
+  display:flex!important;flex-direction:column!important;min-width:0!important;min-height:0!important;
+  overflow:hidden!important;overscroll-behavior:none!important;padding:10px 12px!important
+}
+#globalPlanning .planning-status{
+  flex:0 0 auto!important;grid-template-columns:minmax(0,1fr) auto!important;gap:4px 7px!important;
+  margin:5px 0 7px!important;font-size:7px!important;line-height:1.15!important
+}
+#globalPlanning .planning-side>p{
+  flex:0 0 auto!important;margin:4px 0 6px!important;font-size:7px!important;line-height:1.3!important;color:#a5b4b7!important
+}
+#globalPlanning .planning-coord{
+  flex:0 0 auto!important;min-width:0!important;margin:5px 0!important;padding:5px 6px!important;
+  overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:7px!important;line-height:1.2!important
+}
+#globalPlanning .planning-side>.menu-primary,
+#globalPlanning .planning-side>.menu-secondary{
+  flex:0 0 27px!important;box-sizing:border-box!important;width:100%!important;height:27px!important;min-height:27px!important;
+  margin:2px 0!important;padding:3px 6px!important;font-size:7px!important;line-height:1.1!important;letter-spacing:.1em!important
+}
+#globalPlanning .planning-side>small{
+  flex:0 0 auto!important;display:block!important;margin:4px 0 0!important;font-size:6px!important;line-height:1.2!important;
+  overflow-wrap:anywhere!important;color:#809198!important
+}
+@media(max-height:520px) and (orientation:landscape){
+  #globalPlanning .planning-side{padding:7px 9px!important}
+  #globalPlanning .planning-status{gap:3px 6px!important;margin:3px 0 5px!important}
+  #globalPlanning .planning-side>p{margin:3px 0 4px!important;line-height:1.2!important}
+  #globalPlanning .planning-coord{margin:3px 0!important;padding:4px 5px!important}
+  #globalPlanning .planning-side>.menu-primary,#globalPlanning .planning-side>.menu-secondary{flex-basis:25px!important;height:25px!important;min-height:25px!important;margin:1px 0!important}
+  #globalPlanning .planning-side>small{margin-top:3px!important;font-size:5.5px!important}
+}
+/* GLOBAL OPERATIONS // fixed non-scrolling rail, first-mission planning unlock, and mission-specific NAI labels. */
+#globalMenu .global-panel{
+  display:flex!important;flex-direction:column!important;align-self:stretch!important;height:100%!important;min-height:0!important;
+  overflow:hidden!important;overscroll-behavior:none!important;box-sizing:border-box!important;padding:10px 12px!important
+}
+#globalMenu .global-panel>.global-panel-kicker{flex:0 0 auto!important;margin:0 0 2px!important;font-size:6px!important;line-height:1.1!important}
+#globalMenu .global-panel-title{flex:0 0 auto!important;margin:2px 0 6px!important;font-size:16px!important;line-height:1.1!important}
+#globalMenu .global-kv{flex:0 0 auto!important;grid-template-columns:minmax(0,1fr) auto!important;gap:3px 7px!important;font-size:7px!important;line-height:1.15!important}
+#globalMenu .global-divider{flex:0 0 1px!important;height:1px!important;margin:6px 0!important}
+#globalMenu .global-oa-name{flex:0 0 auto!important;margin:2px 0 4px!important;font-size:11px!important;line-height:1.15!important}
+#globalMenu .global-oa-detail{flex:0 0 auto!important;min-height:0!important;max-height:none!important;margin:0 0 5px!important;font-size:7px!important;line-height:1.2!important;overflow:hidden!important}
+#globalMenu .global-activities{flex:0 0 auto!important;display:grid!important;grid-template-columns:1fr 1fr!important;gap:3px!important;margin:3px 0 4px!important}
+#globalMenu .global-activities>.global-panel-kicker{grid-column:1/-1!important;margin:0 0 1px!important;font-size:6px!important}
+#globalMenu .global-panel .global-activities .menu-primary,
+#globalMenu .global-panel .global-activities .menu-secondary{
+  box-sizing:border-box!important;width:100%!important;height:28px!important;min-height:28px!important;margin:0!important;
+  padding:3px 5px!important;font-size:7px!important;line-height:1.05!important;letter-spacing:.08em!important
+}
+#globalMenu .global-activities #globalPlanNAI{grid-column:1/-1!important}
+#globalMenu #globalPlanNAI:disabled{cursor:not-allowed!important}
+#globalMenu .global-note{flex:0 0 auto!important;margin:3px 0 4px!important;font-size:6px!important;line-height:1.15!important;color:#819097!important}
+#globalMenu #globalBack{flex:0 0 30px!important;box-sizing:border-box!important;width:100%!important;height:30px!important;min-height:30px!important;margin:auto 0 0!important;padding:3px 6px!important;font-size:7px!important}
+#globalMenu .global-panel .global-divider{background:rgba(142,161,168,.2)!important}
+#strategicPriorityNAILabel text{font-size:12px!important;letter-spacing:.02em!important}
+@media(max-height:520px){
+  #globalMenu .global-panel{padding:5px 8px!important}
+  #globalMenu .global-panel-title{font-size:13px!important;margin:1px 0 3px!important}
+  #globalMenu .global-divider{margin:4px 0!important}
+  #globalMenu .global-oa-detail{margin-bottom:3px!important}
+  #globalMenu .global-activities{gap:2px!important;margin:2px 0 3px!important}
+  #globalMenu .global-panel .global-activities .menu-primary,#globalMenu .global-panel .global-activities .menu-secondary{height:25px!important;min-height:25px!important}
+  #globalMenu #globalBack{flex-basis:27px!important;height:27px!important;min-height:27px!important}
+}
+/* CAMPAIGN LOCKED IDENTITY // mirror classified globe and command-home treatment */
+#campaignMenu .campaign-oa-tabs button.oa-classified>b,
+#campaignMenu .campaign-oa-tabs button.oa-classified>span,
+#campaignMenu .campaign-section-title.oa-classified,
+#campaignMenu .mission-row b.oa-classified{
+ color:#d94b4b!important;
+ text-shadow:0 0 3px rgba(217,75,75,.3)!important;
+}
+#campaignMenu .campaign-oa-tabs button.oa-scrambling>b,
+#campaignMenu .campaign-oa-tabs button.oa-scrambling>span,
+#campaignMenu .campaign-oa-tabs button>span.oa-scrambling,
+#campaignMenu .campaign-section-title.oa-scrambling,
+#campaignMenu .mission-row b.oa-scrambling{
+ color:#ff7770!important;
+ text-shadow:-2px 0 #7a151b,2px 0 #ff9a66,0 0 5px rgba(255,62,62,.65)!important;
+ animation:ciClassifiedScramble 120ms steps(2,end) infinite!important;
+ will-change:transform;
+}
+/* CAMPAIGN SELECTOR // matched campaign rows and unlocked area colors */
+#campaignMenu .campaign-pane .campaign-list{margin:5px 0 7px!important}
+#campaignMenu .campaign-pane .mission-row{
+ box-sizing:border-box!important;height:34px!important;min-height:34px!important;
+ margin:4px 0!important;padding:0 11px!important;font-size:9px!important
+}
+#campaignMenu .campaign-oa-tabs button.oa-revealed:not(.selected)>b,
+#campaignMenu .campaign-oa-tabs button.oa-revealed:not(.selected)>span{color:#55d67a!important}
+#campaignMenu .campaign-oa-tabs button.oa-revealed.selected>b,
+#campaignMenu .campaign-oa-tabs button.oa-revealed.selected>span{color:#d8a83e!important}
+@media(max-width:1000px),(max-height:700px){
+ #campaignMenu .campaign-pane .mission-row{
+  height:27px!important;min-height:27px!important;margin:2px 0!important;font-size:8.5px!important
+ }
+}
