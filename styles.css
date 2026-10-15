@@ -3508,3 +3508,25 @@ body.verdant-timeless-ui #app>header .clock small{display:block!important;max-wi
   height:27px!important;min-height:27px!important;margin:2px 0!important;font-size:8.5px!important
  }
 }
+/* MIRAGE 04-05 // assessment menu */
+#mirageAssessmentOverlay.hidden,#mirageReopenAssessment[hidden],#mirageAssessment[hidden],#mirageEvidenceSummary[hidden]{display:none!important}
+#mirageAssessmentOverlay{z-index:92;box-sizing:border-box;padding:10px}
+#mirageAssessmentOverlay .mirage-report-panel{box-sizing:border-box;display:flex;flex-direction:column;width:min(680px,96vw);max-height:94%;padding:18px 22px;overflow:hidden;text-align:center}
+#mirageAssessmentOverlay .menu-sub{margin:6px 0 12px}
+.mirage-report-scroll{min-height:0;overflow-y:auto;text-align:left;scrollbar-width:thin;padding-right:4px}
+.mirage-report-section{margin:0 0 10px;padding:10px 12px;border-left:2px solid rgba(216,168,62,.48);border-bottom:1px solid rgba(104,115,105,.28);background:rgba(7,16,15,.42)}
+.mirage-report-heading{color:#d8a83e;font:600 10px/1.4 monospace;letter-spacing:.16em;margin-bottom:8px}
+.mirage-report-copy{color:#b9c7c2;font:11px/1.5 monospace;margin:0 0 10px}
+.mirage-report-metrics{color:#d7e2e4;font:11px/1.6 monospace;white-space:pre-line}
+#mirageAssessmentOverlay .mirage-evidence-summary{display:grid;gap:6px;margin:8px 0 0;padding:8px 0;border:0;background:transparent;color:#d7e2e4;font:11px/1.45 monospace}
+#mirageAssessmentOverlay .mirage-evidence-summary b{color:#d8a83e}
+#mirageAssessmentOverlay .mirage-evidence-summary em{color:#91a6aa;font-style:normal}
+#mirageAssessmentOverlay .mirage-assessment{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:0}
+#mirageAssessmentOverlay .mirage-assessment button{box-sizing:border-box;min-height:42px;padding:7px 4px;border:1px solid rgba(96,119,111,.5);background:rgba(7,17,16,.68);color:#cbd7d2;font:11px monospace;letter-spacing:.08em}
+#mirageAssessmentOverlay .mirage-assessment button[aria-pressed="true"]{border-color:rgba(216,168,62,.85)!important;color:#f0c75f!important;background:rgba(54,43,16,.5)!important}
+.mirage-report-selection{margin-top:9px;color:#91a6aa;font:10px monospace;letter-spacing:.12em}
+.mirage-report-actions{flex:0 0 auto;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px;padding-top:9px;border-top:1px solid rgba(104,115,105,.28)}
+#mirageAssessmentOverlay .mirage-report-actions button{box-sizing:border-box;width:100%;min-height:42px;margin:0;padding:7px;font-size:10px;letter-spacing:.1em}
+#mirageReopenAssessment{box-sizing:border-box;width:100%;min-height:38px;margin-top:8px;border:1px solid rgba(216,168,62,.65);color:#f0c75f;background:rgba(54,43,16,.35);font:10px monospace;letter-spacing:.12em}
+@media(max-height:600px){#mirageAssessmentOverlay{padding:5px}#mirageAssessmentOverlay .mirage-report-panel{max-height:98%;padding:9px 14px}#mirageAssessmentOverlay .menu-title.small{font-size:20px!important;margin:3px 0!important}#mirageAssessmentOverlay .menu-sub{margin:4px 0 7px}.mirage-report-section{padding:7px 10px;margin-bottom:7px}.mirage-report-actions{margin-top:5px;padding-top:5px}}
+@media(max-width:540px){.mirage-report-actions{grid-template-columns:1fr}}
