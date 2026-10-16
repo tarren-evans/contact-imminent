@@ -3530,3 +3530,19 @@ body.verdant-timeless-ui #app>header .clock small{display:block!important;max-wi
 #mirageReopenAssessment{box-sizing:border-box;width:100%;min-height:38px;margin-top:8px;border:1px solid rgba(216,168,62,.65);color:#f0c75f;background:rgba(54,43,16,.35);font:10px monospace;letter-spacing:.12em}
 @media(max-height:600px){#mirageAssessmentOverlay{padding:5px}#mirageAssessmentOverlay .mirage-report-panel{max-height:98%;padding:9px 14px}#mirageAssessmentOverlay .menu-title.small{font-size:20px!important;margin:3px 0!important}#mirageAssessmentOverlay .menu-sub{margin:4px 0 7px}.mirage-report-section{padding:7px 10px;margin-bottom:7px}.mirage-report-actions{margin-top:5px;padding-top:5px}}
 @media(max-width:540px){.mirage-report-actions{grid-template-columns:1fr}}
+
+/* Six-campaign profile and readable area selector on narrow panels. */
+.profile-campaign-cards{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.profile-campaign-cards .profile-card[data-state="locked"] b{color:#819097}
+.profile-campaign-cards .profile-card[data-state="complete"] b{color:#55d67a}
+.profile-campaign-cards .profile-card[data-state="dev-access"] b{color:#d8a83e}
+.command-profile-panel{max-height:calc(100dvh - 20px)!important;overflow:auto!important}
+#campaignMenu .campaignpanel{max-height:calc(100dvh - 16px)!important;overflow-x:hidden!important;overflow-y:auto!important}
+#campaignMenu .campaign-oa-tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important}
+#campaignMenu .campaign-oa-tabs button{box-sizing:border-box!important;min-width:0!important;min-height:40px!important;height:auto!important;padding:5px 4px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;gap:3px!important;white-space:normal!important;overflow:visible!important;text-align:center!important}
+#campaignMenu .campaign-oa-tabs button>b,#campaignMenu .campaign-oa-tabs button>span{display:block!important;width:100%!important;overflow:visible!important;white-space:normal!important;text-overflow:clip!important;overflow-wrap:anywhere!important;text-align:center!important}
+#campaignMenu .campaign-oa-tabs button>b{font-size:clamp(7px,1.7vw,9px)!important;line-height:1.15!important;letter-spacing:.04em!important}
+#campaignMenu .campaign-oa-tabs button>span{font-size:clamp(6px,1.45vw,8px)!important;line-height:1.15!important;letter-spacing:.02em!important}
+.mirage-mover>text.selected{fill:#f0c75f!important;font-size:9px!important}
+.mirage-mover.selected .mirage-track-symbol>circle{stroke:#f0c75f!important;stroke-width:2.5!important}
+@media(max-width:480px){.profile-campaign-cards{grid-template-columns:1fr}.profile-campaign-cards .profile-card{padding:8px}.profile-campaign-cards .profile-card span{font-size:8px}.profile-campaign-cards .profile-card b{font-size:11px}.profile-campaign-cards .profile-card small{font-size:8px}}
