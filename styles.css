@@ -2882,6 +2882,13 @@ body.dev-mode-active #settingsMenu #devProgressionState {
         font-size:10px;
     }
 }
+#settingsMenu .dev-campaign-reset{margin-top:12px;padding-top:12px;border-top:1px solid rgba(216,168,62,.24)}
+#settingsMenu .dev-campaign-reset label{display:block;margin:8px 0 6px;font:700 9px ui-monospace,monospace;letter-spacing:.12em;color:#aebcc1}
+#settingsMenu #devCampaignResetSelect{display:block;width:100%;min-height:38px;padding:8px 10px;border:1px solid rgba(216,168,62,.4);background:#091311;color:#e5edf0;font:700 10px ui-monospace,monospace;box-sizing:border-box}
+#settingsMenu #devCampaignResetButton{width:100%;min-height:36px;margin:8px 0 0;border:1px solid rgba(216,168,62,.45);background:rgba(216,168,62,.1);color:#f1ca65;font:700 9px ui-monospace,monospace;letter-spacing:.1em}
+#settingsMenu #devCampaignResetButton:focus-visible,#settingsMenu #devCampaignResetSelect:focus-visible{outline:2px solid #d8a83e;outline-offset:2px}
+#settingsMenu #devCampaignResetState{margin-top:7px;min-height:14px;color:#8f9ca1;font:700 8px ui-monospace,monospace;line-height:1.4;overflow-wrap:anywhere}
+@media(max-width:720px){#settingsMenu #devCampaignResetSelect{min-height:40px;font-size:10px}}
 /* TEMPEST // Maritime traffic */
 #mapWrap.oa-tempest .tempest-vessel{
  pointer-events:none;
@@ -3546,3 +3553,65 @@ body.verdant-timeless-ui #app>header .clock small{display:block!important;max-wi
 .mirage-mover>text.selected{fill:#f0c75f!important;font-size:9px!important}
 .mirage-mover.selected .mirage-track-symbol>circle{stroke:#f0c75f!important;stroke-width:2.5!important}
 @media(max-width:480px){.profile-campaign-cards{grid-template-columns:1fr}.profile-campaign-cards .profile-card{padding:8px}.profile-campaign-cards .profile-card span{font-size:8px}.profile-campaign-cards .profile-card b{font-size:11px}.profile-campaign-cards .profile-card small{font-size:8px}}
+
+/* TRAINING UX // spotlight the live action and keep guidance out of the ISR / report lanes. */
+#mapWrap .tutorial-guide:not(.hidden){left:auto!important;right:12px!important;top:calc(var(--map-safe-y,0px) + 52px)!important;bottom:auto!important;transform:none!important;box-sizing:border-box!important;width:min(330px,34%)!important;max-width:calc(100% - 24px)!important;max-height:min(30%,180px)!important;min-height:0!important;padding:8px 10px!important;z-index:90!important;background:rgba(7,13,17,.94)!important;border-color:rgba(216,168,62,.72)!important;box-shadow:0 5px 18px rgba(0,0,0,.36)!important}
+#mapWrap .tutorial-guide[data-training-step="5"]{top:auto!important;bottom:12px!important;right:12px!important;max-height:min(30%,180px)!important}
+#mapWrap .tutorial-guide>.tutorial-kicker{font-size:8px!important;letter-spacing:.14em!important}
+#mapWrap .tutorial-guide>b{font-size:clamp(10px,1.2vw,14px)!important;line-height:1.12!important;margin:3px 0 4px!important}
+#mapWrap .tutorial-guide>p{font-size:clamp(9px,.95vw,11px)!important;line-height:1.28!important}
+#mapWrap .tutorial-guide>button{min-height:30px!important;height:30px!important;margin-top:5px!important}
+button.training-target-highlight{position:relative!important;z-index:110!important;border-color:#ffe08a!important;color:#fff3c5!important;animation:trainingTargetPulse 1.35s ease-in-out infinite!important}
+#asset.training-target-highlight{filter:drop-shadow(0 0 9px rgba(255,218,105,.95))!important;animation:trainingAssetPulse 1.35s ease-in-out infinite!important}
+#mapWrap.training-map-focus{outline:2px solid rgba(255,218,105,.9)!important;outline-offset:-5px!important;box-shadow:inset 0 0 24px rgba(255,218,105,.12)!important}
+#blueSites .training-target-highlight{filter:drop-shadow(0 0 8px rgba(255,218,105,.95))!important;animation:trainingAssetPulse 1.35s ease-in-out infinite!important}
+@keyframes trainingTargetPulse{0%,100%{box-shadow:0 0 0 1px rgba(255,218,105,.65),0 0 8px rgba(255,218,105,.25)}50%{box-shadow:0 0 0 3px rgba(255,218,105,.95),0 0 18px rgba(255,218,105,.72)}}
+@keyframes trainingAssetPulse{0%,100%{opacity:1}50%{opacity:.78}}
+@media(max-width:900px),(max-height:650px){#mapWrap .tutorial-guide:not(.hidden){width:min(285px,32%)!important;max-height:min(28%,155px)!important;padding:7px 9px!important}#mapWrap .tutorial-guide[data-training-step="5"]{max-height:min(28%,155px)!important}}
+@media(max-width:620px){#mapWrap .tutorial-guide:not(.hidden){width:min(300px,calc(100% - 20px))!important;right:10px!important;max-height:25%!important}#mapWrap .tutorial-guide[data-training-step="5"]{bottom:10px!important}}
+@media(prefers-reduced-motion:reduce){button.training-target-highlight,#asset.training-target-highlight,#blueSites .training-target-highlight{animation:none!important}}
+/* TRAINING UX // place the readable guide in a wide, low rail at the map bottom. */
+#mapWrap .tutorial-guide:not(.hidden){left:50%!important;right:auto!important;top:auto!important;bottom:8px!important;transform:translateX(-50%)!important;box-sizing:border-box!important;width:min(720px,84%)!important;max-width:calc(100% - 20px)!important;max-height:min(30%,160px)!important;padding:6px 12px!important}
+#mapWrap .tutorial-guide[data-training-step="5"]{left:50%!important;right:auto!important;top:auto!important;bottom:8px!important;transform:translateX(-50%)!important;max-height:min(30%,160px)!important}
+@media(max-width:900px),(max-height:650px){#mapWrap .tutorial-guide:not(.hidden){width:min(720px,88%)!important;max-height:min(32%,160px)!important;padding:6px 10px!important}#mapWrap .tutorial-guide[data-training-step="5"]{max-height:min(32%,160px)!important}}
+@media(max-width:620px){#mapWrap .tutorial-guide:not(.hidden){left:50%!important;right:auto!important;bottom:8px!important;width:calc(100% - 16px)!important;max-width:calc(100% - 16px)!important;max-height:min(34%,170px)!important;padding:6px 9px!important}#mapWrap .tutorial-guide[data-training-step="5"]{bottom:8px!important;max-height:min(34%,170px)!important}}
+/* TRAINING UX // left guidance column, contact spotlight, and bottom-center ISR. */
+#mapWrap .tutorial-guide:not(.hidden){left:12px!important;right:auto!important;top:calc(var(--map-safe-y,0px) + 60px)!important;bottom:auto!important;transform:none!important;box-sizing:border-box!important;width:min(255px,30%)!important;max-width:calc(100% - 24px)!important;max-height:min(48%,340px)!important;padding:10px 12px!important}
+#mapWrap .tutorial-guide[data-training-step="5"]{left:12px!important;right:auto!important;top:calc(var(--map-safe-y,0px) + 60px)!important;bottom:auto!important;transform:none!important;max-height:min(48%,340px)!important}
+#mapWrap:has(.tutorial-guide[data-training-step="5"]:not(.hidden)) #intelDrop{left:auto!important;right:10px!important;bottom:104px!important}
+#mapWrap #tracks .training-target-highlight{filter:drop-shadow(0 0 8px rgba(255,218,105,.95))!important;animation:trainingTrackPulse 1.35s ease-in-out infinite!important}
+@keyframes trainingTrackPulse{0%,100%{filter:drop-shadow(0 0 3px rgba(255,218,105,.6))}50%{filter:drop-shadow(0 0 10px rgba(255,218,105,1))}}
+@media(max-width:900px),(max-height:650px){#mapWrap .tutorial-guide:not(.hidden){width:min(235px,32%)!important;max-height:min(40%,230px)!important;padding:8px 9px!important}#mapWrap .tutorial-guide[data-training-step="5"]{max-height:min(40%,230px)!important}#mapWrap:has(.tutorial-guide[data-training-step="5"]:not(.hidden)) #intelDrop{left:auto!important;right:6px!important;bottom:74px!important;width:min(180px,30%)!important}}
+@media(max-width:620px){#mapWrap .tutorial-guide:not(.hidden){left:10px!important;top:calc(var(--map-safe-y,0px) + 58px)!important;width:min(230px,calc(100% - 20px))!important;max-height:min(42%,220px)!important;padding:7px 9px!important}#mapWrap .tutorial-guide[data-training-step="5"]{left:10px!important;top:calc(var(--map-safe-y,0px) + 58px)!important;max-height:min(42%,220px)!important}}
+@media(prefers-reduced-motion:reduce){#mapWrap #tracks .training-target-highlight{animation:none!important}}
+/* TRAINING UX // center the left-side guidance card vertically. */
+#mapWrap .tutorial-guide:not(.hidden),#mapWrap .tutorial-guide[data-training-step="5"]{top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;max-height:min(72%,480px)!important}
+@media(max-height:650px){#mapWrap .tutorial-guide:not(.hidden),#mapWrap .tutorial-guide[data-training-step="5"]{max-height:min(74%,320px)!important}}
+/* TRAINING UX // guidance begins midway down the left and grows toward the map edge. */
+#mapWrap .tutorial-guide:not(.hidden),#mapWrap .tutorial-guide[data-training-step="5"]{left:12px!important;right:auto!important;top:50%!important;bottom:auto!important;transform:none!important;width:min(280px,36%)!important;max-width:calc(100% - 24px)!important;max-height:calc(50% - 20px)!important;height:auto!important;overflow:hidden!important;padding:9px 11px!important}
+#mapWrap .tutorial-guide>p{flex:0 1 auto!important;min-height:0!important;overflow:visible!important;overflow-y:visible!important;overscroll-behavior:auto!important}
+#mapWrap .tutorial-guide>button{flex:0 0 auto!important}
+@media(max-width:900px){#mapWrap .tutorial-guide:not(.hidden),#mapWrap .tutorial-guide[data-training-step="5"]{width:min(260px,38%)!important;max-height:calc(50% - 16px)!important;padding:8px 9px!important}}
+@media(max-width:620px){#mapWrap .tutorial-guide:not(.hidden),#mapWrap .tutorial-guide[data-training-step="5"]{left:10px!important;width:min(250px,calc(100% - 20px))!important;max-height:calc(50% - 14px)!important;padding:7px 9px!important}}/* TRAINING UX // center the concise, non-scrolling guidance card in the map. */
+#mapWrap .tutorial-guide:not(.hidden),#mapWrap .tutorial-guide[data-training-step="5"]{top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;max-height:min(76%,480px)!important}
+@media(max-width:900px){#mapWrap .tutorial-guide:not(.hidden),#mapWrap .tutorial-guide[data-training-step="5"]{max-height:min(76%,320px)!important}}
+@media(max-width:620px){#mapWrap .tutorial-guide:not(.hidden),#mapWrap .tutorial-guide[data-training-step="5"]{max-height:min(76%,300px)!important}}
+/* TRAINING UX // center the card border-to-border and keep report controls inside. */
+#mapWrap .tutorial-guide:not(.hidden),#mapWrap .tutorial-guide[data-training-step="5"]{position:absolute!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;box-sizing:border-box!important;height:auto!important;max-height:min(76%,480px)!important}
+@media(max-width:900px){#mapWrap .tutorial-guide:not(.hidden),#mapWrap .tutorial-guide[data-training-step="5"]{max-height:min(76%,320px)!important}}
+@media(max-width:620px){#mapWrap .tutorial-guide:not(.hidden),#mapWrap .tutorial-guide[data-training-step="5"]{max-height:min(76%,300px)!important}}
+#mapWrap #intelDrop{box-sizing:border-box!important;height:auto!important;max-height:none!important;min-height:0!important;overflow:visible!important}
+#mapWrap #intelDrop.hidden{display:none!important}
+#mapWrap:has(.tutorial-guide[data-training-step="5"]:not(.hidden)) #intelDrop:not(.hidden){width:min(280px,40%)!important;max-width:calc(100% - 24px)!important}
+@media(max-width:900px),(max-height:650px){#mapWrap:has(.tutorial-guide[data-training-step="5"]:not(.hidden)) #intelDrop:not(.hidden){width:min(250px,38%)!important}}
+@media(max-width:620px){#mapWrap:has(.tutorial-guide[data-training-step="5"]:not(.hidden)) #intelDrop:not(.hidden){width:min(230px,calc(100% - 20px))!important;right:10px!important}}
+#mapWrap #intelDrop .intel-drop-btn{box-sizing:border-box!important;position:relative!important;display:block!important;flex:0 0 auto!important;width:100%!important;max-width:100%!important;margin-left:0!important;margin-right:0!important;white-space:normal!important;overflow-wrap:anywhere!important}
+#mapWrap #intelDrop:not(.hidden){padding-bottom:15px!important}
+#mapWrap:has(.tutorial-guide[data-training-step="5"]:not(.hidden)) #intelDrop:not(.hidden).intel-drop{height:auto!important;min-height:0!important;max-height:none!important;bottom:auto!important;padding-bottom:4px!important}
+
+/* TRAINING UX // size the report card only while step five is active. */
+#mapWrap.training-intel-report #intelDrop:not(.hidden).intel-drop{display:block!important;box-sizing:border-box!important;height:auto!important;min-height:280px!important;max-height:none!important;overflow:visible!important;padding-bottom:32px!important;width:min(280px,40%)!important;max-width:calc(100% - 24px)!important}
+@media(max-width:900px),(max-height:650px){#mapWrap.training-intel-report #intelDrop:not(.hidden).intel-drop{min-height:280px!important;width:min(250px,38%)!important}}
+@media(max-width:620px){#mapWrap.training-intel-report #intelDrop:not(.hidden).intel-drop{min-height:280px!important;width:min(230px,calc(100% - 20px))!important;right:10px!important}}
+/* TRAINING UX // let the report card fit its content with a small lower inset. */
+#mapWrap.training-intel-report #intelDrop:not(.hidden).intel-drop{min-height:0!important;padding-bottom:14px!important}
