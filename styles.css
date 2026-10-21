@@ -2217,8 +2217,10 @@ body.studio-title-glitch-in #mainMenu::after{background:linear-gradient(90deg,tr
 .verdant-traffic{display:none}
 #mapWrap.oa-verdant .verdant-traffic{display:block}
 .verdant-traffic-mover{vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 3px rgba(0,0,0,.95))}
-.verdant-traffic-mover circle{fill:#071014;stroke:#dce5e8;stroke-width:1.5}
-.verdant-traffic-mover line{stroke:#dce5e8;stroke-width:1.5;stroke-linecap:round}
+.verdant-traffic-mover circle{fill:#071014;stroke:#dce5e8;stroke-width:2;vector-effect:non-scaling-stroke}
+.verdant-traffic-mover line{stroke:#dce5e8;stroke-width:2;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.verdant-traffic-label{fill:currentColor;font:700 8px ui-monospace,monospace;paint-order:stroke;stroke:#071014;stroke-width:3px;pointer-events:none;transition:transform .24s linear}
+.verdant-traffic-label.selected{fill:currentColor!important;font-size:9px!important}
 .verdant-traffic-mover.observed circle{stroke:#72c98b;fill:rgba(114,201,139,.16)}
 .verdant-traffic-mover.observed line{stroke:#72c98b}
 .verdant-traffic-status{font-size:9px;letter-spacing:.08em;color:#9fb4bb;margin-top:2px}
@@ -2256,7 +2258,13 @@ body.studio-title-glitch-in #mainMenu::after{background:linear-gradient(90deg,tr
 .mirage-site{cursor:pointer;color:#8b969c}.mirage-site-hit{fill:transparent;stroke:none}.mirage-site rect{fill:#071014;stroke:currentColor;stroke-width:2;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 4px rgba(214,180,124,.5))}.mirage-site text{fill:currentColor;font:700 9px ui-monospace,monospace;paint-order:stroke;stroke:#071014;stroke-width:3px}.mirage-site.characterized{color:#f1d49d}.mirage-site.characterized rect{fill:rgba(214,180,124,.22);stroke-width:2.6}
 .mirage-site.capability-assessed{color:#66d9e8}
 .mirage-site.capability-assessed rect{fill:rgba(102,217,232,.18);stroke-width:2.8;filter:drop-shadow(0 0 5px rgba(102,217,232,.45))}
-.mirage-mover{cursor:pointer;color:#dce5e8}.mirage-mover-hit{fill:transparent;stroke:none}.mirage-mover>circle:not(.mirage-mover-hit){fill:#071014;stroke:currentColor;stroke-width:2;vector-effect:non-scaling-stroke}.mirage-mover line{stroke:currentColor;stroke-width:2;vector-effect:non-scaling-stroke}.mirage-mover text{fill:currentColor;font:700 8px ui-monospace,monospace;paint-order:stroke;stroke:#071014;stroke-width:3px}.mirage-mover.resolved>circle:not(.mirage-mover-hit){fill:currentColor;fill-opacity:.22}
+.mirage-mover{cursor:pointer;color:#dce5e8}.mirage-mover-hit{fill:transparent;stroke:none}.mirage-mover .mirage-track-symbol>circle{fill:#071014;stroke:currentColor;stroke-width:2;vector-effect:non-scaling-stroke}.mirage-mover line{stroke:currentColor;stroke-width:2;vector-effect:non-scaling-stroke}.mirage-mover text{fill:currentColor;font:700 8px ui-monospace,monospace;paint-order:stroke;stroke:#071014;stroke-width:3px}.mirage-mover.resolved .mirage-track-symbol>circle{fill:currentColor;fill-opacity:.18}
+.mirage-mover.classified-friendly .mirage-track-symbol>circle{stroke:#4da3ff;fill:rgba(77,163,255,.18)}.mirage-mover.classified-friendly line{stroke:#4da3ff}
+.mirage-mover.classified-neutral .mirage-track-symbol>circle{stroke:#55d66b;fill:rgba(85,214,107,.18)}.mirage-mover.classified-neutral line{stroke:#55d66b}
+.mirage-mover.classified-irregular .mirage-track-symbol>circle{stroke:#d8a83e;fill:rgba(216,168,62,.18)}.mirage-mover.classified-irregular line{stroke:#d8a83e}
+.mirage-mover.classified-hostile .mirage-track-symbol>circle{stroke:#ff5b55;fill:rgba(255,91,85,.18)}.mirage-mover.classified-hostile line{stroke:#ff5b55}
+.mirage-mover.observed:not(.classified-friendly):not(.classified-neutral):not(.classified-irregular):not(.classified-hostile) .mirage-track-symbol>circle{stroke:#63d7e6;fill:rgba(99,215,230,.08)}
+.mirage-mover.observed:not(.classified-friendly):not(.classified-neutral):not(.classified-irregular):not(.classified-hostile) line{stroke:#63d7e6}
 
 .mirage-assessment{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:6px}
 .mirage-evidence-summary{display:grid;gap:4px;border-left:2px solid #d5a928;padding:8px 10px;margin:6px 0;font-family:var(--mono);font-size:10px;line-height:1.35}.mirage-evidence-summary[hidden]{display:none}.mirage-evidence-summary b{color:#d5a928;letter-spacing:.12em}.mirage-evidence-summary span{color:#d7e2e4}.mirage-evidence-summary em{font-style:normal;color:#91a6aa;margin-top:3px}
@@ -3550,8 +3558,8 @@ body.verdant-timeless-ui #app>header .clock small{display:block!important;max-wi
 #campaignMenu .campaign-oa-tabs button>b,#campaignMenu .campaign-oa-tabs button>span{display:block!important;width:100%!important;overflow:visible!important;white-space:normal!important;text-overflow:clip!important;overflow-wrap:anywhere!important;text-align:center!important}
 #campaignMenu .campaign-oa-tabs button>b{font-size:clamp(7px,1.7vw,9px)!important;line-height:1.15!important;letter-spacing:.04em!important}
 #campaignMenu .campaign-oa-tabs button>span{font-size:clamp(6px,1.45vw,8px)!important;line-height:1.15!important;letter-spacing:.02em!important}
-.mirage-mover>text.selected{fill:#f0c75f!important;font-size:9px!important}
-.mirage-mover.selected .mirage-track-symbol>circle{stroke:#f0c75f!important;stroke-width:2.5!important}
+.mirage-mover>text.selected{fill:currentColor!important;font-size:9px!important}
+.mirage-mover.selected .mirage-track-symbol{filter:drop-shadow(0 0 3px rgba(240,199,95,.9))}
 @media(max-width:480px){.profile-campaign-cards{grid-template-columns:1fr}.profile-campaign-cards .profile-card{padding:8px}.profile-campaign-cards .profile-card span{font-size:8px}.profile-campaign-cards .profile-card b{font-size:11px}.profile-campaign-cards .profile-card small{font-size:8px}}
 
 /* TRAINING UX // spotlight the live action and keep guidance out of the ISR / report lanes. */
@@ -3615,3 +3623,7 @@ button.training-target-highlight{position:relative!important;z-index:110!importa
 @media(max-width:620px){#mapWrap.training-intel-report #intelDrop:not(.hidden).intel-drop{min-height:280px!important;width:min(230px,calc(100% - 20px))!important;right:10px!important}}
 /* TRAINING UX // let the report card fit its content with a small lower inset. */
 #mapWrap.training-intel-report #intelDrop:not(.hidden).intel-drop{min-height:0!important;padding-bottom:14px!important}
+/* CAMPAIGN 03 // show the route counter in the former timer position. */
+body.verdant-timeless-ui #app>header .clock b{display:block!important;font-size:clamp(16px,2.2vh,22px)!important;line-height:1!important;letter-spacing:.12em!important;white-space:nowrap!important}
+body.verdant-timeless-ui #app>header .clock small{font-size:clamp(7px,1.15vh,9px)!important;line-height:1.1!important;white-space:nowrap!important}.verdant-road-counter-label{display:none!important;color:#9fb4bb;font-size:clamp(7px,1.05vh,9px)!important;letter-spacing:.1em!important;margin-top:1px!important}
+body.verdant-timeless-ui #app>header .clock .verdant-road-counter-label{display:block!important}
