@@ -1,10 +1,10 @@
 const VERSION='0.11.6.143';
-const CACHE=`contact-imminent-v${VERSION}`;
+const CACHE=`contact-imminent-v${VERSION}-audiofix1`;
 const CORE=[
   './',
   './index.html',
   `./styles.css?v=${VERSION}`,
-  `./game.js?v=${VERSION}`,
+  `./game.js?v=${VERSION}-audiofix1`,
   './manifest.webmanifest',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
