@@ -193,6 +193,675 @@ function campaignMissionUnlocked(id){
  }
  return false;
 }
+/* CI operational commendations: device-local record */
+const CI_COMMENDATION_KEY='ci-commendations-v1';
+
+const CI_COMMENDATIONS=Object.freeze([
+ {id:'service-kestrel',kind:'ribbon',name:'KESTREL',description:'Complete the KESTREL campaign.'},
+ {id:'service-vantage',kind:'ribbon',name:'VANTAGE',description:'Complete the VANTAGE campaign.'},
+ {id:'service-verdant',kind:'ribbon',name:'VERDANT',description:'Complete the VERDANT campaign.'},
+ {id:'service-mirage',kind:'ribbon',name:'MIRAGE',description:'Complete the MIRAGE campaign.'},
+ {id:'service-tempest',kind:'ribbon',name:'TEMPEST',description:'Complete the TEMPEST campaign.'},
+ {id:'service-polaris',kind:'ribbon',name:'POLARIS',description:'Complete the POLARIS campaign.'},
+
+ {id:'first-contact',kind:'medal',name:'FIRST CONTACT',description:'Successfully complete a campaign mission.'},
+ {id:'precision-operator',kind:'medal',name:'PRECISION OPERATOR',description:'Complete a campaign mission with no incorrect dispositions.'},
+ {id:'intelligence-excellence',kind:'medal',name:'INTELLIGENCE EXCELLENCE',description:'Correctly resolve 100 contacts.'},
+ {id:'guardian',kind:'medal',name:'GUARDIAN',description:'Complete KESTREL 01-05 with at least 90% intelligence integrity and less than 25% OE compromise.'},
+ {id:'unbroken',kind:'medal',name:'UNBROKEN',description:'Complete five consecutive campaign missions without failure or abort.'},
+ {id:'endurance',kind:'medal',name:'ENDURANCE',description:'Survive 15 active minutes in a single Arcade operation.'},
+ {id:'relentless',kind:'medal',name:'RELENTLESS',description:'Survive 30 active minutes in a single Arcade operation.'},
+ {id:'veteran-operator',kind:'medal',name:'VETERAN OPERATOR',description:'Successfully complete 50 campaign missions.'},
+
+ {id:'distinguished-service',kind:'distinguished',name:'DISTINGUISHED OPERATIONAL SERVICE',description:'Complete all six operational area campaigns.'},
+ {id:'spectrum-dominance',kind:'distinguished',name:'SPECTRUM DOMINANCE',description:'Earn all six operational proficiency qualifications through exceptional final mission performance.'},
+ {id:'wraith-operator',kind:'distinguished',name:'WRAITH OPERATOR',description:'Successfully complete a campaign mission using TarTak Wraith.'},
+ {id:'order-of-the-vanguard',kind:'distinguished',name:'ORDER OF THE VANGUARD',description:'Earn every other operational commendation.'}
+].map(item=>Object.freeze(item)));
+
+const CI_COMMENDATION_SERVICE_KEYS=Object.freeze({
+ 'service-kestrel':'ci-c01-complete',
+ 'service-vantage':'ci-c02-complete',
+ 'service-verdant':'ci-c03-05-complete',
+ 'service-mirage':'ci-c04-05-complete',
+ 'service-tempest':'ci-c05-05-complete',
+ 'service-polaris':'ci-c06-05-complete'
+});
+
+const CI_COMMENDATION_OAS=Object.freeze([
+ 'KESTREL','VANTAGE','VERDANT',
+ 'MIRAGE','TEMPEST','POLARIS'
+]);
+
+function ciCommendationEligible(){
+ return !devAccessActive();
+}
+
+function ciCommendationEmpty(){
+ return {
+  version:1,
+  earned:[],
+  unread:[],
+  missionsCompleted:0,
+  correctDispositions:0,
+  consecutiveVictories:0,
+  bestArcadeSeconds:0,
+  proficiency:[],campaignInProgress:false
+ };
+}
+
+function ciCommendationCounter(value){
+ return Number.isSafeInteger(value)&&value>=0?value:0;
+}
+
+function ciCommendationNormalize(raw){
+ const state=ciCommendationEmpty();
+ if(!raw||typeof raw!=='object'||raw.version!==1)return state;
+
+ const allowed=new Set(CI_COMMENDATIONS.map(a=>a.id));
+ const clean=(values,valid)=>Array.isArray(values)?
+  [...new Set(values.filter(v=>valid.has(v)))]:[];
+
+ state.earned=clean(raw.earned,allowed);
+ state.unread=clean(raw.unread,new Set(state.earned));
+
+ state.missionsCompleted=ciCommendationCounter(raw.missionsCompleted);
+ state.correctDispositions=ciCommendationCounter(raw.correctDispositions);
+ state.consecutiveVictories=ciCommendationCounter(raw.consecutiveVictories);state.campaignInProgress=raw.campaignInProgress===true;
+ state.bestArcadeSeconds=ciCommendationCounter(raw.bestArcadeSeconds);
+
+ state.proficiency=clean(
+  raw.proficiency,
+  new Set(CI_COMMENDATION_OAS)
+ );
+
+ return state;
+}
+
+function ciCommendationRead(){
+ try{
+  return ciCommendationNormalize(
+   JSON.parse(localStorage.getItem(CI_COMMENDATION_KEY))
+  );
+ }catch(_){
+  return ciCommendationEmpty();
+ }
+}
+
+function ciCommendationWrite(state){
+ if(!ciCommendationEligible())return false;
+ try{
+  localStorage.setItem(
+   CI_COMMENDATION_KEY,
+   JSON.stringify(ciCommendationNormalize(state))
+  );
+  return true;
+ }catch(_){
+  return false;
+ }
+}
+
+/* CI commendation evaluation engine */
+
+function ciCommendationAward(state,id){
+ if(!ciCommendationEligible())return false;
+ if(!CI_COMMENDATIONS.some(a=>a.id===id))return false;
+ if(state.earned.includes(id))return false;
+
+ state.earned.push(id);
+ state.unread.push(id);
+ return true;
+}
+
+function ciCommendationHasCampaignEvidence(){
+ try{
+  for(const key of Object.values(CI_COMMENDATION_SERVICE_KEYS)){
+   if(localStorage.getItem(key)==='1')return true;
+  }
+
+  for(let series=1;series<=6;series++){
+   for(let mission=1;mission<=5;mission++){
+    const key='ci-c'+String(series).padStart(2,'0')+
+     '-'+String(mission).padStart(2,'0')+'-complete';
+
+    if(localStorage.getItem(key)==='1')return true;
+   }
+  }
+ }catch(_){}
+ return false;
+}
+
+function ciCommendationEvaluate(input){
+ const state=ciCommendationNormalize(input);
+ const newlyEarned=[];
+
+ if(!ciCommendationEligible()){
+  return {state,newlyEarned};
+ }
+
+ const award=id=>{
+  if(ciCommendationAward(state,id)){
+   newlyEarned.push(id);
+  }
+ };
+
+ for(const [id,key] of Object.entries(CI_COMMENDATION_SERVICE_KEYS)){
+  try{
+   if(localStorage.getItem(key)==='1')award(id);
+  }catch(_){}
+ }
+
+ if(state.missionsCompleted>=1||ciCommendationHasCampaignEvidence()){
+  award('first-contact');
+ }
+
+ if(state.correctDispositions>=100){
+  award('intelligence-excellence');
+ }
+
+ if(state.consecutiveVictories>=5){
+  award('unbroken');
+ }
+
+ if(state.bestArcadeSeconds>=900){
+  award('endurance');
+ }
+
+ if(state.bestArcadeSeconds>=1800){
+  award('relentless');
+ }
+
+ if(state.missionsCompleted>=50){
+  award('veteran-operator');
+ }
+
+ if(Object.keys(CI_COMMENDATION_SERVICE_KEYS).every(
+  id=>state.earned.includes(id)
+ )){
+  award('distinguished-service');
+ }
+
+ if(CI_COMMENDATION_OAS.every(
+  oa=>state.proficiency.includes(oa)
+ )){
+  award('spectrum-dominance');
+ }
+
+ if(CI_COMMENDATIONS.every(
+  a=>a.id==='order-of-the-vanguard'||state.earned.includes(a.id)
+ )){
+  award('order-of-the-vanguard');
+ }
+
+ return {state,newlyEarned};
+}
+
+function ciCommendationReconcile(){
+ if(!ciCommendationEligible())return [];
+
+ const previous=ciCommendationReadForUpdate();if(!previous)return [];
+ const result=ciCommendationEvaluate(previous);
+
+ if(!result.newlyEarned.length)return [];
+ if(!ciCommendationWrite(result.state))return [];
+
+ return result.newlyEarned;
+}
+
+function ciCommendationMarkRead(){
+ if(!ciCommendationEligible())return false;
+
+ const state=ciCommendationReadForUpdate();
+ if(!state)return false;
+ if(!state.unread.length)return true;
+
+ state.unread=[];
+ return ciCommendationWrite(state);
+}
+
+/* End CI commendation evaluation engine */
+/* CI runtime operation callback ownership */
+
+let ciRuntimeGeneration=0;
+
+function ciRuntimeInvalidate(){
+ ciRuntimeGeneration++;
+ return ciRuntimeGeneration;
+}
+
+function ciRuntimeCurrent(generation,mission){
+ return generation===ciRuntimeGeneration&&
+  mission===campaignMission;
+}
+
+function ciRuntimeTimeout(callback,delay){
+ const generation=ciRuntimeGeneration;
+ const mission=campaignMission;
+
+ return setTimeout(()=>{
+  if(!ciRuntimeCurrent(generation,mission))return;
+  callback();
+ },delay);
+}
+
+/* End CI runtime operation callback ownership */
+/* CI commendation operation lifecycle */
+
+let ciCommendationOperation=null;
+
+function ciCommendationIsCampaign(id){
+ return /^0[1-6]-0[1-5]$/.test(String(id||''));
+}
+
+function ciCommendationBeginOperation(){
+ ciCommendationAbandonOperation();ciCommendationOperation=null;
+
+ const mission=String(campaignMission||'');
+
+ if(!ciCommendationIsCampaign(mission)&&mission!=='ARCADE'){
+  return;
+ }
+
+ normalizeISRCapability();
+
+ ciCommendationOperation={
+  mission,
+  eligible:ciCommendationEligible(),
+  asset:isrCapability,
+  finished:false,arcadeActiveMs:0,arcadeLastFrame:null,arcadeCheckpoint:0
+ };if(ciCommendationOperation.eligible&&ciCommendationIsCampaign(mission)){if(!ciCommendationOpenCampaignRecord())ciCommendationOperation.eligible=false;}
+}
+
+function ciCommendationInvalidateOperation(){
+ if(ciCommendationOperation){
+  ciCommendationOperation.eligible=false;
+ }
+}
+
+function ciCommendationOperationEligible(){
+ const op=ciCommendationOperation;
+
+ return !!(
+  op&&
+  op.eligible&&
+  !op.finished&&
+  op.mission===campaignMission&&
+  ciCommendationEligible()
+ );
+}
+
+function ciCommendationIncrement(value){
+ return Math.min(
+  Number.MAX_SAFE_INTEGER,
+  ciCommendationCounter(value)+1
+ );
+}
+
+function ciCommendationFinishCampaign(pass){
+ const op=ciCommendationOperation;
+
+ if(!ciCommendationOperationEligible())return [];
+ if(!ciCommendationIsCampaign(op.mission))return [];
+ if(!campaignFinished)return [];
+ if(typeof pass!=='boolean')return [];
+
+ op.finished=true;
+
+ const state=ciCommendationReadForUpdate();
+ if(!state)return [];
+ state.campaignInProgress=false;const directAwards=[];
+
+ const award=id=>{
+  if(ciCommendationAward(state,id)){
+   directAwards.push(id);
+  }
+ };
+
+ if(pass){
+  state.missionsCompleted=ciCommendationIncrement(
+   state.missionsCompleted
+  );
+
+  state.consecutiveVictories=ciCommendationIncrement(
+   state.consecutiveVictories
+  );
+
+  if(decisionTotal>0&&decisionCorrect===decisionTotal){
+   award('precision-operator');
+  }
+
+  if(op.asset==='WRAITH'&&isrCapability==='WRAITH'){
+   award('wraith-operator');
+  }
+
+  ciCommendationApplyProficiency(
+   state,
+   op.mission,
+   award
+  );
+ }else{
+  state.consecutiveVictories=0;
+ }
+
+ const result=ciCommendationEvaluate(state);
+
+ if(!ciCommendationWrite(result.state))return [];
+
+ return [...directAwards,...result.newlyEarned];
+}
+
+/* CI commendation disposition and abandonment tracking */
+
+function ciCommendationReadForUpdate(){
+ try{
+  const raw=localStorage.getItem(CI_COMMENDATION_KEY);
+
+  if(raw===null)return ciCommendationEmpty();
+
+  const parsed=JSON.parse(raw);
+
+  if(!parsed||typeof parsed!=='object'||parsed.version!==1){
+   return null;
+  }
+
+  return ciCommendationNormalize(parsed);
+ }catch(_){
+  return null;
+ }
+}
+
+function ciCommendationRecordDisposition(ok){
+ if(ok!==true)return [];
+ if(!ciCommendationOperationEligible())return [];
+ if(!running||campaignFinished)return [];
+ if(window.CP_PAUSED||document.hidden)return [];
+
+ const state=ciCommendationReadForUpdate();
+
+ if(!state)return [];
+
+ state.correctDispositions=ciCommendationIncrement(
+  state.correctDispositions
+ );
+
+ const result=ciCommendationEvaluate(state);
+
+ if(!ciCommendationWrite(result.state))return [];
+
+ return result.newlyEarned;
+}
+
+function ciCommendationAbandonOperation(){if(ciCommendationOperation?.mission==='ARCADE'){ciCommendationFinishArcade();return false;}
+ const op=ciCommendationOperation;
+
+ if(!op||op.finished)return false;
+
+ const eligible=ciCommendationOperationEligible();
+
+ op.finished=true;
+
+ if(!eligible)return false;
+
+ if(!ciCommendationIsCampaign(op.mission))return false;
+
+ const state=ciCommendationReadForUpdate();
+
+ if(!state)return false;
+
+ if(state.consecutiveVictories===0&&!state.campaignInProgress)return true;state.campaignInProgress=false;
+
+ state.consecutiveVictories=0;
+
+ return ciCommendationWrite(state);
+}
+
+/* End CI commendation disposition and abandonment tracking */
+/* CI operational proficiency qualifications */
+
+function ciCommendationQualifiedOA(mission){
+ try{
+  switch(mission){
+
+   case '01-05':
+    return Number.isFinite(integrity)&&
+     Number.isFinite(campaignCompromise)&&
+     integrity>=90&&
+     campaignCompromise<25
+     ?'KESTREL':null;
+
+   case '02-05':
+    return decisionTotal>0&&
+     decisionCorrect===decisionTotal
+     ?'VANTAGE':null;
+
+   case '03-05':{
+    const v=verdantMissionValues('03-05');
+
+    return v[0]>=3&&v[1]>=3&&v[2]>=7
+     ?'VERDANT':null;
+   }
+
+   case '04-05':{
+    const v=mirageMissionValues();
+
+    return mirageAssessment==='WARNING'&&
+     v[0]>=3&&v[1]>=3&&v[2]>=6
+     ?'MIRAGE':null;
+   }
+
+   case '05-05':
+    return Number.isFinite(integrity)&&integrity>=95
+     ?'TEMPEST':null;
+
+   case '06-05':
+    return Number.isFinite(integrity)&&integrity>=95
+     ?'POLARIS':null;
+
+   default:
+    return null;
+  }
+ }catch(_){
+  return null;
+ }
+}
+
+function ciCommendationApplyProficiency(state,mission,award){
+ if(!ciCommendationEligible())return null;
+
+ const oa=ciCommendationQualifiedOA(mission);
+
+ if(!oa)return null;
+
+ if(!state.proficiency.includes(oa)){
+  state.proficiency.push(oa);
+ }
+
+ if(oa==='KESTREL'){
+  award('guardian');
+ }
+
+ return oa;
+}
+
+/* End CI operational proficiency qualifications */
+/* CI active Arcade endurance tracking */
+
+const CI_ENDURANCE_MAX_FRAME_MS=250;
+const CI_ENDURANCE_CHECKPOINT_SECONDS=30;
+
+function ciCommendationResetArcadeClock(){
+ const op=ciCommendationOperation;
+
+ if(op&&op.mission==='ARCADE'){
+  op.arcadeLastFrame=null;
+ }
+}
+
+function ciCommendationSaveArcadeProgress(force=false){
+ const op=ciCommendationOperation;
+
+ if(!ciCommendationOperationEligible())return [];
+ if(op.mission!=='ARCADE')return [];
+
+ const seconds=Math.floor((op.arcadeActiveMs||0)/1000);
+
+ if(seconds<=0)return [];
+
+ const checkpoint=Math.floor(
+  seconds/CI_ENDURANCE_CHECKPOINT_SECONDS
+ );
+
+ if(!force&&checkpoint<=(op.arcadeCheckpoint||0)){
+  return [];
+ }
+
+ const state=ciCommendationReadForUpdate();
+
+ if(!state)return [];
+
+ if(seconds<=state.bestArcadeSeconds){
+  op.arcadeCheckpoint=checkpoint;
+  return [];
+ }
+
+ state.bestArcadeSeconds=seconds;
+
+ const result=ciCommendationEvaluate(state);
+
+ if(!ciCommendationWrite(result.state))return [];
+
+ op.arcadeCheckpoint=checkpoint;
+
+ return result.newlyEarned;
+}
+
+function ciCommendationArcadeTick(now){
+ const op=ciCommendationOperation;
+
+ if(!op||op.mission!=='ARCADE')return [];
+
+ if(!ciCommendationOperationEligible()||
+    !running||
+    campaignFinished||
+    window.CP_MENU||
+    window.CP_PAUSED||
+    document.hidden||
+    ciAudioBackgrounded||
+    !Number.isFinite(now)){
+  ciCommendationResetArcadeClock();
+  return [];
+ }
+
+ const previous=op.arcadeLastFrame;
+
+ op.arcadeLastFrame=now;
+
+ if(!Number.isFinite(previous))return [];
+
+ const delta=now-previous;
+
+ if(delta<=0||delta>CI_ENDURANCE_MAX_FRAME_MS){
+  return [];
+ }
+
+ op.arcadeActiveMs=(op.arcadeActiveMs||0)+delta;
+
+ return ciCommendationSaveArcadeProgress();
+}
+
+function ciCommendationFinishArcade(){
+ const op=ciCommendationOperation;
+
+ if(!op||op.mission!=='ARCADE'||op.finished){
+  return [];
+ }
+
+ const awards=ciCommendationSaveArcadeProgress(true);
+
+ op.finished=true;
+ op.arcadeLastFrame=null;
+
+ return awards;
+}
+
+function ciCommendationSuspendArcadeClock(){
+ ciCommendationResetArcadeClock();
+ ciCommendationSaveArcadeProgress(true);
+}
+
+/* End CI active Arcade endurance tracking */
+/* CI persistent campaign interruption safeguards */
+
+function ciCommendationRecoverInterruptedCampaign(){
+ if(!ciCommendationEligible())return false;
+
+ const op=ciCommendationOperation;
+
+ if(op&&op.eligible&&!op.finished&&
+    ciCommendationIsCampaign(op.mission)){
+  return false;
+ }
+
+ const state=ciCommendationReadForUpdate();
+
+ if(!state)return false;
+ if(!state.campaignInProgress)return true;
+
+ state.campaignInProgress=false;
+ state.consecutiveVictories=0;
+
+ return ciCommendationWrite(state);
+}
+
+function ciCommendationOpenCampaignRecord(){
+ if(!ciCommendationOperationEligible())return false;
+
+ const op=ciCommendationOperation;
+
+ if(!ciCommendationIsCampaign(op.mission))return false;
+
+ const state=ciCommendationReadForUpdate();
+
+ if(!state)return false;
+
+ if(state.campaignInProgress){
+  state.consecutiveVictories=0;
+ }
+
+ state.campaignInProgress=true;
+
+ return ciCommendationWrite(state);
+}
+
+function ciCommendationPrepareDeveloperAccess(){
+ const op=ciCommendationOperation;
+
+ if(!op||op.finished||!op.eligible)return;
+ if(!ciCommendationEligible())return;
+ if(!ciCommendationIsCampaign(op.mission))return;
+
+ const state=ciCommendationReadForUpdate();
+
+ if(!state||!state.campaignInProgress)return;
+
+ state.campaignInProgress=false;
+
+ ciCommendationWrite(state);
+}
+
+function ciCommendationInitialize(){
+ if(!ciCommendationEligible())return [];
+
+ if(!ciCommendationRecoverInterruptedCampaign()){
+  return [];
+ }
+
+ return ciCommendationReconcile();
+}
+
+/* End CI persistent campaign interruption safeguards */
+/* End CI commendation operation lifecycle */
+/* End CI operational commendation foundation */
 function campaignProgressionWrite(key,value){
  if(devProgressionSimulationActive()||devProgressionBypassActive())return;
  const completion=value==='1'&&/-complete$/.test(key);
@@ -274,7 +943,7 @@ function unlockDevAccess(){
 }
 function setDevMode(on){
  if(!devAccessUnlocked)return;
- devMode=!!on;
+ if(on)ciCommendationPrepareDeveloperAccess();devMode=!!on;if(devMode)ciCommendationInvalidateOperation();else ciCommendationInitialize();
 if(!devMode)devProgressionStage='NONE';
 ciDeveloperISRSelection=null;
 normalizeISRCapability();
@@ -604,7 +1273,7 @@ function tone(freq=220,dur=.06,vol=.018,type='sine',delay=0,endFreq=null,dest=nu
 function noiseBurst(dur=.045,vol=.009,cutoff=1100,delay=0,filterType='bandpass',q=1.2,dest=null){if(masterMuted||ciAudioBackgrounded||document.hidden||!audioReady||!audioCtx||!musicNoiseBuffer)return;const t=audioCtx.currentTime+delay,n=audioCtx.createBufferSource(),f=audioCtx.createBiquadFilter(),g=routeGain(vol,t,dur,dest);n.buffer=musicNoiseBuffer;f.type=filterType;f.frequency.value=cutoff;f.Q.value=q;n.connect(f);f.connect(g);n.start(t);n.stop(t+dur+.02)}
 function uiTick(){noiseBurst(.018,.022,2350,0,'highpass',.7);noiseBurst(.010,.010,4200,.004,'bandpass',2.2)}
 function uiClack(){noiseBurst(.038,.034,1450,0,'bandpass',1.4);noiseBurst(.025,.020,420,0,'lowpass',.8);tone(72,.038,.012,'triangle',.004,55)}
-const studioKeySamples=[1,2,3,4,5,6,7,8,9].map(n=>new Audio(`assets/audio/studio-key-${n}.ogg`)),studioEnterSample=new Audio('assets/audio/studio-enter.ogg');[...studioKeySamples,studioEnterSample].forEach(a=>{a.preload='auto';a.playsInline=true});const ciOneShotAudio=[missionFailAudio,missionSuccessAudio,studioCorruptionAudio,...kineticInterceptAudio,interceptImpact,ewoAudio,...clearRadio,...studioKeySamples,studioEnterSample],ciTransientAudio=new Set();function ciPauseAudioForBackground(reason='background'){if(ciAudioBackgrounded)return;ciAudioBackgrounded=true;ciAudioContextWasRunning=!!audioCtx&&audioCtx.state==='running';ciCancelCrossfadeSchedule();ciStopCrossfadeInterval();ciCrossfading=false;ciMusicPlayPending=false;[backgroundMusic,backgroundMusicB,...ciOneShotAudio,...ciTransientAudio].forEach(a=>{try{a.pause()}catch(_){}});ciMusicActive.volume=ciMusicTargetVolume();ciMusicStandby.volume=0;ciTransientAudio.clear();if(ciAudioContextWasRunning&&audioCtx)audioCtx.suspend().catch(()=>{});rec('AUDIO_BACKGROUND_PAUSE',reason)}function ciResumeAudioFromBackground(reason='foreground'){if(document.hidden||!ciAudioBackgrounded)return;ciAudioBackgrounded=false;if(ciAudioContextWasRunning&&audioCtx?.state==='suspended')audioCtx.resume().then(()=>{if(ciAudioBackgrounded||document.hidden)return audioCtx.suspend()}).catch(()=>{});ciAudioContextWasRunning=false;ciMusicLifecycleRecover(reason)}document.addEventListener('visibilitychange',()=>{if(document.hidden)ciPauseAudioForBackground('visibility');else ciResumeAudioFromBackground('visibility')});window.addEventListener('pagehide',()=>ciPauseAudioForBackground('pagehide'));window.addEventListener('pageshow',()=>ciResumeAudioFromBackground('pageshow'));window.addEventListener('focus',()=>{if(!document.hidden)ciResumeAudioFromBackground('focus')});setInterval(()=>{if(!document.hidden&&!ciAudioBackgrounded&&ciMusicShouldPlay()&&!ciCrossfading&&ciMusicActive.paused)ciMusicRecover('watchdog')},1800);function studioTypeClack(index=0,kind='key'){if(masterMuted||ciAudioBackgrounded||document.hidden)return;const src=kind==='enter'?studioEnterSample:studioKeySamples[Math.abs(index-1)%studioKeySamples.length];try{const a=src.cloneNode();a.volume=Math.max(0,Math.min(1,(kind==='enter'?.34:.28)*audioLevels.ui));a.playbackRate=1;ciTransientAudio.add(a);a.addEventListener('ended',()=>ciTransientAudio.delete(a),{once:true});const p=a.play();if(p&&p.then)p.then(()=>{if(masterMuted||ciAudioBackgrounded||document.hidden)a.pause()}).catch(()=>{})}catch(e){rec('STUDIO_KEY_FAIL',String(e))}}
+const studioKeySamples=[1,2,3,4,5,6,7,8,9].map(n=>new Audio(`assets/audio/studio-key-${n}.ogg`)),studioEnterSample=new Audio('assets/audio/studio-enter.ogg');[...studioKeySamples,studioEnterSample].forEach(a=>{a.preload='auto';a.playsInline=true});const ciOneShotAudio=[missionFailAudio,missionSuccessAudio,studioCorruptionAudio,...kineticInterceptAudio,interceptImpact,ewoAudio,...clearRadio,...studioKeySamples,studioEnterSample],ciTransientAudio=new Set();function ciPauseAudioForBackground(reason='background'){ciCommendationSuspendArcadeClock();if(ciAudioBackgrounded)return;ciAudioBackgrounded=true;ciAudioContextWasRunning=!!audioCtx&&audioCtx.state==='running';ciCancelCrossfadeSchedule();ciStopCrossfadeInterval();ciCrossfading=false;ciMusicPlayPending=false;[backgroundMusic,backgroundMusicB,...ciOneShotAudio,...ciTransientAudio].forEach(a=>{try{a.pause()}catch(_){}});ciMusicActive.volume=ciMusicTargetVolume();ciMusicStandby.volume=0;ciTransientAudio.clear();if(ciAudioContextWasRunning&&audioCtx)audioCtx.suspend().catch(()=>{});rec('AUDIO_BACKGROUND_PAUSE',reason)}function ciResumeAudioFromBackground(reason='foreground'){ciCommendationResetArcadeClock();if(document.hidden||!ciAudioBackgrounded)return;ciAudioBackgrounded=false;if(ciAudioContextWasRunning&&audioCtx?.state==='suspended')audioCtx.resume().then(()=>{if(ciAudioBackgrounded||document.hidden)return audioCtx.suspend()}).catch(()=>{});ciAudioContextWasRunning=false;ciMusicLifecycleRecover(reason)}document.addEventListener('visibilitychange',()=>{if(document.hidden)ciPauseAudioForBackground('visibility');else ciResumeAudioFromBackground('visibility')});window.addEventListener('pagehide',()=>ciPauseAudioForBackground('pagehide'));window.addEventListener('pageshow',()=>ciResumeAudioFromBackground('pageshow'));window.addEventListener('focus',()=>{if(!document.hidden)ciResumeAudioFromBackground('focus')});setInterval(()=>{if(!document.hidden&&!ciAudioBackgrounded&&ciMusicShouldPlay()&&!ciCrossfading&&ciMusicActive.paused)ciMusicRecover('watchdog')},1800);function studioTypeClack(index=0,kind='key'){if(masterMuted||ciAudioBackgrounded||document.hidden)return;const src=kind==='enter'?studioEnterSample:studioKeySamples[Math.abs(index-1)%studioKeySamples.length];try{const a=src.cloneNode();a.volume=Math.max(0,Math.min(1,(kind==='enter'?.34:.28)*audioLevels.ui));a.playbackRate=1;ciTransientAudio.add(a);a.addEventListener('ended',()=>ciTransientAudio.delete(a),{once:true});const p=a.play();if(p&&p.then)p.then(()=>{if(masterMuted||ciAudioBackgrounded||document.hidden)a.pause()}).catch(()=>{})}catch(e){rec('STUDIO_KEY_FAIL',String(e))}}
 function studioKeyGlitch(lockup,index=0,strong=false){if(!lockup)return;const copy=lockup.querySelector('.studio-type-copy'),band=lockup.querySelector('.studio-glitch-band');if(!copy)return;const dir=index%2?-1:1;copy.style.transition='none';copy.style.opacity=strong?'.38':'.62';copy.style.transform=`translateX(${dir*(strong?8:3)}px) skewX(${dir*(strong?-2:-.7)}deg)`;copy.style.filter=strong?'contrast(1.8) brightness(1.35)':'contrast(1.35)';copy.style.textShadow=`${-dir*(strong?7:3)}px 0 rgba(74,91,58,.9),${dir*(strong?4:2)}px 0 rgba(242,241,237,.28)`;if(band){band.style.opacity=strong?'.9':'.5';band.style.top=`${28+(index*13)%48}%`;band.style.transform=`translateX(${dir*(strong?12:5)}px)`}setTimeout(()=>{copy.style.opacity='1';copy.style.transform='translateX(0) skewX(0)';copy.style.filter='none';copy.style.textShadow='none';if(band){band.style.opacity='0';band.style.transform='translateX(0)'}},strong?145:72)}
 function studioPreTypeGlitch(el,lockup){
  if(!el||!lockup)return;
@@ -1022,12 +1691,12 @@ function decide(a){
    score-=50;
    log(a+' // '+designation(target)+' // ERROR');
  }
- decisionTotal++;if(ok)decisionCorrect++;
+ decisionTotal++;if(ok)decisionCorrect++;ciCommendationRecordDisposition(ok);
  // Integrity is analytical accuracy with a four-call confidence buffer. One early error matters,
  // but no single contact can erase 20 points of mission health.
  integrity=Math.round(((decisionCorrect+4)/(decisionTotal+4))*100);
  if(!ok){sound('wrong');if(campaignMission==='05-01'&&target.maritime){log('UNSUPPORTED DISPOSITION // INTELLIGENCE INTEGRITY PENALTY');cpNotice('UNSUPPORTED CLASSIFICATION','Disposition conflicts with collected maritime ISR evidence. Intelligence integrity reduced.','intel')}}else if(!threat&&a==='CLEAR')sound('clear');
- cpDecisionFloat(target,ok);if(campaignMission==='TUTORIAL'&&ok){tutorialAdvance('decision');setTimeout(tutorialFinish,450);}
+ cpDecisionFloat(target,ok);if(campaignMission==='TUTORIAL'&&ok){tutorialAdvance('decision');ciRuntimeTimeout(tutorialFinish,450);}
  target.done=true;ensureRing(target);resolved++;
  if(ok){
    if(campaignMission==='01-01')cpCheck0101();
@@ -1406,10 +2075,10 @@ $('#diagStatus').textContent=stall?'ISR STALL DETECTED':'NOMINAL';$('#diagStatus
  if(id==='RETRO')return 'RETRO // SURVIVE';
  if(id==='TUTORIAL')return 'TRAINING // COMMAND ORIENTATION';
  return 'OA KESTREL // OPERATIONS';
-}function loop(now){if(window.CP_PAUSED){last=now;requestAnimationFrame(loop);return;}C.raf++;let gap=now-C.lastRaf;C.lastRaf=now;if(gap>C.maxGap)C.maxGap=gap;C.fpsFrames++;if(now-C.fpsAt>=1000){C.fps=Math.round(C.fpsFrames*1000/(now-C.fpsAt));C.fpsFrames=0;C.fpsAt=now}let dt=Math.min(.05,(now-last)/1000);last=now;if(running){campaignHintTick(now);cpPolarisWindowTick(now);let elapsed=(now-start)/1000,left=Math.max(0,180-elapsed),np=elapsed<60?1:elapsed<120?2:3;if(campaignMission==='RETRO'){let s=Math.floor(elapsed);$('#clock').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');$('#phase').textContent=headerMissionTitle();if(compromise()>=99.9){running=false;stopCollect();A.dest=null;A.mode='IDLE';$('#endTitle').textContent='OE LOST // SURVIVED '+$('#clock').textContent;$('#fs').textContent=Math.max(0,Math.round(score));$('#fr').textContent=resolved;$('#fi').textContent=ints;$('#fc').textContent=Math.round(compromise())+'%';$('#end').classList.add('show')}}else if(campaignMission==='ARCADE'){arcadeThreatLevel=1+Math.floor(elapsed/75);if(arcadeThreatLevel!==phase){phase=arcadeThreatLevel;let nm='THREAT LEVEL '+arcadeThreatLevel;$('#phase').textContent=headerMissionTitle();banner(nm,1300);sound('level');log(nm)}let s=Math.floor(elapsed);$('#clock').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}else if(/^05-0[1-5]$/.test(campaignMission||'')){let seconds=Math.floor(elapsed);$('#clock').textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');$('#phase').textContent=headerMissionTitle()}else if(/^04-0[1-5]$/.test(campaignMission||'')){$('#phase').textContent=headerMissionTitle();let missionSeconds=Math.floor(elapsed);$('#clock').textContent=String(Math.floor(missionSeconds/60)).padStart(2,'0')+':'+String(missionSeconds%60).padStart(2,'0')}else if(/^03-0[1-5]$/.test(campaignMission||'')){$('#phase').textContent=headerMissionTitle()}else{if(np!==phase){phase=np;let nm=phase===2?'PHASE II // CONTEST':'PHASE III // DOMINATE';$('#phase').textContent=headerMissionTitle();log(nm)}let s=Math.ceil(left);$('#clock').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}if(campaignMission!=='ARCADE'&&campaignMission!=='RETRO'&&campaignMission!=='TUTORIAL'&&!/^05-0[1-5]$/.test(campaignMission||'')&&!/^0[34]-/.test(campaignMission||'')&&left<=0)finish();else{let p=parms();if(campaignMission!=='TUTORIAL'&&!/^05-0[1-5]$/.test(campaignMission||'')&&!/^0[34]-/.test(campaignMission||'')&&(now-lastSpawn)/1000>=p.gap&&T.filter(t=>!t.done).length<p.cap){spawn();lastSpawn=now}T.forEach(t=>{if(t.done||t.stationary||t.maritime)return;t.x+=t.vx*dt;t.y+=t.vy*dt;if(t.x<35||t.x>865)t.vx*=-1;if(t.y<35||t.y>615)t.vy*=-1});naiTick(now);enemy(dt);cpContestedTick(dt);cpIntelDropTick();cpCyberTick();reconstitutionTick(now);cpTrackStallGuard();const postureTarget=(A.mode==='LOITER'||A.mode==='LOITER_ENTRY'||A.mode==='LOITER_APPROACH')?.75:1;A.sensorPosture+=(postureTarget-A.sensorPosture)*Math.min(1,dt/.65);if(A.mode==='LOITER_EXIT'&&valid(A.dest)){const desired=H(A.dest.x-A.x,A.dest.y-A.y),delta=cpHeadingDelta(A.heading,desired),maxTurn=(A.exitTurnCommitted?95:110)*dt;let remaining=Math.abs(delta);if(A.exitTurnCommitted){const dir=A.exitTurnDir||1;remaining=dir>0?(desired-A.heading+360)%360:(A.heading-desired+360)%360;const turn=Math.min(maxTurn,remaining);A.heading=(A.heading+dir*turn+360)%360}else A.heading=(A.heading+Math.max(-maxTurn,Math.min(maxTurn,delta))+360)%360;const rad=A.heading*Math.PI/180,step=cpEffectiveISRSpeed()*dt;A.x+=Math.sin(rad)*step;A.y-=Math.cos(rad)*step;A.lastMove=now;stallLogged=false;const exitAge=now-(A.exitStarted||now),aligned=A.exitTurnCommitted?remaining<7:Math.abs(delta)<7;if(exitAge>=220&&aligned){const committed=A.exitTurnCommitted;A.loiterCenter=null;A.exitTurnCommitted=false;A.exitTurnDir=0;A.mode='ENROUTE';rec('LOITER_EXIT_COMPLETE',`heading=${A.heading.toFixed(1)} delta=${delta.toFixed(1)} age=${Math.round(exitAge)}${committed?' committed-turn':''}`)}else if(now>=A.exitUntil&&exitAge%1000<60){rec('LOITER_EXIT_HOLD',`heading=${A.heading.toFixed(1)} target=${desired.toFixed(1)} remaining=${remaining.toFixed(1)}`)}}else if(A.mode==='ENROUTE'&&valid(A.dest)){const rx=57,ry=32,approach=108;let dx=A.dest.x-A.x,dy=A.dest.y-A.y,d=Math.hypot(dx,dy);if(d<=approach){A.loiterCenter={x:A.dest.x,y:A.dest.y};let th=Math.atan2((A.y-A.dest.y)/ry,(A.x-A.dest.x)/rx);if(!Number.isFinite(th))th=0;const tangentHeading=dir=>H(-rx*Math.sin(th)*dir,ry*Math.cos(th)*dir),cw=tangentHeading(1),ccw=tangentHeading(-1);A.loiterDir=Math.abs(cpHeadingDelta(A.heading,cw))<=Math.abs(cpHeadingDelta(A.heading,ccw))?1:-1;A.approachAngle=th;A.mode='LOITER_APPROACH';A.lastMove=now;stallLogged=false;rec('LOITER_APPROACH',`distance=${d.toFixed(2)} dir=${A.loiterDir>0?'CW':'CCW'} heading=${A.heading.toFixed(1)}`)}else{A.heading=H(dx,dy);let q=Math.min(cpEffectiveISRSpeed()*dt,Math.max(.08,d-approach)),ox=A.x,oy=A.y;A.x+=dx/d*q;A.y+=dy/d*q;if(Math.hypot(A.x-ox,A.y-oy)>.0001){A.lastMove=now;stallLogged=false}}}else if(A.mode==='LOITER_APPROACH'&&valid(A.loiterCenter)){const rx=57,ry=32,base=cpEffectiveISRSpeed(),loiterSpeed=base*.70,tx=A.loiterCenter.x+Math.cos(A.approachAngle)*rx,ty=A.loiterCenter.y+Math.sin(A.approachAngle)*ry,dx=tx-A.x,dy=ty-A.y,d=Math.hypot(dx,dy),desired=d>2?H(dx,dy):H(-rx*Math.sin(A.approachAngle)*A.loiterDir,ry*Math.cos(A.approachAngle)*A.loiterDir),delta=cpHeadingDelta(A.heading,desired),maxTurn=105*dt;A.heading+=Math.max(-maxTurn,Math.min(maxTurn,delta));const centerD=Math.hypot(A.x-A.loiterCenter.x,A.y-A.loiterCenter.y),blend=Math.max(0,Math.min(1,(centerD-59)/(108-59))),speed=loiterSpeed+(base-loiterSpeed)*blend,rad=A.heading*Math.PI/180,step=Math.min(speed*dt,Math.max(.35,d));A.x+=Math.sin(rad)*step;A.y-=Math.cos(rad)*step;A.lastMove=now;stallLogged=false;if(d<=3.5&&Math.abs(cpHeadingDelta(A.heading,H(-rx*Math.sin(A.approachAngle)*A.loiterDir,ry*Math.cos(A.approachAngle)*A.loiterDir)))<24){A.loiterAngle=A.approachAngle;A.dest=null;A.mode='LOITER';rec('LOITER_CAPTURE',`dir=${A.loiterDir>0?'CW':'CCW'} merge=${d.toFixed(2)}`)}}else if(A.mode==='LOITER_ENTRY'&&valid(A.loiterCenter)){const rx=57,ry=32;A.loiterAngle=Math.atan2((A.y-A.loiterCenter.y)/ry,(A.x-A.loiterCenter.x)/rx);if(!Number.isFinite(A.loiterAngle))A.loiterAngle=0;A.dest=null;A.mode='LOITER';A.lastMove=now;stallLogged=false}else if(A.mode==='LOITER'&&valid(A.loiterCenter)){const rx=57,ry=32,loiterSpeed=cpEffectiveISRSpeed()*.70,omega=loiterSpeed/Math.max(1,(rx+ry)*.5);A.loiterAngle=(A.loiterAngle+(A.loiterDir||1)*omega*dt)%(Math.PI*2);const nx=A.loiterCenter.x+Math.cos(A.loiterAngle)*rx,ny=A.loiterCenter.y+Math.sin(A.loiterAngle)*ry,dx=nx-A.x,dy=ny-A.y;if(Math.hypot(dx,dy)>.01)A.heading=H(dx,dy);A.x=nx;A.y=ny;A.lastMove=now;stallLogged=false}}}if(running){mirageTick(dt);verdantSmartTick(dt);verdantTrafficTick(dt);cpTempestVesselTick(dt);cpTempestMissionTick(dt,now);cpPriorityNAITick(now);vantageAffinityTick(now);updateTrackMemory(now);networkTick(now);}if(/^02-/.test(campaignMission||''))cpCheckCampaign02();geometry();ui();diagnostic(now);requestAnimationFrame(loop)}function supplyTargetFromPoint(p){if(!supplyRepairMode||supplyPackages<1||!valid(p))return false;const candidates=B.filter(b=>b.degraded&&!b.reconstituting).map(b=>({b,d:Math.hypot(b.x-p.x,b.y-p.y)})).sort((a,b)=>a.d-b.d);if(!candidates.length)return false;const hit=candidates[0];if(hit.d>62){cpNotice('SUPPLY TARGETING','SELECT A HIGHLIGHTED DEGRADED SITE','intel');return false;}reconstituteSite(hit.b);return true}
+}function loop(now){ciCommendationArcadeTick(now);if(window.CP_PAUSED){last=now;requestAnimationFrame(loop);return;}C.raf++;let gap=now-C.lastRaf;C.lastRaf=now;if(gap>C.maxGap)C.maxGap=gap;C.fpsFrames++;if(now-C.fpsAt>=1000){C.fps=Math.round(C.fpsFrames*1000/(now-C.fpsAt));C.fpsFrames=0;C.fpsAt=now}let dt=Math.min(.05,(now-last)/1000);last=now;if(running){campaignHintTick(now);cpPolarisWindowTick(now);let elapsed=(now-start)/1000,left=Math.max(0,180-elapsed),np=elapsed<60?1:elapsed<120?2:3;if(campaignMission==='RETRO'){let s=Math.floor(elapsed);$('#clock').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');$('#phase').textContent=headerMissionTitle();if(compromise()>=99.9){running=false;stopCollect();A.dest=null;A.mode='IDLE';$('#endTitle').textContent='OE LOST // SURVIVED '+$('#clock').textContent;$('#fs').textContent=Math.max(0,Math.round(score));$('#fr').textContent=resolved;$('#fi').textContent=ints;$('#fc').textContent=Math.round(compromise())+'%';$('#end').classList.add('show')}}else if(campaignMission==='ARCADE'){arcadeThreatLevel=1+Math.floor(elapsed/75);if(arcadeThreatLevel!==phase){phase=arcadeThreatLevel;let nm='THREAT LEVEL '+arcadeThreatLevel;$('#phase').textContent=headerMissionTitle();banner(nm,1300);sound('level');log(nm)}let s=Math.floor(elapsed);$('#clock').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}else if(/^05-0[1-5]$/.test(campaignMission||'')){let seconds=Math.floor(elapsed);$('#clock').textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');$('#phase').textContent=headerMissionTitle()}else if(/^04-0[1-5]$/.test(campaignMission||'')){$('#phase').textContent=headerMissionTitle();let missionSeconds=Math.floor(elapsed);$('#clock').textContent=String(Math.floor(missionSeconds/60)).padStart(2,'0')+':'+String(missionSeconds%60).padStart(2,'0')}else if(/^03-0[1-5]$/.test(campaignMission||'')){$('#phase').textContent=headerMissionTitle()}else{if(np!==phase){phase=np;let nm=phase===2?'PHASE II // CONTEST':'PHASE III // DOMINATE';$('#phase').textContent=headerMissionTitle();log(nm)}let s=Math.ceil(left);$('#clock').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}if(campaignMission!=='ARCADE'&&campaignMission!=='RETRO'&&campaignMission!=='TUTORIAL'&&!/^05-0[1-5]$/.test(campaignMission||'')&&!/^0[34]-/.test(campaignMission||'')&&left<=0)finish();else{let p=parms();if(campaignMission!=='TUTORIAL'&&!/^05-0[1-5]$/.test(campaignMission||'')&&!/^0[34]-/.test(campaignMission||'')&&(now-lastSpawn)/1000>=p.gap&&T.filter(t=>!t.done).length<p.cap){spawn();lastSpawn=now}T.forEach(t=>{if(t.done||t.stationary||t.maritime)return;t.x+=t.vx*dt;t.y+=t.vy*dt;if(t.x<35||t.x>865)t.vx*=-1;if(t.y<35||t.y>615)t.vy*=-1});naiTick(now);enemy(dt);cpContestedTick(dt);cpIntelDropTick();cpCyberTick();reconstitutionTick(now);cpTrackStallGuard();const postureTarget=(A.mode==='LOITER'||A.mode==='LOITER_ENTRY'||A.mode==='LOITER_APPROACH')?.75:1;A.sensorPosture+=(postureTarget-A.sensorPosture)*Math.min(1,dt/.65);if(A.mode==='LOITER_EXIT'&&valid(A.dest)){const desired=H(A.dest.x-A.x,A.dest.y-A.y),delta=cpHeadingDelta(A.heading,desired),maxTurn=(A.exitTurnCommitted?95:110)*dt;let remaining=Math.abs(delta);if(A.exitTurnCommitted){const dir=A.exitTurnDir||1;remaining=dir>0?(desired-A.heading+360)%360:(A.heading-desired+360)%360;const turn=Math.min(maxTurn,remaining);A.heading=(A.heading+dir*turn+360)%360}else A.heading=(A.heading+Math.max(-maxTurn,Math.min(maxTurn,delta))+360)%360;const rad=A.heading*Math.PI/180,step=cpEffectiveISRSpeed()*dt;A.x+=Math.sin(rad)*step;A.y-=Math.cos(rad)*step;A.lastMove=now;stallLogged=false;const exitAge=now-(A.exitStarted||now),aligned=A.exitTurnCommitted?remaining<7:Math.abs(delta)<7;if(exitAge>=220&&aligned){const committed=A.exitTurnCommitted;A.loiterCenter=null;A.exitTurnCommitted=false;A.exitTurnDir=0;A.mode='ENROUTE';rec('LOITER_EXIT_COMPLETE',`heading=${A.heading.toFixed(1)} delta=${delta.toFixed(1)} age=${Math.round(exitAge)}${committed?' committed-turn':''}`)}else if(now>=A.exitUntil&&exitAge%1000<60){rec('LOITER_EXIT_HOLD',`heading=${A.heading.toFixed(1)} target=${desired.toFixed(1)} remaining=${remaining.toFixed(1)}`)}}else if(A.mode==='ENROUTE'&&valid(A.dest)){const rx=57,ry=32,approach=108;let dx=A.dest.x-A.x,dy=A.dest.y-A.y,d=Math.hypot(dx,dy);if(d<=approach){A.loiterCenter={x:A.dest.x,y:A.dest.y};let th=Math.atan2((A.y-A.dest.y)/ry,(A.x-A.dest.x)/rx);if(!Number.isFinite(th))th=0;const tangentHeading=dir=>H(-rx*Math.sin(th)*dir,ry*Math.cos(th)*dir),cw=tangentHeading(1),ccw=tangentHeading(-1);A.loiterDir=Math.abs(cpHeadingDelta(A.heading,cw))<=Math.abs(cpHeadingDelta(A.heading,ccw))?1:-1;A.approachAngle=th;A.mode='LOITER_APPROACH';A.lastMove=now;stallLogged=false;rec('LOITER_APPROACH',`distance=${d.toFixed(2)} dir=${A.loiterDir>0?'CW':'CCW'} heading=${A.heading.toFixed(1)}`)}else{A.heading=H(dx,dy);let q=Math.min(cpEffectiveISRSpeed()*dt,Math.max(.08,d-approach)),ox=A.x,oy=A.y;A.x+=dx/d*q;A.y+=dy/d*q;if(Math.hypot(A.x-ox,A.y-oy)>.0001){A.lastMove=now;stallLogged=false}}}else if(A.mode==='LOITER_APPROACH'&&valid(A.loiterCenter)){const rx=57,ry=32,base=cpEffectiveISRSpeed(),loiterSpeed=base*.70,tx=A.loiterCenter.x+Math.cos(A.approachAngle)*rx,ty=A.loiterCenter.y+Math.sin(A.approachAngle)*ry,dx=tx-A.x,dy=ty-A.y,d=Math.hypot(dx,dy),desired=d>2?H(dx,dy):H(-rx*Math.sin(A.approachAngle)*A.loiterDir,ry*Math.cos(A.approachAngle)*A.loiterDir),delta=cpHeadingDelta(A.heading,desired),maxTurn=105*dt;A.heading+=Math.max(-maxTurn,Math.min(maxTurn,delta));const centerD=Math.hypot(A.x-A.loiterCenter.x,A.y-A.loiterCenter.y),blend=Math.max(0,Math.min(1,(centerD-59)/(108-59))),speed=loiterSpeed+(base-loiterSpeed)*blend,rad=A.heading*Math.PI/180,step=Math.min(speed*dt,Math.max(.35,d));A.x+=Math.sin(rad)*step;A.y-=Math.cos(rad)*step;A.lastMove=now;stallLogged=false;if(d<=3.5&&Math.abs(cpHeadingDelta(A.heading,H(-rx*Math.sin(A.approachAngle)*A.loiterDir,ry*Math.cos(A.approachAngle)*A.loiterDir)))<24){A.loiterAngle=A.approachAngle;A.dest=null;A.mode='LOITER';rec('LOITER_CAPTURE',`dir=${A.loiterDir>0?'CW':'CCW'} merge=${d.toFixed(2)}`)}}else if(A.mode==='LOITER_ENTRY'&&valid(A.loiterCenter)){const rx=57,ry=32;A.loiterAngle=Math.atan2((A.y-A.loiterCenter.y)/ry,(A.x-A.loiterCenter.x)/rx);if(!Number.isFinite(A.loiterAngle))A.loiterAngle=0;A.dest=null;A.mode='LOITER';A.lastMove=now;stallLogged=false}else if(A.mode==='LOITER'&&valid(A.loiterCenter)){const rx=57,ry=32,loiterSpeed=cpEffectiveISRSpeed()*.70,omega=loiterSpeed/Math.max(1,(rx+ry)*.5);A.loiterAngle=(A.loiterAngle+(A.loiterDir||1)*omega*dt)%(Math.PI*2);const nx=A.loiterCenter.x+Math.cos(A.loiterAngle)*rx,ny=A.loiterCenter.y+Math.sin(A.loiterAngle)*ry,dx=nx-A.x,dy=ny-A.y;if(Math.hypot(dx,dy)>.01)A.heading=H(dx,dy);A.x=nx;A.y=ny;A.lastMove=now;stallLogged=false}}}if(running){mirageTick(dt);verdantSmartTick(dt);verdantTrafficTick(dt);cpTempestVesselTick(dt);cpTempestMissionTick(dt,now);cpPriorityNAITick(now);vantageAffinityTick(now);updateTrackMemory(now);networkTick(now);}if(/^02-/.test(campaignMission||''))cpCheckCampaign02();geometry();ui();diagnostic(now);requestAnimationFrame(loop)}function supplyTargetFromPoint(p){if(!supplyRepairMode||supplyPackages<1||!valid(p))return false;const candidates=B.filter(b=>b.degraded&&!b.reconstituting).map(b=>({b,d:Math.hypot(b.x-p.x,b.y-p.y)})).sort((a,b)=>a.d-b.d);if(!candidates.length)return false;const hit=candidates[0];if(hit.d>62){cpNotice('SUPPLY TARGETING','SELECT A HIGHLIGHTED DEGRADED SITE','intel');return false;}reconstituteSite(hit.b);return true}
 $('#map').addEventListener('pointerdown',e=>{if(!running||!supplyRepairMode)return;const p=point(e);if(supplyTargetFromPoint(p)){e.preventDefault();e.stopImmediatePropagation();}},true);
 function cpTrackUnderISRPointer(e){if(!running)return null;const p=point(e);return T.filter(t=>!t.done&&t.el?.getAttribute('visibility')!=='hidden').map(t=>({t,d:Math.hypot(t.x-p.x,t.y-p.y)})).filter(o=>o.d<=34).sort((a,b)=>a.d-b.d)[0]?.t||null}
-$('#asset').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();if(!running)return;const t=cpTrackUnderISRPointer(e);if(t){C.track++;rec('TRACK_THROUGH_ISR',`${t.id} mode=${A.mode}`);sel=t;ui(true);return}acquire()});$('#map').addEventListener('pointerdown',e=>{e.preventDefault();if(verdantTrafficSel){verdantTrafficSel=null;updateSpotReport(null,false)}if(mirageSiteSel||mirageTrafficSel){mirageSiteSel=null;mirageTrafficSel=null;updateSpotReport(null,false)}C.map++;rec('MAP_POINTER',`mode=${A.mode}`);if(!running)return;if(passiveDeployMode){passivePlace(point(e));return}if(ewoTargetMode){ewoFire(point(e));return}if(!A.controlSelected)return;order(point(e));ui(true)});function actionPointer(el,fn){el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();fn();requestAnimationFrame(()=>el.blur())});el.addEventListener('click',e=>e.preventDefault())}actionPointer($('#collect'),collect);actionPointer($('#isrTask'),()=>{if(A.controlSelected){A.controlSelected=false;ui(true)}else acquire()});actionPointer($('#clear'),()=>decide('CLEAR'));actionPointer($('#intercept'),()=>decide('INTERCEPT'));actionPointer($('#tempestPriority'),cpTempestPrioritize);actionPointer($('#assessRoutine'),()=>mirageSelectJudgment('ROUTINE'));actionPointer($('#assessElevated'),()=>mirageSelectJudgment('ELEVATED'));actionPointer($('#assessWarning'),()=>mirageSelectJudgment('WARNING'));actionPointer($('#mirageSubmitJudgment'),mirageConfirmAssessment);actionPointer($('#mirageReturnToMap'),mirageCloseAssessment);actionPointer($('#mirageReopenAssessment'),mirageShowAssessment);actionPointer($('#passiveDeploy'),passiveToggleDeploy);actionPointer($('#ewoSweep'),ewoSweep);actionPointer($('#supplyUse'),supplyActivate);function deploy(){cpRenderStrategicPriorityNAI();stopCollect();passiveReset();cpCyberReset();Object.assign(C,{raf:0,isr:0,map:0,track:0,orders:0,errors:0,lastRaf:performance.now(),maxGap:0,fps:0,fpsFrames:0,fpsAt:performance.now()});dbg=[];rec('DEPLOY','diagnostic session started');T.forEach(t=>{t.el?.remove();t.ring?.remove();t.lkp?.g?.remove()});T=[];sel=null;next=1;score=0;integrity=100;decisionCorrect=0;decisionTotal=0;resolved=0;ints=0;phase=1;campaignStationarySpawned=0;stallLogged=false;Object.assign(A,{x:145,y:510,dest:null,mode:'IDLE',heading:0,lastMove:performance.now(),loiterCenter:null,loiterAngle:0,loiterDir:1,approachAngle:0,exitUntil:0,exitStarted:0,exitTurnDir:0,exitTurnCommitted:false,sensorPosture:1,controlSelected:false});if(/^04-0[1-5]$/.test(campaignMission||'')){verdantSmartActive=false;Object.assign(A,{x:450,y:610,dest:null,mode:'IDLE',heading:0,lastMove:performance.now()});mirageReset();updateSpotReport(null,false);}else if(/^03-0[1-5]$/.test(campaignMission||'')){const vc=VERDANT_DEPLOY[campaignMission];verdantSmartActive=true;verdantTrafficSel=null;Object.assign(A,{x:vc.isr.x,y:vc.isr.y,dest:null,mode:'IDLE',heading:0,lastMove:performance.now()});verdantMissionReset();verdantResetSmartRoutes();verdantTrafficReset();updateSpotReport(null,false);}else if(campaignMission==='TUTORIAL'){Object.assign(A,{x:450,y:560,dest:null,mode:'IDLE',heading:0,lastMove:performance.now()});verdantSmartActive=false;}else{verdantSmartActive=false;}cpTempestVesselInit();$('#phase').textContent=headerMissionTitle();if(/^03-0[1-5]$/.test(campaignMission||''))verdantMissionProgress();$('#log').textContent='';$('#enemyRings').textContent='';let lk=$('#lastKnownPositions');if(lk)lk.textContent='';let df=$('#decisionFeedback');if(df)df.textContent='';$('#end').classList.remove('show');initBlue();running=false;$('#clock').textContent=(campaignMission==='ARCADE'||campaignMission==='RETRO')?'00:00':campaignMission==='TUTORIAL'?'TRAIN':/^03-0[1-5]$/.test(campaignMission||'')?'':'03:00';if(/^03-0[1-5]$/.test(campaignMission||''))verdantUpdateHud();let n=campaignMission==='TUTORIAL'?1:5;banner(campaignMission==='TUTORIAL'?'TRAINING ENVIRONMENT':String(n),700);let timer=setInterval(()=>{n--;if(n>0)banner(String(n),700);else{clearInterval(timer);banner(campaignMission==='TUTORIAL'?'TRAINING // SYSTEMS ONLINE':campaignMission==='RETRO'?'SURVIVE':'PREPARE THE OPERATIONAL ENVIRONMENT',1600);setTimeout(()=>{running=true;A.mode='ON_STATION';start=performance.now();lastSpawn=start;A.lastMove=start;if(campaignMission==='01-02'){spawn(false);spawn(true);spawn(true)}else if(/^06-0[1-5]$/.test(campaignMission||'')){spawn();spawn();spawn()}
+$('#asset').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();if(!running)return;const t=cpTrackUnderISRPointer(e);if(t){C.track++;rec('TRACK_THROUGH_ISR',`${t.id} mode=${A.mode}`);sel=t;ui(true);return}acquire()});$('#map').addEventListener('pointerdown',e=>{e.preventDefault();if(verdantTrafficSel){verdantTrafficSel=null;updateSpotReport(null,false)}if(mirageSiteSel||mirageTrafficSel){mirageSiteSel=null;mirageTrafficSel=null;updateSpotReport(null,false)}C.map++;rec('MAP_POINTER',`mode=${A.mode}`);if(!running)return;if(passiveDeployMode){passivePlace(point(e));return}if(ewoTargetMode){ewoFire(point(e));return}if(!A.controlSelected)return;order(point(e));ui(true)});function actionPointer(el,fn){el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();fn();requestAnimationFrame(()=>el.blur())});el.addEventListener('click',e=>e.preventDefault())}actionPointer($('#collect'),collect);actionPointer($('#isrTask'),()=>{if(A.controlSelected){A.controlSelected=false;ui(true)}else acquire()});actionPointer($('#clear'),()=>decide('CLEAR'));actionPointer($('#intercept'),()=>decide('INTERCEPT'));actionPointer($('#tempestPriority'),cpTempestPrioritize);actionPointer($('#assessRoutine'),()=>mirageSelectJudgment('ROUTINE'));actionPointer($('#assessElevated'),()=>mirageSelectJudgment('ELEVATED'));actionPointer($('#assessWarning'),()=>mirageSelectJudgment('WARNING'));actionPointer($('#mirageSubmitJudgment'),mirageConfirmAssessment);actionPointer($('#mirageReturnToMap'),mirageCloseAssessment);actionPointer($('#mirageReopenAssessment'),mirageShowAssessment);actionPointer($('#passiveDeploy'),passiveToggleDeploy);actionPointer($('#ewoSweep'),ewoSweep);actionPointer($('#supplyUse'),supplyActivate);function deploy(){ciRuntimeInvalidate();ciCommendationBeginOperation();cpRenderStrategicPriorityNAI();stopCollect();passiveReset();cpCyberReset();Object.assign(C,{raf:0,isr:0,map:0,track:0,orders:0,errors:0,lastRaf:performance.now(),maxGap:0,fps:0,fpsFrames:0,fpsAt:performance.now()});dbg=[];rec('DEPLOY','diagnostic session started');T.forEach(t=>{t.el?.remove();t.ring?.remove();t.lkp?.g?.remove()});T=[];sel=null;next=1;score=0;integrity=100;decisionCorrect=0;decisionTotal=0;resolved=0;ints=0;phase=1;campaignStationarySpawned=0;stallLogged=false;Object.assign(A,{x:145,y:510,dest:null,mode:'IDLE',heading:0,lastMove:performance.now(),loiterCenter:null,loiterAngle:0,loiterDir:1,approachAngle:0,exitUntil:0,exitStarted:0,exitTurnDir:0,exitTurnCommitted:false,sensorPosture:1,controlSelected:false});if(/^04-0[1-5]$/.test(campaignMission||'')){verdantSmartActive=false;Object.assign(A,{x:450,y:610,dest:null,mode:'IDLE',heading:0,lastMove:performance.now()});mirageReset();updateSpotReport(null,false);}else if(/^03-0[1-5]$/.test(campaignMission||'')){const vc=VERDANT_DEPLOY[campaignMission];verdantSmartActive=true;verdantTrafficSel=null;Object.assign(A,{x:vc.isr.x,y:vc.isr.y,dest:null,mode:'IDLE',heading:0,lastMove:performance.now()});verdantMissionReset();verdantResetSmartRoutes();verdantTrafficReset();updateSpotReport(null,false);}else if(campaignMission==='TUTORIAL'){Object.assign(A,{x:450,y:560,dest:null,mode:'IDLE',heading:0,lastMove:performance.now()});verdantSmartActive=false;}else{verdantSmartActive=false;}cpTempestVesselInit();$('#phase').textContent=headerMissionTitle();if(/^03-0[1-5]$/.test(campaignMission||''))verdantMissionProgress();$('#log').textContent='';$('#enemyRings').textContent='';let lk=$('#lastKnownPositions');if(lk)lk.textContent='';let df=$('#decisionFeedback');if(df)df.textContent='';$('#end').classList.remove('show');initBlue();running=false;$('#clock').textContent=(campaignMission==='ARCADE'||campaignMission==='RETRO')?'00:00':campaignMission==='TUTORIAL'?'TRAIN':/^03-0[1-5]$/.test(campaignMission||'')?'':'03:00';if(/^03-0[1-5]$/.test(campaignMission||''))verdantUpdateHud();let n=campaignMission==='TUTORIAL'?1:5;banner(campaignMission==='TUTORIAL'?'TRAINING ENVIRONMENT':String(n),700);const deploymentGeneration=ciRuntimeGeneration,deploymentMission=campaignMission;let timer=setInterval(()=>{if(!ciRuntimeCurrent(deploymentGeneration,deploymentMission)){clearInterval(timer);return;}n--;if(n>0)banner(String(n),700);else{clearInterval(timer);banner(campaignMission==='TUTORIAL'?'TRAINING // SYSTEMS ONLINE':campaignMission==='RETRO'?'SURVIVE':'PREPARE THE OPERATIONAL ENVIRONMENT',1600);setTimeout(()=>{if(!ciRuntimeCurrent(deploymentGeneration,deploymentMission))return;running=true;A.mode='ON_STATION';start=performance.now();lastSpawn=start;A.lastMove=start;if(campaignMission==='01-02'){spawn(false);spawn(true);spawn(true)}else if(/^06-0[1-5]$/.test(campaignMission||'')){spawn();spawn();spawn()}
 else if(campaignMission==='01-03'||campaignMission==='01-04'||campaignMission==='01-05'||campaignMission==='ARCADE'||/^02-/.test(campaignMission||'')||/^06-0[1-5]$/.test(campaignMission||'')){spawn();spawn();spawn()}
 else if(/^05-0[1-5]$/.test(campaignMission||'')){cpTempestMissionStart()}
 else if(campaignMission==='TUTORIAL'){/* Guided contacts are created by the tutorial steps. */}
@@ -1504,7 +2173,7 @@ function verdantMissionProgress(){
  if(!verdantSmartActive||activeOA!=='VERDANT'||!/^03-0[1-5]$/.test(campaignMission||''))return;
  const m=VERDANT_MISSIONS[campaignMission];if(!m)return;
  if(!verdantMission.complete&&verdantMissionComplete()){
-   verdantMission.complete=true;log('VERDANT // '+campaignMission+' // '+m.title+' COMPLETE');setTimeout(verdantFinishMission,350);
+   verdantMission.complete=true;log('VERDANT // '+campaignMission+' // '+m.title+' COMPLETE');ciRuntimeTimeout(verdantFinishMission,350);
  }
  ui(true);
 }
@@ -2277,7 +2946,7 @@ function mirageTick(dt){if(!running||!/^04-0[1-5]$/.test(campaignMission||'')||a
 function mirageCollect(){const o=mirageSiteSel||mirageTrafficSel;if(!running||!o||o.collecting)return;const inside=Math.hypot(A.x-o.x,A.y-o.y)<=cpEffectiveISRRadius();if(!inside)return;const siteDone=mirageSiteSel&&(/^04-0[3-5]$/.test(campaignMission||'')?true:campaignMission==='04-02'?o.capabilityAssessed:o.characterized);const trackDone=mirageTrafficSel&&(/^04-0[3-5]$/.test(campaignMission||'')?o.postureObserved:o.type!=='UNKNOWN');if(siteDone||trackDone)return;stopCollect();col=o;o.collecting=true;const base=o.collectMs||0,st=performance.now();ci=setInterval(()=>{const covered=Math.hypot(A.x-o.x,A.y-o.y)<=cpEffectiveISRRadius();if(!covered){o.collectMs=Math.min(MIRAGE_COLLECT_MS,base+performance.now()-st);o.collecting=false;clearInterval(ci);ci=null;col=null;mirageSpot();ui(true);return}o.collectMs=Math.min(MIRAGE_COLLECT_MS,base+performance.now()-st);pct=Math.floor(o.collectMs/MIRAGE_COLLECT_MS*100);mirageSpot();ui(true);if(o.collectMs>=MIRAGE_COLLECT_MS){clearInterval(ci);ci=null;col=null;o.collecting=false;o.collectMs=0;if(mirageSiteSel){if(campaignMission==='04-02'){o.capabilityAssessed=true;cpNotice('CAPABILITY ASSESSED',o.id+' // '+(o.capability||'SUPPORT CAPACITY'),'intel')}else{o.characterized=true;cpNotice('SITE CHARACTERIZED',o.id+' // '+o.label,'intel')}}else{if(/^04-0[3-5]$/.test(campaignMission||'')){o.postureObserved=true;if(/^04-0[45]$/.test(campaignMission||'')&&o.indicator){o.indicatorDeveloped=true;cpNotice('INDICATOR DEVELOPED',o.indicator+' // '+o.id,'intel');mirageCorroborateObservedTrack(o)}else{cpNotice(o.isAnomaly?'BASELINE DEVIATION':'BASELINE CONSISTENT',o.id+' // OBSERVATION COMPLETE','intel');mirageCorroborateObservedTrack(o)}}else{o.type=o.truth==='UNKNOWN'?'NEUTRAL':o.truth;cpNotice('TRACK RESOLVED',o.id+' // '+o.type,'intel')}}score+=25;sound('classify');mirageRender();mirageProgress();mirageSpot();ui(true)}},80)}
 function mirageSpot(){const o=mirageSiteSel||mirageTrafficSel,box=$('#spotReport');if(!box||!/^04-0[1-5]$/.test(campaignMission||'')||!o){if(box)box.hidden=true;return}box.hidden=false;const site=!!mirageSiteSel,done=site?(/^04-0[3-5]$/.test(campaignMission||'')?true:campaignMission==='04-02'?o.capabilityAssessed:o.characterized):(/^04-0[3-5]$/.test(campaignMission||'')?o.postureObserved:o.type!=='UNKNOWN'),inside=Math.hypot(A.x-o.x,A.y-o.y)<=cpEffectiveISRRadius();box.style.setProperty('--spot-color',site?'#d6b47c':mirageColor(o.type));$('#spotTitle').textContent='SPOT // '+o.id;if(!site&&/^04-0[3-5]$/.test(campaignMission||'')){$('#spotClass').textContent='CLASS // '+o.type;const label=campaignMission==='04-03'?'POSTURE':campaignMission==='04-04'?'INDICATION':'WARNING';$('#spotContext').textContent=o.collecting?(label+' COLLECTION // '+Math.floor(o.collectMs/MIRAGE_COLLECT_MS*100)+'%'):o.postureObserved?(o.indicatorDeveloped?('INDICATOR // '+o.indicator+(o.indicatorCorroborated?' // CORROBORATED':'')):(campaignMission==='04-03'?('POSTURE // '+(o.isAnomaly?(o.corroborated?'BASELINE DEVIATION // CORROBORATED':'BASELINE DEVIATION'):'BASELINE CONSISTENT')):(label+' // NO CORROBORATED INDICATOR'))):(inside?label+' // NOT OBSERVED // RE-OBSERVE AVAILABLE':label+' // NOT OBSERVED // NO COVERAGE')}else if(site&&campaignMission==='04-02'){$('#spotClass').textContent=o.label;$('#spotContext').textContent=o.collecting?('CAPABILITY COLLECTION // '+Math.floor(o.collectMs/MIRAGE_COLLECT_MS*100)+'%'):done?('CAPABILITY // '+(o.capability||'ASSESSED')):(inside?'ASSESS CAPABILITY // AVAILABLE':'ASSESS CAPABILITY // NO COVERAGE')}else{$('#spotClass').textContent=site?(done?o.label:'SITE // UNCHARACTERIZED'):(done?o.type:'UNKNOWN');$('#spotContext').textContent=o.collecting?('COLLECT // '+Math.floor(o.collectMs/MIRAGE_COLLECT_MS*100)+'%'):done?(site?'SITE // CHARACTERIZED':'TRACK // RESOLVED'):(inside?'COLLECT // AVAILABLE':'COLLECT // NO COVERAGE')}}
 function mirageDetail(){const o=mirageSiteSel||mirageTrafficSel;if(!o){updateSpotReport(null,false);$('#none').hidden=false;$('#detail').hidden=true;return}$('#none').hidden=true;$('#detail').hidden=false;const site=!!mirageSiteSel,done=site?(/^04-0[3-5]$/.test(campaignMission||'')?true:campaignMission==='04-02'?o.capabilityAssessed:o.characterized):(/^04-0[3-5]$/.test(campaignMission||'')?o.postureObserved:o.type!=='UNKNOWN'),inside=Math.hypot(A.x-o.x,A.y-o.y)<=cpEffectiveISRRadius();$('#tid').textContent=o.id;$('#type').textContent=site?(/^04-0[3-5]$/.test(campaignMission||'')?(o.capability||o.label):campaignMission==='04-02'?(done?(o.capability||'CAPABILITY ASSESSED'):o.label):(done?o.label:'UNCHARACTERIZED')):(/^04-0[3-5]$/.test(campaignMission||'')?o.type:(done?o.type:'UNKNOWN'));$('#motion').textContent=site?'FIXED':'MOBILE';$('#collect').hidden=false;$('#collect').textContent=/^04-0[3-5]$/.test(campaignMission||'')&&!site?(o.postureObserved?(campaignMission==='04-03'?'POSTURE OBSERVED':o.indicatorDeveloped?'INDICATOR DEVELOPED':'OBSERVATION COMPLETE'):inside?(o.collectMs?'RESUME RE-OBSERVE':'RE-OBSERVE '+(campaignMission==='04-03'?'POSTURE':campaignMission==='04-04'?'INDICATION':'WARNING')):'RE-OBSERVE // NO COVERAGE'):(done?'COLLECTION COMPLETE':inside?(o.collectMs?'RESUME COLLECT':(site&&campaignMission==='04-02'?'ASSESS CAPABILITY':'COLLECT')):'COLLECT // NO COVERAGE');$('#collect').disabled=!running||done||!inside||o.collecting;$('#prog').hidden=!o.collecting;$('#pct').textContent=Math.floor((o.collectMs||0)/MIRAGE_COLLECT_MS*100)+'%';$('#bar').style.width=Math.floor((o.collectMs||0)/MIRAGE_COLLECT_MS*100)+'%';$('#dec').hidden=true;mirageSpot()}
-function mirageProgress(){if(!/^04-0[1-5]$/.test(campaignMission||''))return;const v=mirageMissionValues(),m=mirageMissionConfig();if(!mirageEnding&&v.every((x,i)=>x>=m.goals[i])){mirageEnding=true;setTimeout(()=>campaignMission==='04-01'?mirageFinish0401():campaignMission==='04-02'?mirageFinish0402():campaignMission==='04-03'?mirageFinish0403():campaignMission==='04-04'?mirageFinish0404():mirageWarningReady(),350)}ui(true)}
+function mirageProgress(){if(!/^04-0[1-5]$/.test(campaignMission||''))return;const v=mirageMissionValues(),m=mirageMissionConfig();if(!mirageEnding&&v.every((x,i)=>x>=m.goals[i])){mirageEnding=true;ciRuntimeTimeout(()=>campaignMission==='04-01'?mirageFinish0401():campaignMission==='04-02'?mirageFinish0402():campaignMission==='04-03'?mirageFinish0403():campaignMission==='04-04'?mirageFinish0404():mirageWarningReady(),350)}ui(true)}
 function mirageFinish0401(){const rk=$('#resultKicker');if(rk)rk.textContent='CAMPAIGN 04 // OA MIRAGE';campaignFinished=true;running=false;stopCollect();window.CP_MENU=true;A.dest=null;A.mode='IDLE';campaignProgressionWrite('ci-c04-01-complete','1');cpRefreshMirage();const v=mirageMissionValues();$('#resultTitle').textContent='INVENTORY // MISSION COMPLETE';$('#resultBody').innerHTML='OA MIRAGE // 04-01 INVENTORY<br>OPERATING PICTURE ESTABLISHED<br><br>SITES // '+v[0]+' / 4<br>TRACKS // '+v[1]+' / 4<br>LINKS // '+v[2]+' / 3<br>SCORE // '+Math.max(0,Math.round(score));$('#resultContinue').classList.remove('hidden');$('#resultRetry').classList.add('hidden');$('#campaignResult').classList.remove('hidden');outcomeFeedback(true);ui(true)}
 function mirageFinish0402(){const rk=$('#resultKicker');if(rk)rk.textContent='CAMPAIGN 04 // OA MIRAGE';campaignFinished=true;running=false;stopCollect();window.CP_MENU=true;A.dest=null;A.mode='IDLE';campaignProgressionWrite('ci-c04-02-complete','1');cpRefreshMirage();const v=mirageMissionValues();$('#resultTitle').textContent='CAPACITY // MISSION COMPLETE';$('#resultBody').innerHTML='OA MIRAGE // 04-02 CAPACITY<br>NETWORK-ENABLED CAPABILITY ESTABLISHED<br><br>CAPABILITIES // '+v[0]+' / 3<br>LINKS // '+v[1]+' / 5<br>NETWORKS // '+v[2]+' / 2<br>SCORE // '+Math.max(0,Math.round(score));$('#resultContinue').classList.remove('hidden');$('#resultRetry').classList.add('hidden');$('#campaignResult').classList.remove('hidden');outcomeFeedback(true);ui(true)}
 function mirageFinish0403(){const rk=$('#resultKicker');if(rk)rk.textContent='CAMPAIGN 04 // OA MIRAGE';campaignFinished=true;running=false;stopCollect();window.CP_MENU=true;A.dest=null;A.mode='IDLE';campaignProgressionWrite('ci-c04-03-complete','1');cpRefreshMirage();const v=mirageMissionValues();$('#resultTitle').textContent='POSTURE // MISSION COMPLETE';$('#resultBody').innerHTML='OA MIRAGE // 04-03 POSTURE<br>BASELINE DEVIATIONS ESTABLISHED<br><br>ANOMALIES // '+v[0]+' / 3<br>CORROBORATED // '+v[1]+' / 2<br>TRACKS // '+v[2]+' / 5<br>SCORE // '+Math.max(0,Math.round(score));$('#resultContinue').classList.remove('hidden');$('#resultRetry').classList.add('hidden');$('#campaignResult').classList.remove('hidden');outcomeFeedback(true);ui(true)}
@@ -2428,7 +3097,7 @@ function cpBegin0501Now(){
  deploy();
  last=performance.now();
 }
-function cpCampaignMenu(){ciFirstVisitMark('campaign');progressionMarkRead('campaign');refreshProgressionBadges();['briefing0301','briefing0302','briefing0303','briefing0304','briefing0305','briefing0401','briefing0402','briefing0403','briefing0404','briefing0405','briefingPolaris'].forEach(id=>$('#'+id)?.classList.add('hidden'));cpSetOAVisual(campaignMenuOA);selectCampaignOA(campaignMenuOA);cpRefreshCampaign02();cpRefreshVerdant();cpRefreshMirage();cpTempestRefresh();cpPolarisRefresh();clearTutorialState();musicSetMode('menu');cpRefreshCampaign();window.CP_MENU=true;window.CP_PAUSED=false;running=false;stopCollect();$('#mainMenu').classList.add('hidden');$('#pauseMenu').classList.add('hidden');$('#briefing0101').classList.add('hidden');$('#briefing0102').classList.add('hidden');$('#briefing0103').classList.add('hidden');$('#briefing0104').classList.add('hidden');$('#briefing0105').classList.add('hidden');$('#campaignResult').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')}
+function cpCampaignMenu(){ciCommendationAbandonOperation();ciRuntimeInvalidate();ciFirstVisitMark('campaign');progressionMarkRead('campaign');refreshProgressionBadges();['briefing0301','briefing0302','briefing0303','briefing0304','briefing0305','briefing0401','briefing0402','briefing0403','briefing0404','briefing0405','briefingPolaris'].forEach(id=>$('#'+id)?.classList.add('hidden'));cpSetOAVisual(campaignMenuOA);selectCampaignOA(campaignMenuOA);cpRefreshCampaign02();cpRefreshVerdant();cpRefreshMirage();cpTempestRefresh();cpPolarisRefresh();clearTutorialState();musicSetMode('menu');cpRefreshCampaign();window.CP_MENU=true;window.CP_PAUSED=false;running=false;stopCollect();$('#mainMenu').classList.add('hidden');$('#pauseMenu').classList.add('hidden');$('#briefing0101').classList.add('hidden');$('#briefing0102').classList.add('hidden');$('#briefing0103').classList.add('hidden');$('#briefing0104').classList.add('hidden');$('#briefing0105').classList.add('hidden');$('#campaignResult').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')}
 function cpBrief0101(){$('#campaignMenu').classList.add('hidden');$('#briefing0101').classList.remove('hidden')}
 function cpUnlocked0102(){
   if(devProgressionBypassActive())return true;
@@ -2481,7 +3150,7 @@ const tutorialIntelSeen=new Set();
 function tutorialClearHighlights(){document.querySelectorAll('.training-target-highlight').forEach(el=>el.classList.remove('training-target-highlight'));$('#mapWrap')?.classList.remove('training-map-focus')}
 function tutorialSetHighlights(step){tutorialClearHighlights();const controls={1:['asset','isrTask'],3:['collect'],4:['clear'],6:['passiveDeploy'],7:['passiveDeploy'],8:['ewoSweep'],9:['supplyUse'],11:['tutorialNext'],12:['tutorialNext']}[step]||[];controls.forEach(id=>$('#'+id)?.classList.add('training-target-highlight'));if(step===3)T.filter(t=>!t.done&&t.type==='UNKNOWN').forEach(t=>t.el?.classList.add('training-target-highlight'));if(step===2||step===7)$('#mapWrap')?.classList.add('training-map-focus');if(step===5)[['MITIGATE','intelMitigate'],['EXPLOIT','intelExploit'],['SUPPLY','intelSupply']].forEach(([kind,id])=>{if(!tutorialIntelSeen.has(kind))$('#'+id)?.classList.add('training-target-highlight')});if(step===9||step===10)document.querySelectorAll('#blueSites .training-degraded').forEach(el=>el.classList.add('training-target-highlight'))}
 function clearTutorialState(){if(campaignMission==='TUTORIAL')passiveReset();tutorialStep=0;tutorialIntelSeen.clear();$("#mapWrap")?.classList.remove("training-intel-report");tutorialClearHighlights();const g=$('#tutorialGuide');if(g){g.classList.add('hidden');delete g.dataset.trainingStep}const n=$('#tutorialNext');if(n){n.textContent='CONTINUE';n.classList.add('hidden')} }
-function missionTransition(title,sub,fn){clearTutorialState();document.querySelectorAll('.gameoverlay').forEach(el=>el.classList.add('hidden'));const m=$('#missionLoad');$('#missionLoadTitle').textContent=title||'OA KESTREL';$('#missionLoadSub').textContent=sub||'ESTABLISHING TACTICAL PICTURE';m.classList.remove('hidden');m.classList.add('show');window.CP_MENU=true;setTimeout(()=>{m.classList.remove('show');m.classList.add('hidden');window.CP_MENU=false;fn()},3000)}
+function missionTransition(title,sub,fn){ciCommendationAbandonOperation();const transitionGeneration=ciRuntimeInvalidate();clearTutorialState();document.querySelectorAll('.gameoverlay').forEach(el=>el.classList.add('hidden'));const m=$('#missionLoad');$('#missionLoadTitle').textContent=title||'OA KESTREL';$('#missionLoadSub').textContent=sub||'ESTABLISHING TACTICAL PICTURE';m.classList.remove('hidden');m.classList.add('show');window.CP_MENU=true;setTimeout(()=>{if(transitionGeneration!==ciRuntimeGeneration)return;m.classList.remove('show');m.classList.add('hidden');window.CP_MENU=false;fn()},3000)}
 function trainingPrime(){passiveCredits=9999;ewoUses=0;supplyPackages=1;const d=B.slice(0,2);d.forEach(b=>{b.exposure=100;b.degraded=true;b.reconstituting=false;cpRenderBlueSite(b);b.el.classList.add('training-degraded')});campaignCompromise=cpCompromiseFloor();ui(true)}
 function cpBegin0105(){if(!campaignMissionUnlocked('01-05'))return;missionTransition('01-05 // CONDITIONS SET','OA KESTREL // LOADING OPERATION',cpBegin0105Now)}
 function cpBegin0105Now(){if(!campaignMissionUnlocked('01-05'))return;musicSetMode('mission');campaignMission='01-05';campaignIds=0;campaignCorrect=0;campaignThreatResolved=0;campaignNonThreatResolved=0;campaignStationaryAssessed=0;campaignStationarySpawned=0;campaignProximityAssessed=0;campaignCollectionInterrupted=0;campaignCompromise=0;campaignFinished=false;cpIntelDropReset();cpHideCampaignOverlays();let w=$('#hostileCollectionWarning');if(w)w.classList.add('hidden');window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();last=performance.now()}
@@ -2496,7 +3165,7 @@ function cpBegin0102Now(){if(!campaignMissionUnlocked('01-02'))return;musicSetMo
 
 function cpBegin0101(){missionTransition('01-01 // ESTABLISH','OA KESTREL // LOADING OPERATION',cpBegin0101Now)}
 function cpBegin0101Now(){musicSetMode('mission');campaignMission='01-01';campaignIds=0;campaignCorrect=0;campaignThreatResolved=0;campaignNonThreatResolved=0;campaignFinished=false;cpHideCampaignOverlays();window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();last=performance.now()}
-function outcomeFeedback(pass){const overlay=$('#campaignResult'),region=String(campaignMission||'').slice(0,2),oa={'01':'KESTREL','02':'VANTAGE','03':'VERDANT','04':'MIRAGE','05':'TEMPEST','06':'POLARIS'}[region],kicker=$('#resultKicker');if(kicker&&oa)kicker.textContent='CAMPAIGN '+region+' // OA '+oa;$('#resultReturnCommand')?.classList.toggle('hidden',pass);if(pass){playAsset(missionSuccessAudio,.9,'sfx');banner('MISSION COMPLETE // CONDITIONS SET',2200);overlay.classList.remove('loss-flash');overlay.classList.add('win-flash')}else{playAsset(missionFailAudio,.95,'sfx');banner('MISSION FAILURE // CONDITIONS NOT SET',2600);overlay.classList.remove('win-flash');overlay.classList.add('loss-flash')}}
+function outcomeFeedback(pass){ciCommendationFinishCampaign(pass);const overlay=$('#campaignResult'),region=String(campaignMission||'').slice(0,2),oa={'01':'KESTREL','02':'VANTAGE','03':'VERDANT','04':'MIRAGE','05':'TEMPEST','06':'POLARIS'}[region],kicker=$('#resultKicker');if(kicker&&oa)kicker.textContent='CAMPAIGN '+region+' // OA '+oa;$('#resultReturnCommand')?.classList.toggle('hidden',pass);if(pass){playAsset(missionSuccessAudio,.9,'sfx');banner('MISSION COMPLETE // CONDITIONS SET',2200);overlay.classList.remove('loss-flash');overlay.classList.add('win-flash')}else{playAsset(missionFailAudio,.95,'sfx');banner('MISSION FAILURE // CONDITIONS NOT SET',2600);overlay.classList.remove('win-flash');overlay.classList.add('loss-flash')}}
 function cpCheck0101(){if(campaignMission!=='01-01'||campaignFinished)return;if(campaignCorrect>=10){campaignFinished=true;running=false;stopCollect();window.CP_MENU=true;const pass=integrity>=80;if(pass){campaignProgressionWrite('ci-c01-01-complete','1');campaignProgressionWrite('ci-c01-0102-unlocked','1');campaignSessionProgressionWrite('ci-c01-0102-unlocked','1');cpRefreshCampaign()}$('#resultTitle').textContent=pass?'CONDITIONS HAVE BEEN SET':'CONDITIONS NOT SET';$('#resultBody').innerHTML='OA KESTREL<br>INITIAL OPERATIONAL PICTURE '+(pass?'ESTABLISHED':'INCOMPLETE')+'<br><br>CONTACTS IDENTIFIED&nbsp;&nbsp;&nbsp;&nbsp;'+campaignIds+'<br>CORRECT DISPOSITIONS&nbsp;&nbsp;'+campaignCorrect+'<br>HOSTILE / IRREGULAR&nbsp;&nbsp;&nbsp;'+campaignThreatResolved+'<br>FRIENDLY / NEUTRAL&nbsp;&nbsp;&nbsp;'+campaignNonThreatResolved+'<br>INTELLIGENCE INTEGRITY&nbsp;'+Math.round(integrity)+'%<br>SCORE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+Math.max(0,Math.round(score));$('#resultContinue').classList.toggle('hidden',!pass);$('#resultRetry').classList.toggle('hidden',pass);$('#campaignResult').classList.remove('hidden');outcomeFeedback(pass)}}
 function cpCheck0102(){
 if(campaignMission!=='01-02'||campaignFinished)return;
@@ -2622,9 +3291,9 @@ function arcadeOAAllowed(){
 function setArcadeOA(oa){const allowed=arcadeOAAllowed();arcadeOA=allowed.includes(oa)?oa:(allowed[0]||'KESTREL');if(!devProgressionSimulationActive())localStorage.setItem(ARCADE_OA_KEY,arcadeOA);document.querySelectorAll('[data-arcade-oa]').forEach(b=>{const unlocked=allowed.includes(b.dataset.arcadeOa);b.hidden=!unlocked;b.disabled=!unlocked;b.classList.toggle('selected',b.dataset.arcadeOa===arcadeOA)});let l=$('#arcadeOALabel');if(l)l.textContent=(arcadeOA==='ARCTIC'?'POLARIS':arcadeOA);const k=$('#arcadeOAKicker');if(k)k.textContent='ARCADE // OA '+(arcadeOA==='ARCTIC'?'POLARIS':arcadeOA)}
 function arcadeBegin(){if(!arcadeOAAllowed().includes(arcadeOA))return;missionTransition('ARCADE // OA '+(arcadeOA==='ARCTIC'?'POLARIS':arcadeOA),'ENDLESS OPERATION // LOADING',arcadeBeginNow)}
 function arcadeBeginNow(){if(!arcadeOAAllowed().includes(arcadeOA))return;musicSetMode('mission');cpSetOAVisual(arcadeOA);campaignMission='ARCADE';campaignIds=0;campaignCorrect=0;campaignThreatResolved=0;campaignNonThreatResolved=0;campaignCollectionInterrupted=0;campaignCompromise=0;campaignFinished=false;arcadeStreak=0;arcadeBestStreak=0;arcadeCorrect=0;arcadeWrong=0;arcadeThreatLevel=1;cpIntelDropReset();arcadeHide();cpHideCampaignOverlays();window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();arcadeStart=performance.now();last=performance.now()}
-function arcadeFinish(reason){if(campaignMission!=='ARCADE'||campaignFinished)return;campaignFinished=true;playAsset(missionFailAudio,.95,'sfx');banner('ARCADE FAILURE // '+reason,2600);running=false;stopCollect();window.CP_MENU=true;const w=$('#hostileCollectionWarning');if(w)w.classList.add('hidden');const elapsed=Math.max(0,Math.floor((performance.now()-(arcadeStart||start))/1000)),acc=(arcadeCorrect+arcadeWrong)?Math.round(arcadeCorrect*100/(arcadeCorrect+arcadeWrong)):100;$('#arcadeResultTitle').textContent=reason;$('#arcadeResultBody').innerHTML='OA '+(activeOA==='ARCTIC'?'POLARIS':activeOA)+' // ARCADE AAR<br><br>SCORE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+Math.max(0,Math.round(score))+'<br>SURVIVAL TIME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+String(Math.floor(elapsed/60)).padStart(2,'0')+':'+String(elapsed%60).padStart(2,'0')+'<br>THREAT LEVEL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+arcadeThreatLevel+'<br>CONTACTS RESOLVED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+resolved+'<br>THREATS INTERCEPTED&nbsp;&nbsp;&nbsp;&nbsp;'+ints+'<br>COLLECTION INTERRUPTED&nbsp;&nbsp;'+campaignCollectionInterrupted+'<br>DECISION ACCURACY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+acc+'%<br>LONGEST STREAK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+arcadeBestStreak+'<br>SITES DEGRADED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+cpDegradedCount()+' / 5<br>FINAL OE COMPROMISE&nbsp;&nbsp;&nbsp;&nbsp;'+Math.round(campaignCompromise)+'%';$('#arcadeResult').classList.remove('hidden');$('#arcadeResult').classList.add('loss-flash')}
+function arcadeFinish(reason){if(campaignMission!=='ARCADE'||campaignFinished)return;ciCommendationFinishArcade();campaignFinished=true;playAsset(missionFailAudio,.95,'sfx');banner('ARCADE FAILURE // '+reason,2600);running=false;stopCollect();window.CP_MENU=true;const w=$('#hostileCollectionWarning');if(w)w.classList.add('hidden');const elapsed=Math.max(0,Math.floor((performance.now()-(arcadeStart||start))/1000)),acc=(arcadeCorrect+arcadeWrong)?Math.round(arcadeCorrect*100/(arcadeCorrect+arcadeWrong)):100;$('#arcadeResultTitle').textContent=reason;$('#arcadeResultBody').innerHTML='OA '+(activeOA==='ARCTIC'?'POLARIS':activeOA)+' // ARCADE AAR<br><br>SCORE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+Math.max(0,Math.round(score))+'<br>SURVIVAL TIME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+String(Math.floor(elapsed/60)).padStart(2,'0')+':'+String(elapsed%60).padStart(2,'0')+'<br>THREAT LEVEL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+arcadeThreatLevel+'<br>CONTACTS RESOLVED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+resolved+'<br>THREATS INTERCEPTED&nbsp;&nbsp;&nbsp;&nbsp;'+ints+'<br>COLLECTION INTERRUPTED&nbsp;&nbsp;'+campaignCollectionInterrupted+'<br>DECISION ACCURACY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+acc+'%<br>LONGEST STREAK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+arcadeBestStreak+'<br>SITES DEGRADED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+cpDegradedCount()+' / 5<br>FINAL OE COMPROMISE&nbsp;&nbsp;&nbsp;&nbsp;'+Math.round(campaignCompromise)+'%';$('#arcadeResult').classList.remove('hidden');$('#arcadeResult').classList.add('loss-flash')}
 function arcadeMenu(){ciFirstVisitMark('arcade');progressionMarkRead('arcade');clearTutorialState();musicSetMode('menu');setArcadeOA(arcadeOA);cpHideCampaignOverlays();$('#mainMenu').classList.add('hidden');$('#arcadeResult').classList.add('hidden');$('#arcadeBriefing').classList.remove('hidden');refreshArcadeIntelAssist();window.CP_MENU=true}
-function cpShowMenu(){
+function cpShowMenu(){ciCommendationAbandonOperation();ciRuntimeInvalidate();
   clearTutorialState();musicSetMode('menu');rotateCommandBackground();
   window.CP_PAUSED=false;window.CP_MENU=true;running=false;stopCollect();A.dest=null;
   $('#pauseMenu').classList.add('hidden');$('#mainMenu').classList.remove('hidden');
@@ -2636,7 +3305,7 @@ function cpCampaign(){
 }
 function cpSetPause(v){
   ciSetAbortConfirmation(false);
-  if(window.CP_MENU||!running)return;
+  if(window.CP_MENU||!running)return;ciCommendationSuspendArcadeClock();
   if(v){
     window.CP_PAUSED=true;window.CP_PAUSE_AT=performance.now();applyAudioSettings();const pauseOALabel=$('#pauseOALabel');if(pauseOALabel)pauseOALabel.textContent='OA '+(activeOA==='ARCTIC'?'POLARIS':(activeOA||'KESTREL'))+' // COMMAND HOLD';
     $('#pauseMenu').classList.remove('hidden');
@@ -3677,7 +4346,7 @@ document.querySelectorAll('[data-campaign-oa]').forEach(b=>b.addEventListener('c
 $('#tutorialBtn').addEventListener('click',tutorialMenu);$('#tutorialBegin').addEventListener('click',tutorialBegin);$('#tutorialBack').addEventListener('click',()=>{$('#tutorialBriefing').classList.add('hidden');$('#mainMenu').classList.remove('hidden')});$('#tutorialNext').addEventListener('click',tutorialSupportNext);$('#campaignBtn').addEventListener('click',cpCampaignMenu);$('#mission0301').addEventListener('click',cpBrief0301);$('#mission0302').addEventListener('click',cpBrief0302);$('#mission0303').addEventListener('click',cpBrief0303);$('#mission0304').addEventListener('click',cpBrief0304);$('#mission0305').addEventListener('click',cpBrief0305);$('#briefBack0301').addEventListener('click',()=>{$('#briefing0301').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0302').addEventListener('click',()=>{$('#briefing0302').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0303').addEventListener('click',()=>{$('#briefing0303').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0304').addEventListener('click',()=>{$('#briefing0304').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0305').addEventListener('click',()=>{$('#briefing0305').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#begin0301').addEventListener('click',cpBegin0301);$('#begin0302').addEventListener('click',cpBegin0302);$('#begin0303').addEventListener('click',cpBegin0303);$('#begin0304').addEventListener('click',cpBegin0304);$('#begin0305').addEventListener('click',cpBegin0305);$('#mission0401').addEventListener('click',cpBrief0401);$('#mission0402').addEventListener('click',cpBrief0402);$('#mission0403').addEventListener('click',cpBrief0403);$('#mission0404').addEventListener('click',cpBrief0404);$('#mission0405').addEventListener('click',cpBrief0405);$('#mission0501Dev').addEventListener('click',()=>cpTempestBrief('05-01'));$('#briefBack0401').addEventListener('click',()=>{$('#briefing0401').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#begin0401').addEventListener('click',cpBegin0401);$('#briefBack0402').addEventListener('click',()=>{$('#briefing0402').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#begin0402').addEventListener('click',cpBegin0402);$('#briefBack0403').addEventListener('click',()=>{$('#briefing0403').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#begin0403').addEventListener('click',cpBegin0403);$('#briefBack0404').addEventListener('click',()=>{$('#briefing0404').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#begin0404').addEventListener('click',cpBegin0404);$('#briefBack0405').addEventListener('click',()=>{$('#briefing0405').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#begin0405').addEventListener('click',cpBegin0405);$('#arcadeBtn').addEventListener('click',arcadeMenu);$('#arcadeBegin').addEventListener('click',arcadeBegin);$('#arcadeBack').addEventListener('click',()=>{$('#arcadeBriefing').classList.add('hidden');if(globalActivityContext){document.body.classList.remove('global-context-arcade');globalActivityContext=false;openGlobal();if(globalSelectedOA)selectGlobalOA(globalSelectedOA);}else $('#mainMenu').classList.remove('hidden')});$('#arcadeRedeploy').addEventListener('click',arcadeBegin);$('#arcadeMenuBtn').addEventListener('click',()=>ciInterstitialThen(()=>{arcadeHide();cpShowMenu()}));$('#mission0101').addEventListener('click',cpBrief0101);$('#mission0102').addEventListener('click',cpBrief0102);$('#mission0103').addEventListener('click',cpBrief0103);$('#mission0104').addEventListener('click',cpBrief0104);$('#mission0105').addEventListener('click',cpBrief0105);$('#campaignBack').addEventListener('click',()=>{$('#campaignMenu').classList.add('hidden');if(globalActivityContext){document.body.classList.remove('global-context-campaign');globalActivityContext=false;openGlobal();if(globalSelectedOA)selectGlobalOA(globalSelectedOA);}else $('#mainMenu').classList.remove('hidden')});$('#briefBack').addEventListener('click',()=>{$('#briefing0101').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0102').addEventListener('click',()=>{$('#briefing0102').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0103').addEventListener('click',()=>{$('#briefing0103').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0104').addEventListener('click',()=>{$('#briefing0104').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#briefBack0105').addEventListener('click',()=>{$('#briefing0105').classList.add('hidden');$('#campaignMenu').classList.remove('hidden')});$('#begin0101').addEventListener('click',cpBegin0101);$('#begin0102').addEventListener('click',cpBegin0102);$('#begin0103').addEventListener('click',cpBegin0103);$('#begin0104').addEventListener('click',cpBegin0104);$('#begin0105').addEventListener('click',cpBegin0105);$('#intelMitigate').addEventListener('click',()=>cpIntelDropChoose('MITIGATE'));$('#intelExploit').addEventListener('click',()=>cpIntelDropChoose('EXPLOIT'));$('#intelSupply').addEventListener('click',()=>cpIntelDropChoose('SUPPLY'));$('#resultRetry').addEventListener('click',()=>campaignMission==='04-05'?cpBegin0405():campaignMission==='04-04'?cpBegin0404():campaignMission==='04-03'?cpBegin0403():campaignMission==='04-02'?cpBegin0402():campaignMission==='04-01'?cpBegin0401():/^02-/.test(campaignMission||'')?cpBegin02(campaignMission):(/^05-0[1-5]$/.test(campaignMission||'')?cpBeginTempest(campaignMission):(campaignMission==='01-05'?cpBegin0105():(campaignMission==='01-04'?cpBegin0104():(campaignMission==='01-03'?cpBegin0103():(campaignMission==='01-02'?cpBegin0102():cpBegin0101()))))));$('#resultContinue').addEventListener('click',()=>ciInterstitialThen(cpCampaignMenu));$('#resultReturnCommand').addEventListener('click',()=>ciInterstitialThen(cpCampaignMenu));
 $('#pauseBtn').addEventListener('click',()=>cpSetPause(!window.CP_PAUSED));$('#muteBtn').addEventListener('click',ciCycleAudioMode);$('#homeAudioBtn')?.addEventListener('click',ciCycleAudioMode);
 $('#resumeBtn').addEventListener('click',()=>cpSetPause(false));
-$('#restartBtn').addEventListener('click',()=>{if(!confirm('Restart this mission? Current mission progress will be reset.'))return;window.CP_PAUSED=false;$('#pauseMenu').classList.add('hidden');if(campaignMission==='ARCADE')arcadeBegin();else{deploy();last=performance.now()}});$('#pauseUtilitiesBtn')?.addEventListener('click',()=>{$('#pauseMenu').classList.add('hidden');$('#utilityMenu').classList.remove('hidden')});$('#utilityBack')?.addEventListener('click',()=>{$('#utilityMenu').classList.add('hidden');$('#pauseMenu').classList.remove('hidden')});
+$('#restartBtn').addEventListener('click',()=>{if(!confirm('Restart this mission? Current mission progress will be reset.'))return;ciCommendationAbandonOperation();window.CP_PAUSED=false;$('#pauseMenu').classList.add('hidden');if(campaignMission==='ARCADE')arcadeBegin();else{deploy();last=performance.now()}});$('#pauseUtilitiesBtn')?.addEventListener('click',()=>{$('#pauseMenu').classList.add('hidden');$('#utilityMenu').classList.remove('hidden')});$('#utilityBack')?.addEventListener('click',()=>{$('#utilityMenu').classList.add('hidden');$('#pauseMenu').classList.remove('hidden')});
 function ciSetAbortConfirmation(show){
     const menu=$('#pauseMenu');
     const panel=$('#abortConfirmation');
@@ -3694,7 +4363,7 @@ $('#abortCancelBtn').addEventListener('click',()=>{
 $('#abortConfirmBtn').addEventListener('click',()=>{
     if(!window.CP_PAUSED)return;
     ciSetAbortConfirmation(false);
-    campaignMission==='RETRO'?cpRetroExit():(campaignMission==='ARCADE'?cpShowMenu():(campaignMission?cpCampaignMenu():cpShowMenu()));
+    ciCommendationAbandonOperation();campaignMission==='RETRO'?cpRetroExit():(campaignMission==='ARCADE'?cpShowMenu():(campaignMission?cpCampaignMenu():cpShowMenu()));
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!window.CP_MENU&&running){e.preventDefault();cpSetPause(!window.CP_PAUSED)}});
 
@@ -3722,7 +4391,7 @@ const eventPanel=$('#eventPanel'),devPanel=$('#devPanel');if(eventPanel){eventPa
  el.addEventListener('pointerdown',skip,{once:true});document.addEventListener('keydown',skip,{once:true});
  const reposition=()=>placeCaret(caretTarget);window.addEventListener('resize',reposition,{passive:true,once:true});
 };;;(function bootSequence(){const splash=$('#bootSplash'),bar=$('#bootLoadBar'),pct=$('#bootPct'),minBoot=1800,t0=performance.now();ciPrimeBootAudio();const bootUnlock=()=>{audioUnlock();splash?.classList.add('audio-armed');const hint=$('#bootAudioHint');if(hint)hint.textContent='AUDIO LINK // ACTIVE'};splash?.addEventListener('pointerdown',bootUnlock,{once:true,capture:true});document.addEventListener('keydown',bootUnlock,{once:true,capture:true});const critical=[GLOBAL_EARTH_TEXTURE_SRC,'assets/maps/global-deep-space.png'];let complete=0,total=critical.length+1;function paint(){const n=Math.min(99,Math.round(complete/total*100));if(bar){bar.style.width=n+'%';bar.style.backgroundColor=n<50?'#ff4b45':n<80?'#e0b23d':'#55d67a'}if(pct){pct.textContent=n+'%';pct.style.color=n<50?'#ff6b65':n<80?'#e0b23d':'#55d67a'}}function preload(src){return new Promise(resolve=>{const img=new Image();let done=false;const finish=()=>{if(done)return;done=true;complete++;paint();resolve()};img.onload=()=>{const d=img.decode?.();if(d&&d.then)d.then(finish).catch(finish);else finish()};img.onerror=finish;img.src=src;if(img.complete&&img.naturalWidth)img.onload()})}async function warm(){paint();await Promise.all(critical.map(preload));try{const gl=initGlobalSurfaceGL();const limit=performance.now()+2200;while(gl&&!gl.ready&&performance.now()<limit)await new Promise(r=>setTimeout(r,32));if(gl){drawGlobalSurfaceGL(8,8,3);try{gl.gl.finish()}catch(e){}}}catch(e){}complete++;paint();const wait=Math.max(0,minBoot-(performance.now()-t0));if(wait)await new Promise(r=>setTimeout(r,wait));if(bar){bar.style.width='100%';bar.style.backgroundColor='#55d67a'}if(pct){pct.textContent='100%';pct.style.color='#55d67a'}requestAnimationFrame(()=>requestAnimationFrame(()=>{splash?.classList.add('done');window.CI_showStudioReveal?.()}))}warm();setTimeout(()=>ciPreloadInterstitial(),5000)})();
-requestAnimationFrame(loop)})();
+ciCommendationInitialize();requestAnimationFrame(loop)})();
 
 
 /* CI campaign briefing layout: pinned headings/actions, internally scrolling details */
