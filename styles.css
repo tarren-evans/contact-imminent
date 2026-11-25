@@ -4408,3 +4408,620 @@ body.verdant-timeless-ui #app>header .clock .verdant-road-counter-label{display:
         font-size:16px!important;
     }
 }
+
+/* CI .147 COMMAND PROFILE // commendation navigation */
+
+#commandProfileMenu .command-profile-panel{
+    box-sizing:border-box!important;
+    width:min(780px,94vw)!important;
+    max-width:780px!important;
+    max-height:calc(100dvh - 20px)!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+}
+
+#commandProfileMenu [hidden]{
+    display:none!important;
+}
+
+#commandProfileMenu .ci-profile-tabs{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:5px;
+    margin:8px 0;
+}
+
+#commandProfileMenu .ci-profile-tab{
+    position:relative;
+    box-sizing:border-box;
+    width:100%;
+    min-width:0;
+    min-height:34px;
+    height:auto;
+    margin:0;
+    padding:7px 5px;
+    border:1px solid #35464e;
+    background:#101b21;
+    color:#a4b4bb;
+    font-size:9px;
+    font-weight:700;
+    letter-spacing:.09em;
+    white-space:normal;
+    cursor:pointer;
+}
+
+#commandProfileMenu .ci-profile-tab.active{
+    color:#e4c77d;
+    border-color:#d8a83e;
+    background:rgba(216,168,62,.10);
+}
+
+#commandProfileMenu .ci-profile-tab:focus-visible{
+    outline:2px solid #e4c77d;
+    outline-offset:2px;
+}
+
+#commandProfileMenu .ci-commendation-summary{
+    border:1px solid #46535a;
+    background:rgba(9,16,20,.78);
+    padding:9px;
+    margin:8px 0;
+}
+
+#commandProfileMenu .ci-commendation-summary>div:first-child{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    font-size:9px;
+    letter-spacing:.1em;
+}
+
+#commandProfileMenu .ci-commendation-summary b{
+    color:#d8a83e;
+    white-space:nowrap;
+}
+
+#commandProfileMenu .ci-commendation-summary small{
+    color:#91a4ad;
+    font-size:8px;
+    letter-spacing:.07em;
+}
+
+#commandProfileMenu .ci-commendation-section{
+    border:1px solid #35464e;
+    padding:8px;
+    margin:6px 0;
+    background:rgba(9,16,20,.65);
+}
+
+#commandProfileMenu .ci-commendation-section h3{
+    margin:0 0 7px;
+    color:#aebfc7;
+    font-size:9px;
+    letter-spacing:.12em;
+    font-weight:700;
+}
+
+#commandProfileMenu .ci-distinguished-section{
+    border-color:rgba(216,168,62,.42);
+}
+
+#commandProfileMenu .ci-distinguished-section h3{
+    color:#d8a83e;
+}
+
+#commandProfileMenu .ci-commendation-grid{
+    display:grid;
+    gap:6px;
+    min-width:0;
+}
+
+#commandProfileMenu .ci-ribbon-grid{
+    grid-template-columns:repeat(6,minmax(0,1fr));
+}
+
+#commandProfileMenu .ci-medal-grid,
+#commandProfileMenu .ci-distinguished-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+}
+
+#commandProfileMenu .ci-commendation-detail{
+    padding:9px;
+    margin:7px 0;
+    border:1px solid #35464e;
+    color:#aebfc7;
+    font-size:9px;
+    line-height:1.45;
+    overflow-wrap:anywhere;
+}
+
+#commandProfileMenu .ci-commendation-dev-notice{
+    color:#d8a83e;
+    font-size:8px;
+    letter-spacing:.08em;
+    margin:7px 0;
+}
+
+@media(max-width:540px){
+    #commandProfileMenu .ci-ribbon-grid{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+    }
+
+    #commandProfileMenu .ci-medal-grid,
+    #commandProfileMenu .ci-distinguished-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+}
+
+@media(max-height:520px) and (orientation:landscape){
+    #commandProfileMenu .command-profile-panel{
+        max-height:calc(100dvh - 12px)!important;
+        padding:8px 12px!important;
+    }
+
+    #commandProfileMenu .ci-profile-tabs{
+        margin:5px 0;
+    }
+
+    #commandProfileMenu .ci-profile-tab{
+        min-height:30px;
+        padding:5px;
+    }
+
+    #commandProfileMenu .ci-commendation-section{
+        padding:6px;
+        margin:4px 0;
+    }
+
+    #commandProfileMenu .ci-commendation-summary{
+        padding:6px;
+        margin:5px 0;
+    }
+}
+
+/* End CI .147 command profile navigation */
+/* CI .147 COMMAND PROFILE // commendation cards */
+
+#commandProfileMenu .ci-award-card{
+    position:relative;
+    box-sizing:border-box;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    gap:5px;
+    width:100%;
+    min-width:0;
+    min-height:96px;
+    height:auto;
+    margin:0;
+    padding:8px 4px;
+    border:1px solid #35464e;
+    background:rgba(12,21,26,.92);
+    color:#aebfc7;
+    white-space:normal;
+    cursor:pointer;
+}
+
+#commandProfileMenu .ci-award-card.earned{
+    border-color:#637c71;
+    background:rgba(18,34,32,.88);
+}
+
+#commandProfileMenu .ci-award-card.locked{
+    border-color:#303d44;
+    background:rgba(10,17,21,.82);
+}
+
+#commandProfileMenu .ci-award-card.selected{
+    border-color:#d8a83e;
+    box-shadow:inset 0 0 0 1px #d8a83e;
+}
+
+#commandProfileMenu .ci-award-card:focus-visible{
+    outline:2px solid #e4c77d;
+    outline-offset:2px;
+}
+
+#commandProfileMenu .ci-award-artwork{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex:none;
+    width:40px;
+    height:40px;
+    border:2px solid #b7c6cd;
+    border-radius:50%;
+    background:#243139;
+    color:#c9d4d9;
+    font-size:14px;
+    font-weight:800;
+}
+
+#commandProfileMenu .ci-award-artwork-ribbon{
+    width:48px;
+    max-width:90%;
+    height:23px;
+    border-radius:2px;
+    border-width:1px;
+}
+
+#commandProfileMenu .ci-award-ribbon{
+    min-height:76px;
+}
+
+#commandProfileMenu .ci-award-distinguished.earned{
+    border-color:rgba(216,168,62,.65);
+    background:rgba(42,34,17,.72);
+}
+
+#commandProfileMenu .ci-award-distinguished.earned .ci-award-artwork{
+    color:#e4c77d;
+    border-color:#d8a83e;
+}
+
+#commandProfileMenu .ci-award-card.locked .ci-award-artwork{
+    color:#627078;
+    border-color:#46535a;
+    background:#1a242a;
+}
+
+#commandProfileMenu .ci-award-name{
+    display:block;
+    width:100%;
+    color:#d0dce1;
+    font-size:9px;
+    line-height:1.2;
+    font-weight:700;
+    letter-spacing:.04em;
+    text-align:center;
+    overflow-wrap:anywhere;
+}
+
+#commandProfileMenu .ci-award-card.locked .ci-award-name{
+    color:#84949c;
+}
+
+#commandProfileMenu .ci-award-status{
+    margin-top:auto;
+    color:#81939c;
+    font-size:7px;
+    letter-spacing:.09em;
+}
+
+#commandProfileMenu .ci-award-card.earned .ci-award-status{
+    color:#79d49c;
+}
+
+#commandProfileMenu .ci-award-new{
+    position:absolute;
+    top:3px;
+    right:3px;
+    padding:2px 3px;
+    color:#10171c;
+    background:#d8a83e;
+    font-size:7px;
+    font-weight:800;
+    letter-spacing:.06em;
+}
+
+#commandProfileMenu .ci-award-detail-title{
+    display:block;
+    margin-bottom:4px;
+    color:#e4c77d;
+    font-size:12px;
+    letter-spacing:.06em;
+}
+
+#commandProfileMenu .ci-award-detail-status{
+    display:block;
+    color:#91a4ad;
+    font-size:8px;
+    letter-spacing:.08em;
+}
+
+#commandProfileMenu .ci-award-detail-status[data-earned="true"]{
+    color:#79d49c;
+}
+
+#commandProfileMenu .ci-award-detail-description{
+    margin:6px 0 0;
+    color:#c2d0d6;
+    font-size:10px;
+    line-height:1.4;
+}
+
+@media(max-height:520px) and (orientation:landscape){
+    #commandProfileMenu .ci-award-card{
+        min-height:76px;
+        padding:5px 3px;
+        gap:3px;
+    }
+
+    #commandProfileMenu .ci-award-ribbon{
+        min-height:62px;
+    }
+
+    #commandProfileMenu .ci-award-artwork{
+        width:32px;
+        height:32px;
+        font-size:12px;
+    }
+
+    #commandProfileMenu .ci-award-artwork-ribbon{
+        width:44px;
+        height:19px;
+    }
+
+    #commandProfileMenu .ci-award-name{
+        font-size:8px;
+    }
+}
+
+/* End CI .147 command profile commendation cards */
+/* CI .147 COMMAND PROFILE // qualification progress */
+
+#commandProfileMenu .ci-award-qualification{
+    margin-top:10px;
+    padding-top:8px;
+    border-top:1px solid #35464e;
+}
+
+#commandProfileMenu .ci-award-qualification-heading{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    margin-bottom:5px;
+}
+
+#commandProfileMenu .ci-award-qualification-label{
+    color:#aebfc7;
+    font-size:8px;
+    font-weight:700;
+    letter-spacing:.07em;
+    overflow-wrap:anywhere;
+}
+
+#commandProfileMenu .ci-award-qualification-value{
+    color:#e4c77d;
+    font-size:10px;
+    font-weight:700;
+    white-space:nowrap;
+}
+
+#commandProfileMenu .ci-award-qualification-track{
+    position:relative;
+    width:100%;
+    height:6px;
+    overflow:hidden;
+    border:1px solid #46535a;
+    background:#1b282f;
+}
+
+#commandProfileMenu .ci-award-qualification-fill{
+    display:block;
+    height:100%;
+    width:0;
+    background:#d8a83e;
+}
+
+#commandProfileMenu .ci-award-qualification-remaining{
+    display:block;
+    margin-top:6px;
+    color:#91a4ad;
+    font-size:8px;
+    line-height:1.4;
+    letter-spacing:.04em;
+}
+
+#commandProfileMenu .ci-award-proficiency-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:4px;
+    margin-top:8px;
+}
+
+#commandProfileMenu .ci-award-proficiency-item{
+    padding:5px 3px;
+    border:1px solid #35464e;
+    background:#111b21;
+    color:#81939c;
+    font-size:8px;
+    line-height:1.3;
+    text-align:center;
+    overflow-wrap:anywhere;
+}
+
+#commandProfileMenu .ci-award-proficiency-item[data-qualified="true"]{
+    border-color:#527861;
+    background:rgba(35,75,50,.35);
+    color:#79d49c;
+}
+
+@media(max-width:540px){
+    #commandProfileMenu .ci-award-proficiency-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+}
+
+/* End CI .147 command profile qualification progress */
+/* CI .147 COMMAND PROFILE // permanent artwork */
+
+#commandProfileMenu .ci-award-artwork{
+    width:58px;
+    height:65px;
+    border:0!important;
+    border-radius:0;
+    background:transparent!important;
+    overflow:visible;
+    flex:none;
+}
+
+#commandProfileMenu .ci-award-artwork svg{
+    display:block;
+    width:100%;
+    height:100%;
+    overflow:visible;
+    pointer-events:none;
+}
+
+#commandProfileMenu .ci-award-artwork-ribbon{
+    width:82px;
+    max-width:100%;
+    height:40px;
+}
+
+#commandProfileMenu .ci-award-artwork-distinguished{
+    width:64px;
+    height:72px;
+}
+
+#commandProfileMenu .ci-award-card.locked .ci-award-artwork{
+    filter:grayscale(1);
+    opacity:.34;
+}
+
+#commandProfileMenu .ci-award-card.earned .ci-award-artwork{
+    filter:drop-shadow(0 2px 2px rgba(0,0,0,.55));
+    opacity:1;
+}
+
+#commandProfileMenu .ci-award-distinguished.earned .ci-award-artwork{
+    filter:drop-shadow(0 0 5px rgba(216,168,62,.24));
+}
+
+#commandProfileMenu .ci-award-card{
+    min-height:112px;
+}
+
+#commandProfileMenu .ci-award-ribbon{
+    min-height:85px;
+}
+
+@media(max-height:520px) and (orientation:landscape){
+
+    #commandProfileMenu .ci-award-artwork{
+        width:44px;
+        height:49px;
+    }
+
+    #commandProfileMenu .ci-award-artwork-ribbon{
+        width:64px;
+        height:31px;
+    }
+
+    #commandProfileMenu .ci-award-artwork-distinguished{
+        width:48px;
+        height:54px;
+    }
+
+    #commandProfileMenu .ci-award-card{
+        min-height:87px;
+    }
+
+    #commandProfileMenu .ci-award-ribbon{
+        min-height:65px;
+    }
+}
+
+/* End CI .147 command profile permanent artwork */
+/* CI .147 COMMENDATION ANNOUNCEMENTS */
+
+.progression-unlock-notice.progression-commendation-unlock {
+    border-color:#a9bbc5;
+    border-left-color:#a9bbc5;
+    background:rgba(10,19,25,.97);
+    box-shadow:0 0 18px rgba(169,187,197,.16);
+}
+
+.progression-commendation-unlock b {
+    color:#dce5e8;
+}
+
+.progression-commendation-unlock .progression-commendation-art {
+    display:block;
+    width:58px;
+    height:54px;
+    margin:0 auto 5px;
+    flex-shrink:0;
+    padding:0;
+    background:transparent;
+    border:0;
+}
+
+.progression-commendation-art svg {
+    display:block;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+}
+
+.progression-unlock-notice.progression-distinguished-unlock {
+    border-color:#d8a83e;
+    border-left-color:#d8a83e;
+    background:rgba(38,31,15,.97);
+    box-shadow:0 0 20px rgba(216,168,62,.24);
+}
+
+.progression-distinguished-unlock b {
+    color:#e9c46a;
+}
+
+.progression-distinguished-unlock span {
+    color:#e0cca0;
+}
+
+@media(max-height:520px) {
+    .progression-commendation-unlock .progression-commendation-art {
+        width:42px;
+        height:38px;
+        margin-bottom:3px;
+    }
+}
+
+/* End CI .147 commendation announcements */
+
+/* CI 147-001: Command Profile tab notification layout */
+#commandProfileMenu #profileCommendationTab{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-wrap:wrap;
+    column-gap:6px;
+    row-gap:3px;
+}
+
+#commandProfileMenu #profileCommendationTab .ci-profile-tab-label{
+    display:inline-block;
+    min-width:0;
+    white-space:nowrap;
+}
+
+#commandProfileMenu #profileCommendationNew{
+    position:static;
+    inset:auto;
+    transform:none;
+    display:inline-flex;
+    flex:0 0 auto;
+    align-items:center;
+    justify-content:center;
+    margin:0;
+    padding:2px 4px;
+    border:1px solid #d8a83e;
+    border-radius:2px;
+    background:#d8a83e;
+    color:#10171c;
+    font-size:8px;
+    font-weight:800;
+    line-height:1;
+    letter-spacing:.04em;
+    white-space:nowrap;
+    pointer-events:none;
+}
+
+#commandProfileMenu #profileCommendationNew[hidden]{
+    display:none!important;
+}
+/* End CI 147-001 */

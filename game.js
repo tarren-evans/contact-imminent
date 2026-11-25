@@ -1,9 +1,9 @@
-// v0.11.6.146 // GLOBAL OPERATIONS & CAPABILITY EXPANSION
+// v0.11.6.147 // OPERATIONAL DISTINCTION & AUDIO EXPANSION
 // Incorporates MIRAGE 04-05 analytic assessment and six-campaign
 // progression/UI corrections accumulated since v0.11.6.142.
 // Release validation pending.
 (()=>{function ciPhysicalPhoneMapFit(){const m=document.getElementById('map'),w=document.getElementById('mapWrap');if(!m||!w)return;m.setAttribute('viewBox','0 0 900 650');const phone=window.innerWidth>680&&window.innerHeight<=500&&window.matchMedia('(pointer: coarse)').matches;if(!phone){m.style.removeProperty('width');m.style.removeProperty('height');m.style.removeProperty('left');m.style.removeProperty('right');m.style.removeProperty('top');m.style.removeProperty('bottom');return;}const cs=getComputedStyle(w),sl=parseFloat(cs.getPropertyValue('--phone-safe-left'))||8,sr=parseFloat(cs.getPropertyValue('--phone-safe-right'))||8,st=parseFloat(cs.getPropertyValue('--phone-safe-top'))||8,sb=parseFloat(cs.getPropertyValue('--phone-safe-bottom'))||8,aw=Math.max(1,w.clientWidth-sl-sr),ah=Math.max(1,w.clientHeight-st-sb),scale=Math.min(aw/900,ah/650),mw=Math.floor(900*scale),mh=Math.floor(650*scale);m.style.width=mw+'px';m.style.height=mh+'px';m.style.left=(sl+Math.max(0,(aw-mw)/2))+'px';m.style.right='auto';m.style.top=(st+Math.max(0,(ah-mh)/2))+'px';m.style.bottom='auto';}window.ciPhysicalPhoneMapFit=ciPhysicalPhoneMapFit;ciPhysicalPhoneMapFit();window.addEventListener('resize',ciPhysicalPhoneMapFit,{passive:true});window.visualViewport?.addEventListener('resize',ciPhysicalPhoneMapFit,{passive:true});const $=s=>document.querySelector(s),NS='http://www.w3.org/2000/svg',D=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),H=(x,y)=>(Math.atan2(x,-y)*180/Math.PI+360)%360;
-const CI_VERSION='0.11.6.146';
+const CI_VERSION='0.11.6.147';
 const CI_INTERSTITIAL_COOLDOWN_MS=180000;
 let ciInterstitialLastShown=0;
 let ciInterstitialPreloadPending=false;
@@ -408,14 +408,15 @@ function ciCommendationReconcile(){
  return result.newlyEarned;
 }
 
-function ciCommendationMarkRead(){
+function ciCommendationMarkRead(id){
  if(!ciCommendationEligible())return false;
+ if(!CI_COMMENDATIONS.some(a=>a.id===id))return false;
 
  const state=ciCommendationReadForUpdate();
- if(!state)return false;
- if(!state.unread.length)return true;
+ if(!state||!state.earned.includes(id))return false;
+ if(!state.unread.includes(id))return true;
 
- state.unread=[];
+ state.unread=state.unread.filter(value=>value!==id);
  return ciCommendationWrite(state);
 }
 
@@ -547,7 +548,9 @@ function ciCommendationFinishCampaign(pass){
 
  if(!ciCommendationWrite(result.state))return [];
 
- return [...directAwards,...result.newlyEarned];
+ const awards=[...directAwards,...result.newlyEarned];
+ ciPublishCommendations(awards);
+ return awards;
 }
 
 /* CI commendation disposition and abandonment tracking */
@@ -588,6 +591,7 @@ function ciCommendationRecordDisposition(ok){
 
  if(!ciCommendationWrite(result.state))return [];
 
+ ciPublishCommendations(result.newlyEarned);
  return result.newlyEarned;
 }
 
@@ -596,7 +600,7 @@ function ciCommendationAbandonOperation(){if(ciCommendationOperation?.mission===
 
  if(!op||op.finished)return false;
 
- const eligible=ciCommendationOperationEligible();
+ const eligible=op.eligible&&ciCommendationEligible();
 
  op.finished=true;
 
@@ -732,6 +736,7 @@ function ciCommendationSaveArcadeProgress(force=false){
 
  op.arcadeCheckpoint=checkpoint;
 
+ ciPublishCommendations(result.newlyEarned);
  return result.newlyEarned;
 }
 
@@ -2040,7 +2045,7 @@ if(stall&&!stallLogged){
  rec('STALL',`mode=${A.mode} pos=${A.x.toFixed(2)},${A.y.toFixed(2)} dest=${A.dest.x.toFixed(2)},${A.dest.y.toFixed(2)} age=${age} gap=${C.maxGap.toFixed(1)}`);
 }
 if(!$('#devPanel')?.open)return;
-$('#diagStatus').textContent=stall?'ISR STALL DETECTED':'NOMINAL';$('#diagStatus').classList.toggle('stall',stall);$('#diag1').textContent=`FPS ${C.fps} | RAF ${C.raf} | GAP ${Math.round(C.maxGap)}ms | ERR ${C.errors}`;$('#diag2').textContent=`ISR POINTER ${C.isr} | MAP POINTER ${C.map} | TRACK POINTER ${C.track} | ORDERS ${C.orders}`;$('#diag3').textContent=`MODE ${A.mode} | POS ${A.x.toFixed(1)},${A.y.toFixed(1)} | DEST ${valid(A.dest)?A.dest.x.toFixed(1)+','+A.dest.y.toFixed(1):'--'} | MOVE AGE ${age}ms`;let vv=window.visualViewport,vw=Math.round(window.innerWidth),vh=Math.round(window.innerHeight),vww=vv?Math.round(vv.width):vw,vvh=vv?Math.round(vv.height):vh,vs=vv?vv.scale:1;$('#viewportDiag').textContent=`VIEWPORT // ${vw}x${vh} -> ${vww}x${vvh} | SCALE ${vs.toFixed(2)}`;}function diagText(){return [`CONTACT IMMINENT v0.11.6.146 OA KESTREL / OA VANTAGE CAMPAIGN RUNTIME DIAGNOSTICS`,new Date().toISOString(),`running=${running} phase=${phase} score=${Math.round(score)} integrity=${integrity} compromise=${compromise().toFixed(2)}`,`fps=${C.fps} raf=${C.raf} maxGapMs=${C.maxGap.toFixed(1)} errors=${C.errors}`,`isrClicks=${C.isr} mapClicks=${C.map} trackClicks=${C.track} orders=${C.orders}`,`mode=${A.mode} pos=${A.x.toFixed(2)},${A.y.toFixed(2)} dest=${valid(A.dest)?A.dest.x.toFixed(2)+','+A.dest.y.toFixed(2):'--'} moveAgeMs=${Math.round(performance.now()-A.lastMove)}`,'','ROLLING DEBUG LOG',...dbg].join('\n')}async function copyDiag(){let t=diagText();try{await navigator.clipboard.writeText(t);log('DIAGNOSTICS // COPIED')}catch(e){rec('COPY_FAIL',String(e));let ta=document.createElement('textarea');ta.value=t;document.body.append(ta);ta.select();document.execCommand('copy');ta.remove();log('DIAGNOSTICS // COPIED')}}function saveDiag(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([diagText()],{type:'text/plain'}));a.download='contact-imminent-v0.11.6.146-debug.txt';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),(cpFusionActive()?600:1000));log('DIAGNOSTICS // SAVED')}function cpFailKestrelTimeout(){
+$('#diagStatus').textContent=stall?'ISR STALL DETECTED':'NOMINAL';$('#diagStatus').classList.toggle('stall',stall);$('#diag1').textContent=`FPS ${C.fps} | RAF ${C.raf} | GAP ${Math.round(C.maxGap)}ms | ERR ${C.errors}`;$('#diag2').textContent=`ISR POINTER ${C.isr} | MAP POINTER ${C.map} | TRACK POINTER ${C.track} | ORDERS ${C.orders}`;$('#diag3').textContent=`MODE ${A.mode} | POS ${A.x.toFixed(1)},${A.y.toFixed(1)} | DEST ${valid(A.dest)?A.dest.x.toFixed(1)+','+A.dest.y.toFixed(1):'--'} | MOVE AGE ${age}ms`;let vv=window.visualViewport,vw=Math.round(window.innerWidth),vh=Math.round(window.innerHeight),vww=vv?Math.round(vv.width):vw,vvh=vv?Math.round(vv.height):vh,vs=vv?vv.scale:1;$('#viewportDiag').textContent=`VIEWPORT // ${vw}x${vh} -> ${vww}x${vvh} | SCALE ${vs.toFixed(2)}`;}function diagText(){return [`CONTACT IMMINENT v0.11.6.147 OA KESTREL / OA VANTAGE CAMPAIGN RUNTIME DIAGNOSTICS`,new Date().toISOString(),`running=${running} phase=${phase} score=${Math.round(score)} integrity=${integrity} compromise=${compromise().toFixed(2)}`,`fps=${C.fps} raf=${C.raf} maxGapMs=${C.maxGap.toFixed(1)} errors=${C.errors}`,`isrClicks=${C.isr} mapClicks=${C.map} trackClicks=${C.track} orders=${C.orders}`,`mode=${A.mode} pos=${A.x.toFixed(2)},${A.y.toFixed(2)} dest=${valid(A.dest)?A.dest.x.toFixed(2)+','+A.dest.y.toFixed(2):'--'} moveAgeMs=${Math.round(performance.now()-A.lastMove)}`,'','ROLLING DEBUG LOG',...dbg].join('\n')}async function copyDiag(){let t=diagText();try{await navigator.clipboard.writeText(t);log('DIAGNOSTICS // COPIED')}catch(e){rec('COPY_FAIL',String(e));let ta=document.createElement('textarea');ta.value=t;document.body.append(ta);ta.select();document.execCommand('copy');ta.remove();log('DIAGNOSTICS // COPIED')}}function saveDiag(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([diagText()],{type:'text/plain'}));a.download='contact-imminent-v0.11.6.147-debug.txt';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),(cpFusionActive()?600:1000));log('DIAGNOSTICS // SAVED')}function cpFailKestrelTimeout(){
  if(campaignFinished)return;
  const id=campaignMission;
  if(!/^01-0[1-3]$/.test(id||''))return;
@@ -2083,7 +2088,7 @@ else if(campaignMission==='01-03'||campaignMission==='01-04'||campaignMission===
 else if(/^05-0[1-5]$/.test(campaignMission||'')){cpTempestMissionStart()}
 else if(campaignMission==='TUTORIAL'){/* Guided contacts are created by the tutorial steps. */}
 else if(!/^04-0[1-5]$/.test(campaignMission||'')&&!/^03-0[1-5]$/.test(campaignMission||'')){spawn(false);spawn(false);spawn(true)}
-log(campaignMission==='RETRO'?'MISSION START // CONTACT IMMINENT // RETRO':'MISSION START // CONTACT IMMINENT 0.11.6.146 // OA RUNTIME');if(/^04-0[1-5]$/.test(campaignMission||'')){const mm=mirageMissionConfig();cpNotice(campaignMission+' // '+mm.title,campaignMission==='04-03'?'ESTABLISH BASELINE // IDENTIFY DEVIATION':'ESTABLISH THE OPERATING PICTURE','intel')}else if(/^03-0[1-5]$/.test(campaignMission||'')){const vm=VERDANT_MISSIONS[campaignMission];cpNotice(campaignMission+' // '+vm.title,vm.notice,'intel')}},900)}},850);ui(true)}$('#copyDiag').addEventListener('click',copyDiag);$('#saveDiag').addEventListener('click',saveDiag);$('#again').addEventListener('click',deploy);document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});document.addEventListener('wheel',e=>{if(e.ctrlKey)e.preventDefault()},{passive:false});window.visualViewport?.addEventListener('resize',()=>rec('VIEWPORT',`${Math.round(innerWidth)}x${Math.round(innerHeight)} scale=${visualViewport.scale}`));initBlue();running=false;$('#clock').textContent=(campaignMission==='ARCADE'||campaignMission==='RETRO')?'00:00':campaignMission==='TUTORIAL'?'TRAIN':'03:00';$('#phase').textContent='MISSION STANDBY';ui(true);
+log(campaignMission==='RETRO'?'MISSION START // CONTACT IMMINENT // RETRO':'MISSION START // CONTACT IMMINENT 0.11.6.147 // OA RUNTIME');if(/^04-0[1-5]$/.test(campaignMission||'')){const mm=mirageMissionConfig();cpNotice(campaignMission+' // '+mm.title,campaignMission==='04-03'?'ESTABLISH BASELINE // IDENTIFY DEVIATION':'ESTABLISH THE OPERATING PICTURE','intel')}else if(/^03-0[1-5]$/.test(campaignMission||'')){const vm=VERDANT_MISSIONS[campaignMission];cpNotice(campaignMission+' // '+vm.title,vm.notice,'intel')}},900)}},850);ui(true)}$('#copyDiag').addEventListener('click',copyDiag);$('#saveDiag').addEventListener('click',saveDiag);$('#again').addEventListener('click',deploy);document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});document.addEventListener('wheel',e=>{if(e.ctrlKey)e.preventDefault()},{passive:false});window.visualViewport?.addEventListener('resize',()=>rec('VIEWPORT',`${Math.round(innerWidth)}x${Math.round(innerHeight)} scale=${visualViewport.scale}`));initBlue();running=false;$('#clock').textContent=(campaignMission==='ARCADE'||campaignMission==='RETRO')?'00:00':campaignMission==='TUTORIAL'?'TRAIN':'03:00';$('#phase').textContent='MISSION STANDBY';ui(true);
 $('#startMission').addEventListener('click',()=>{$('#startScreen').style.display='none';deploy()});
 window.CP_PAUSED=false;window.CP_MENU=true;window.CP_PAUSE_AT=0;
 function strategicPriorityNAIIdentifier(){const mission=String(campaignMission||''),match=mission.match(/^(\d{2}-\d{2})$/);if(match)return 'NAI-'+match[1];const series=({KESTREL:'01',VANTAGE:'02',VERDANT:'03',MIRAGE:'04',TEMPEST:'05',ARCTIC:'06'})[activeOA]||'00';return 'NAI-'+series+'-69'}
@@ -2869,7 +2874,7 @@ function cpTempestRoutePreview(){
  }
 }
 function cpTempestRaster(){const im=document.getElementById('tempestRaster');if(!im)return;if(activeOA!=='TEMPEST'){im.setAttribute('visibility','hidden');im.removeAttribute('href');return}im.removeAttribute('href');im.setAttribute('visibility','hidden')}
-function cpSetOAVisual(oa){cpInvalidateVerdantAspect();const w=$('#mapWrap'),brand=document.querySelector('.brand-block small'),map=$('#map');if(!w)return;const retroDisplay=oa==='RETRO';activeOA=['VANTAGE','VERDANT','MIRAGE','TEMPEST','ARCTIC'].includes(oa)?oa:'KESTREL';['vantage','verdant','mirage','tempest','arctic'].forEach(k=>w.classList.toggle('oa-'+k,activeOA===k.toUpperCase()));if(map)map.setAttribute('preserveAspectRatio',activeOA==='VERDANT'?'none':'xMidYMid meet');if(brand)brand.textContent=retroDisplay?'v0.11.6.146 // OA RETRO // BLANK CANVAS // RETRO CONTACT IMMINENT':'v0.11.6.146 // OA '+(activeOA==='ARCTIC'?'POLARIS':activeOA)+' // GEOMETRIC GRID';initBlue();if(activeOA!=='MIRAGE'){if($('#mirageSites'))$('#mirageSites').textContent='';if($('#mirageTraffic'))$('#mirageTraffic').textContent='';if($('#miragePopulation'))$('#miragePopulation').textContent='';}cpVerdantRaster();cpTempestRaster();cpTempestRoutePreview();cpRenderStrategicPriorityNAI();cpRenderVerdantRoutes();requestAnimationFrame(()=>{window.ciPhysicalPhoneMapFit?.();cpVerdantHexAspect();requestAnimationFrame(()=>{window.ciPhysicalPhoneMapFit?.();cpVerdantHexAspect()})});}
+function cpSetOAVisual(oa){cpInvalidateVerdantAspect();const w=$('#mapWrap'),brand=document.querySelector('.brand-block small'),map=$('#map');if(!w)return;const retroDisplay=oa==='RETRO';activeOA=['VANTAGE','VERDANT','MIRAGE','TEMPEST','ARCTIC'].includes(oa)?oa:'KESTREL';['vantage','verdant','mirage','tempest','arctic'].forEach(k=>w.classList.toggle('oa-'+k,activeOA===k.toUpperCase()));if(map)map.setAttribute('preserveAspectRatio',activeOA==='VERDANT'?'none':'xMidYMid meet');if(brand)brand.textContent=retroDisplay?'v0.11.6.147 // OA RETRO // BLANK CANVAS // RETRO CONTACT IMMINENT':'v0.11.6.147 // OA '+(activeOA==='ARCTIC'?'POLARIS':activeOA)+' // GEOMETRIC GRID';initBlue();if(activeOA!=='MIRAGE'){if($('#mirageSites'))$('#mirageSites').textContent='';if($('#mirageTraffic'))$('#mirageTraffic').textContent='';if($('#miragePopulation'))$('#miragePopulation').textContent='';}cpVerdantRaster();cpTempestRaster();cpTempestRoutePreview();cpRenderStrategicPriorityNAI();cpRenderVerdantRoutes();requestAnimationFrame(()=>{window.ciPhysicalPhoneMapFit?.();cpVerdantHexAspect();requestAnimationFrame(()=>{window.ciPhysicalPhoneMapFit?.();cpVerdantHexAspect()})});}
 
 
 function cpRefreshVerdant(){for(let n=1;n<=5;n++){const id='03-0'+n,b=$('#mission03'+String(n).padStart(2,'0')),st=$('#mission03'+String(n).padStart(2,'0')+'Status'),available=campaignMissionUnlocked(id),done=progressionComplete('ci-c03-0'+n+'-complete');if(b){b.disabled=!available;b.classList.toggle('available',available)}if(st)st.textContent=progressionStatusLabel('ci-c03-0'+n+'-complete',available,done)}}
@@ -3459,9 +3464,19 @@ function refreshProgressionBadges(){
     const profile=$('#profileNewBadge'),arcade=$('#arcadeNewBadge');
     const global=$('#globalNewBadge'),campaign=$('#campaignNewBadge');
 
+    const commendationUnread=!devAccessActive()&&
+        ciCommendationRead().unread.length>0;
+
+    const commendationBadge=$('#profileCommendationNew');
+
+    if(commendationBadge){
+        commendationBadge.hidden=!commendationUnread;
+    }
+
     if(profile){
         profile.hidden=ciFirstVisitSeen('profile')&&
-            !state.unread.some(k=>k.startsWith('profile:'));
+            !state.unread.some(k=>k.startsWith('profile:'))&&
+            !commendationUnread;
     }
 
     if(arcade){
@@ -3501,6 +3516,36 @@ refreshProgressionBadges();
 const progressionAnnouncementQueue=[];
 let progressionAnnouncementActive=false;
 
+/* CI live commendation publication */
+
+const ciPublishedCommendations=new Set();
+
+function ciPublishCommendations(ids){
+ if(!ciCommendationEligible())return;
+ if(!Array.isArray(ids)||!ids.length)return;
+
+ const state=ciCommendationRead();
+
+ const awards=[...new Set(ids)].filter(id=>
+  state.earned.includes(id)&&
+  state.unread.includes(id)&&
+  !ciPublishedCommendations.has(id)&&
+  CI_COMMENDATIONS.some(a=>a.id===id)
+ );
+
+ if(!awards.length)return;
+
+ awards.forEach(id=>ciPublishedCommendations.add(id));
+
+ refreshProgressionBadges();
+
+ progressionQueueAnnouncements(
+  awards.map(id=>'commendation:'+id)
+ );
+}
+
+/* End CI live commendation publication */
+
 function progressionQueueAnnouncements(unlocks){
     if(!Array.isArray(unlocks)||!unlocks.length)return;
 
@@ -3529,7 +3574,43 @@ function progressionShowNextAnnouncement(){
     const title=document.createElement('b');
     const detail=document.createElement('span');
 
-    if(section==='hangar'){
+    if(section==='commendation'){
+        const award=CI_COMMENDATIONS.find(a=>a.id===reward);
+
+        if(!award||devAccessActive()){
+            progressionAnnouncementActive=false;
+            progressionShowNextAnnouncement();
+            return;
+        }
+
+        notice.classList.add(
+            'progression-commendation-unlock'
+        );
+
+        notice.classList.toggle(
+            'progression-distinguished-unlock',
+            award.kind==='distinguished'
+        );
+
+        title.textContent=award.kind==='distinguished'?
+            'DISTINGUISHED COMMENDATION EARNED':
+            award.kind==='ribbon'?
+            'CAMPAIGN SERVICE RIBBON EARNED':
+            'OPERATIONAL COMMENDATION EARNED';
+
+        detail.textContent=award.name+' // COMMAND PROFILE';
+
+        const artwork=ciCreateCommendationArtwork(
+            award,true
+        );
+
+        artwork.classList.add(
+            'progression-commendation-art'
+        );
+
+        notice.appendChild(artwork);
+
+    }else if(section==='hangar'){
         const wraith=reward==='ISR-69 // TarTak Wraith';
 
         notice.classList.toggle(
@@ -3870,7 +3951,861 @@ function closeHangar(){
     $('#mainMenu').classList.remove('hidden');
 }
 
-function openCommandProfile(){ciFirstVisitMark('profile');progressionMarkRead('profile');refreshCommandProfile();$('#mainMenu').classList.add('hidden');$('#commandProfileMenu').classList.remove('hidden')}
+/* CI command profile commendation renderer */
+
+let ciSelectedCommendation=null;
+
+function ciCommendationElement(tag,className,text){
+ const element=document.createElement(tag);
+
+ if(className)element.className=className;
+
+ if(text!==undefined)element.textContent=text;
+
+ return element;
+}
+
+/* CI individual commendation artwork */
+
+const CI_COMMENDATION_ART=Object.freeze({
+ 'service-kestrel':{
+  colors:['#626d42','#c6b68c','#8b794a']
+ },
+ 'service-vantage':{
+  colors:['#365c80','#b4c8d7','#20394f']
+ },
+ 'service-verdant':{
+  colors:['#286044','#a9bf79','#183a2b']
+ },
+ 'service-mirage':{
+  colors:['#b28b51','#e6cfaa','#805b32']
+ },
+ 'service-tempest':{
+  colors:['#554662','#b1a3c2','#303441']
+ },
+ 'service-polaris':{
+  colors:['#7ba9c5','#edf5fa','#385570']
+ },
+ 'first-contact':{
+  metal:'#b68a58',ribbon:'#743f36',symbol:'star'
+ },
+ 'precision-operator':{
+  metal:'#c6d0d7',ribbon:'#344e68',symbol:'target'
+ },
+ 'intelligence-excellence':{
+  metal:'#c6d0d7',ribbon:'#3e6458',symbol:'eye'
+ },
+ 'guardian':{
+  metal:'#c6d0d7',ribbon:'#4e586a',symbol:'shield'
+ },
+ 'unbroken':{
+  metal:'#d5b361',ribbon:'#6d393a',symbol:'link'
+ },
+ 'endurance':{
+  metal:'#c6d0d7',ribbon:'#38596a',symbol:'clock'
+ },
+ 'relentless':{
+  metal:'#d5b361',ribbon:'#584368',symbol:'timer'
+ },
+ 'veteran-operator':{
+  metal:'#d5b361',ribbon:'#525c39',symbol:'chevrons'
+ },
+ 'distinguished-service':{
+  metal:'#d5b361',ribbon:'#51442b',symbol:'service'
+ },
+ 'spectrum-dominance':{
+  metal:'#d5b361',ribbon:'#344759',symbol:'spectrum'
+ },
+ 'wraith-operator':{
+  metal:'#d5b361',ribbon:'#292e35',symbol:'wraith'
+ },
+ 'order-of-the-vanguard':{
+  metal:'#e4c77d',ribbon:'#58343c',symbol:'crown'
+ }
+});
+
+function ciCommendationSvg(tag,attributes={}){
+ const node=document.createElementNS(
+  'http://www.w3.org/2000/svg',
+  tag
+ );
+
+ Object.entries(attributes).forEach(([key,value])=>{
+  node.setAttribute(key,String(value));
+ });
+
+ return node;
+}
+
+function ciCommendationSvgAdd(parent,tag,attributes={}){
+ const node=ciCommendationSvg(tag,attributes);
+
+ parent.appendChild(node);
+
+ return node;
+}
+
+function ciCommendationDrawSymbol(svg,symbol,metal){
+ const add=(tag,attrs)=>
+  ciCommendationSvgAdd(svg,tag,attrs);
+
+ const line=(d,width=2.5)=>
+  add('path',{
+   d,
+   fill:'none',
+   stroke:metal,
+   'stroke-width':width,
+   'stroke-linecap':'round',
+   'stroke-linejoin':'round'
+  });
+
+ const solid=d=>add('path',{d,fill:metal});
+
+ const circle=(cx,cy,r,fill='none')=>
+  add('circle',{
+   cx,cy,r,fill,
+   stroke:metal,
+   'stroke-width':2
+  });
+
+ switch(symbol){
+
+  case 'star':
+   solid('M40 43 L44 55 L57 55 L47 63 L51 76 L40 68 L29 76 L33 63 L23 55 L36 55 Z');
+   break;
+
+  case 'target':
+   circle(40,61,12);
+   line('M40 43 V53 M40 69 V79 M22 61 H32 M48 61 H58');
+   circle(40,61,3,metal);
+   break;
+
+  case 'eye':
+   line('M22 61 Q40 39 58 61 Q40 83 22 61 Z');
+   circle(40,61,7,metal);
+   add('circle',{cx:40,cy:61,r:3,fill:'#263239'});
+   break;
+
+  case 'shield':
+   solid('M40 43 L54 49 V61 Q54 73 40 79 Q26 73 26 61 V49 Z');
+   add('path',{
+    d:'M32 61 L38 67 L48 54',
+    fill:'none',
+    stroke:'#263239',
+    'stroke-width':3
+   });
+   break;
+
+  case 'link':{
+   const group=add('g',{
+    transform:'rotate(-40 40 61)',
+    fill:'none',
+    stroke:metal,
+    'stroke-width':3
+   });
+
+   ciCommendationSvgAdd(group,'rect',{
+    x:24,y:54,width:21,height:14,rx:6
+   });
+
+   ciCommendationSvgAdd(group,'rect',{
+    x:35,y:54,width:21,height:14,rx:6
+   });
+
+   break;
+  }
+
+  case 'clock':
+  case 'timer':
+   circle(40,61,13);
+   line('M40 51 V61 L48 66');
+
+   if(symbol==='timer'){
+    line('M35 44 H45 M40 44 V48',3);
+   }
+
+   break;
+
+  case 'chevrons':
+   line('M27 57 L40 45 L53 57 M27 67 L40 55 L53 67 M27 77 L40 65 L53 77',3.5);
+   break;
+
+  case 'service':
+   solid('M40 45 L44 56 L56 56 L47 63 L50 75 L40 68 L30 75 L33 63 L24 56 L36 56 Z');
+   line('M24 72 Q17 60 24 49 M56 72 Q63 60 56 49',2);
+   break;
+
+  case 'spectrum':
+   circle(40,61,3,metal);
+   line('M32 53 Q24 61 32 69 M48 53 Q56 61 48 69');
+   line('M26 47 Q12 61 26 75 M54 47 Q68 61 54 75',2);
+   break;
+
+  case 'wraith':{
+   const airframe=
+    typeof CI_ISR_AIRFRAMES!=='undefined'
+     ?CI_ISR_AIRFRAMES.WRAITH:null;
+
+   if(typeof airframe==='string'&&airframe){
+    add('path',{
+     d:airframe,
+     transform:'translate(40 61) scale(.17) translate(-100 -63)',
+     fill:metal
+    });
+   }else{
+    solid('M40 43 L45 55 L58 67 L46 65 L40 76 L34 65 L22 67 L35 55 Z');
+   }
+
+   break;
+  }
+
+  case 'crown':
+   solid('M23 49 L33 57 L40 45 L47 57 L57 49 L53 72 H27 Z');
+   line('M27 77 H53',3);
+   break;
+ }
+}
+
+function ciCreateCommendationArtwork(award,earned){
+ const artwork=ciCommendationElement(
+  'span',
+  'ci-award-artwork ci-award-artwork-'+award.kind
+ );
+
+ artwork.setAttribute('aria-hidden','true');
+ artwork.dataset.award=award.id;
+ artwork.dataset.earned=String(earned);
+
+ const design=CI_COMMENDATION_ART[award.id];
+
+ if(!design)return artwork;
+
+ const ribbon=award.kind==='ribbon';
+
+ const svg=ciCommendationSvg('svg',{
+  viewBox:ribbon?'0 0 100 48':'0 0 80 90',
+  focusable:'false',
+  'aria-hidden':'true',
+  preserveAspectRatio:'xMidYMid meet'
+ });
+
+ const add=(tag,attrs)=>
+  ciCommendationSvgAdd(svg,tag,attrs);
+
+ if(ribbon){
+  const [base,accent,secondary]=design.colors;
+
+  add('rect',{
+   x:2,y:3,width:96,height:42,rx:2,
+   fill:base,stroke:'#a4adaf'
+  });
+
+  [
+   [7,7,accent],
+   [20,10,secondary],
+   [43,14,accent],
+   [70,10,secondary],
+   [86,7,accent]
+  ].forEach(([x,width,fill])=>{
+   add('rect',{x,y:4,width,height:40,fill});
+  });
+
+  for(let x=4;x<98;x+=3){
+   add('path',{
+    d:'M'+x+' 4 V44',
+    stroke:'#ffffff',
+    'stroke-width':.7,
+    opacity:.13
+   });
+  }
+
+  add('path',{
+   d:'M3 4 H97 M3 44 H97',
+   stroke:'#ffffff',
+   opacity:.4
+  });
+
+ }else{
+  const metal=design.metal;
+  const distinguished=award.kind==='distinguished';
+
+  add('path',{
+   d:'M14 2 H66 L57 31 L40 41 L23 31 Z',
+   fill:design.ribbon,
+   stroke:metal,
+   'stroke-width':.8
+  });
+
+  add('path',{
+   d:'M24 3 L30 34 M56 3 L50 34',
+   stroke:metal,
+   'stroke-width':4,
+   fill:'none'
+  });
+
+  add('path',{
+   d:'M40 3 V38',
+   stroke:metal,
+   'stroke-width':6
+  });
+
+  if(distinguished){
+   add('path',{
+    d:'M40 33 L48 39 L58 37 L62 47 L70 53 L66 62 L70 72 L60 77 L54 86 L44 83 L40 89 L32 83 L22 86 L17 77 L8 72 L12 62 L8 53 L17 47 L22 37 L32 39 Z',
+    fill:metal,
+    stroke:'#88713f',
+    'stroke-width':1
+   });
+  }else{
+   add('circle',{
+    cx:40,cy:61,r:26,
+    fill:metal,
+    stroke:'#69767d',
+    'stroke-width':.8
+   });
+  }
+
+  add('circle',{
+   cx:40,cy:61,r:22,
+   fill:distinguished?'#352d1e':'#263239',
+   stroke:'#10191e',
+   'stroke-width':1
+  });
+
+  add('circle',{
+   cx:40,cy:61,r:19,
+   fill:'none',
+   stroke:metal,
+   'stroke-width':.8
+  });
+
+  ciCommendationDrawSymbol(
+   svg,
+   design.symbol,
+   metal
+  );
+ }
+
+ artwork.appendChild(svg);
+
+ return artwork;
+}
+
+/* End CI individual commendation artwork */
+/* CI commendation qualification progress */
+
+function ciCommendationFormatDuration(seconds){
+ const safe=Number.isSafeInteger(seconds)&&seconds>=0
+  ?seconds:0;
+
+ const minutes=Math.floor(safe/60);
+ const remainder=safe%60;
+
+ return String(minutes).padStart(2,'0')+
+  ':'+
+  String(remainder).padStart(2,'0');
+}
+
+function ciCommendationQualificationProgress(award,state){
+ if(!award||!state)return null;
+
+ const earned=Array.isArray(state.earned)
+  ?state.earned:[];
+
+ const proficiency=Array.isArray(state.proficiency)
+  ?state.proficiency:[];
+
+ const completed=earned.includes(award.id);
+
+ function safe(value){
+  return Number.isSafeInteger(value)&&value>=0
+   ?value:0;
+ }
+
+ function metric(label,current,target,unit,remaining){
+  const actual=safe(current);
+  const progress=completed
+   ?target:Math.min(actual,target);
+
+  const format=value=>unit==='time'
+   ?ciCommendationFormatDuration(value)
+   :String(value);
+
+  return {
+   label,
+   current:progress,
+   target,
+   percent:target>0?progress/target*100:0,
+   value:format(progress)+' / '+format(target),
+   remaining:completed
+    ?'QUALIFICATION COMPLETE'
+    :remaining(Math.max(0,target-progress)),
+   completed
+  };
+ }
+
+ if(award.kind==='ribbon'){
+  return metric(
+   'CAMPAIGN COMPLETION',
+   completed?1:0,
+   1,
+   'count',
+   ()=>'COMPLETE THE ASSOCIATED CAMPAIGN.'
+  );
+ }
+
+ switch(award.id){
+
+  case 'first-contact':
+   return metric(
+    'SUCCESSFUL CAMPAIGN MISSIONS',
+    safe(state.missionsCompleted),
+    1,
+    'count',
+    ()=>'COMPLETE A CAMPAIGN MISSION SUCCESSFULLY.'
+   );
+
+  case 'intelligence-excellence':
+   return metric(
+    'CORRECT DISPOSITIONS',
+    state.correctDispositions,
+    100,
+    'count',
+    n=>n+' CORRECT DISPOSITIONS REMAINING.'
+   );
+
+  case 'unbroken':
+   return metric(
+    'CONSECUTIVE VICTORIES',
+    state.consecutiveVictories,
+    5,
+    'count',
+    n=>n+' ADDITIONAL CONSECUTIVE VICTORIES REQUIRED.'
+   );
+
+  case 'endurance':
+  case 'relentless':{
+   const target=award.id==='endurance'?900:1800;
+
+   return metric(
+    'BEST ACTIVE ARCADE SESSION',
+    state.bestArcadeSeconds,
+    target,
+    'time',
+    n=>ciCommendationFormatDuration(n)+
+     ' ADDITIONAL ACTIVE TIME REQUIRED IN A SINGLE SESSION.'
+   );
+  }
+
+  case 'veteran-operator':
+   return metric(
+    'SUCCESSFUL CAMPAIGN MISSIONS',
+    state.missionsCompleted,
+    50,
+    'count',
+    n=>n+' SUCCESSFUL CAMPAIGN MISSIONS REMAINING.'
+   );
+
+  case 'distinguished-service':{
+   const count=CI_COMMENDATIONS.filter(
+    item=>item.kind==='ribbon'&&earned.includes(item.id)
+   ).length;
+
+   return metric(
+    'CAMPAIGNS COMPLETED',
+    count,
+    6,
+    'count',
+    n=>n+' CAMPAIGNS REMAINING.'
+   );
+  }
+
+  case 'spectrum-dominance':{
+   const count=CI_COMMENDATION_OAS.filter(
+    oa=>proficiency.includes(oa)
+   ).length;
+
+   return metric(
+    'OPERATIONAL PROFICIENCY',
+    count,
+    6,
+    'count',
+    n=>n+' OPERATIONAL AREAS REMAINING.'
+   );
+  }
+
+  case 'order-of-the-vanguard':{
+   const count=CI_COMMENDATIONS.filter(
+    item=>item.id!==award.id&&earned.includes(item.id)
+   ).length;
+
+   return metric(
+    'PREREQUISITE COMMENDATIONS',
+    count,
+    CI_COMMENDATIONS.length-1,
+    'count',
+    n=>n+' ADDITIONAL COMMENDATIONS REQUIRED.'
+   );
+  }
+
+  default:
+   return null;
+ }
+}
+
+function ciAppendCommendationQualification(detail,award,state){
+ const progress=ciCommendationQualificationProgress(
+  award,
+  state
+ );
+
+ if(progress){
+  const section=ciCommendationElement(
+   'div',
+   'ci-award-qualification'
+  );
+
+  const heading=ciCommendationElement(
+   'div',
+   'ci-award-qualification-heading'
+  );
+
+  heading.append(
+   ciCommendationElement(
+    'span',
+    'ci-award-qualification-label',
+    progress.label
+   ),
+   ciCommendationElement(
+    'b',
+    'ci-award-qualification-value',
+    progress.value
+   )
+  );
+
+  const track=ciCommendationElement(
+   'div',
+   'ci-award-qualification-track'
+  );
+
+  track.setAttribute('role','progressbar');
+  track.setAttribute('aria-label',progress.label);
+  track.setAttribute('aria-valuemin','0');
+  track.setAttribute('aria-valuemax',String(progress.target));
+  track.setAttribute('aria-valuenow',String(progress.current));
+  track.setAttribute('aria-valuetext',progress.value);
+
+  const fill=ciCommendationElement(
+   'i',
+   'ci-award-qualification-fill'
+  );
+
+  fill.style.width=progress.percent+'%';
+
+  track.appendChild(fill);
+
+  section.append(
+   heading,
+   track,
+   ciCommendationElement(
+    'small',
+    'ci-award-qualification-remaining',
+    progress.remaining
+   )
+  );
+
+  detail.appendChild(section);
+ }
+
+ if(award.id==='spectrum-dominance'){
+  const grid=ciCommendationElement(
+   'div',
+   'ci-award-proficiency-grid'
+  );
+
+  const completed=state.earned.includes(award.id);
+
+  CI_COMMENDATION_OAS.forEach(oa=>{
+   const qualified=completed||
+    state.proficiency.includes(oa);
+
+   const item=ciCommendationElement(
+    'span',
+    'ci-award-proficiency-item',
+    oa+' // '+(qualified?'QUALIFIED':'PENDING')
+   );
+
+   item.dataset.qualified=String(qualified);
+
+   grid.appendChild(item);
+  });
+
+  detail.appendChild(grid);
+ }
+
+ if(!progress){
+  const earned=state.earned.includes(award.id);
+
+  detail.appendChild(
+   ciCommendationElement(
+    'small',
+    'ci-award-qualification-remaining',
+    earned
+     ?'QUALIFICATION COMPLETE'
+     :'AWARDED UPON SUCCESSFUL COMPLETION OF THE SPECIFIED REQUIREMENTS.'
+   )
+  );
+ }
+}
+
+/* End CI commendation qualification progress */
+function ciShowCommendationDetail(id){
+ const award=CI_COMMENDATIONS.find(item=>item.id===id);
+ const detail=$('#profileCommendationDetail');
+
+ if(!award||!detail)return;
+
+ const state=ciCommendationRead();
+ const earned=state.earned.includes(id);
+
+ ciSelectedCommendation=id;
+
+ detail.replaceChildren();
+
+ const heading=ciCommendationElement(
+  'b',
+  'ci-award-detail-title',
+  award.name
+ );
+
+ const status=ciCommendationElement(
+  'span',
+  'ci-award-detail-status',
+  earned?'COMMENDATION EARNED':'QUALIFICATION REQUIRED'
+ );
+
+ status.dataset.earned=String(earned);
+
+ const description=ciCommendationElement(
+  'p',
+  'ci-award-detail-description',
+  award.description
+ );
+
+ detail.append(heading,status,description);
+
+ ciAppendCommendationQualification(
+  detail,
+  award,
+  state
+ );
+
+ document.querySelectorAll(
+  '#profileCommendationView .ci-award-card'
+ ).forEach(card=>{
+  const selected=card.dataset.award===id;
+
+  card.classList.toggle('selected',selected);
+
+  card.setAttribute(
+   'aria-pressed',
+   String(selected)
+  );
+ });
+}
+
+function ciCreateCommendationCard(award,state){
+ const earned=state.earned.includes(award.id);
+
+ const unread=earned&&
+  state.unread.includes(award.id)&&
+  !devAccessActive();
+
+ const card=ciCommendationElement(
+  'button',
+  'ci-award-card ci-award-'+award.kind
+ );
+
+ card.type='button';
+
+ card.dataset.award=award.id;
+
+ card.dataset.earned=String(earned);
+
+ card.classList.toggle('earned',earned);
+
+ card.classList.toggle('locked',!earned);
+
+ card.setAttribute('aria-pressed','false');
+
+ card.setAttribute(
+  'aria-label',
+  award.name+' // '+(earned?'EARNED':'LOCKED')
+ );
+
+ const artwork=ciCreateCommendationArtwork(
+  award,
+  earned
+ );
+
+ const name=ciCommendationElement(
+  'span',
+  'ci-award-name',
+  award.name
+ );
+
+ const status=ciCommendationElement(
+  'span',
+  'ci-award-status',
+  earned?'EARNED':'LOCKED'
+ );
+
+ card.append(artwork,name,status);
+
+ if(unread){
+  const badge=ciCommendationElement(
+   'span',
+   'ci-award-new',
+   'NEW'
+  );
+
+  card.appendChild(badge);
+ }
+
+ card.addEventListener(
+  'click',
+  ()=>{
+    if(ciCommendationMarkRead(award.id)){
+     const indicator=card.querySelector('.ci-award-new');
+     if(indicator)indicator.remove();
+
+     const badge=$('#profileCommendationNew');
+     if(badge){
+      badge.hidden=devAccessActive()||
+       !ciCommendationRead().unread.length;
+     }
+
+     refreshProgressionBadges();
+    }
+
+    ciShowCommendationDetail(award.id);
+   }
+ );
+
+ return card;
+}
+
+function ciRefreshCommendationProfile(){
+ const ribbons=$('#profileServiceRibbons');
+ const medals=$('#profileAchievementMedals');
+ const distinguished=$('#profileDistinguishedMedals');
+
+ if(!ribbons||!medals||!distinguished)return;
+
+ const state=ciCommendationRead();
+
+ const containers={
+  ribbon:ribbons,
+  medal:medals,
+  distinguished:distinguished
+ };
+
+ Object.values(containers).forEach(
+  container=>container.replaceChildren()
+ );
+
+ CI_COMMENDATIONS.forEach(award=>{
+  const container=containers[award.kind];
+
+  if(container){
+   container.appendChild(
+    ciCreateCommendationCard(award,state)
+   );
+  }
+ });
+
+ const total=CI_COMMENDATIONS.length;
+
+ const earned=CI_COMMENDATIONS.filter(
+  award=>state.earned.includes(award.id)
+ ).length;
+
+ const count=$('#profileCommendationCount');
+
+ if(count){
+  count.textContent=
+   String(earned).padStart(2,'0')+
+   ' / '+
+   String(total).padStart(2,'0');
+ }
+
+ const progress=$('#profileCommendationProgress');
+
+ if(progress){
+  progress.style.width=
+   (total?earned/total*100:0)+'%';
+ }
+
+ const devNotice=$('#profileCommendationDevNotice');
+
+ if(devNotice){
+  devNotice.hidden=!devAccessActive();
+ }
+
+ const unreadBadge=$('#profileCommendationNew');
+
+ if(unreadBadge){
+  unreadBadge.hidden=
+   devAccessActive()||!state.unread.length;
+ }
+
+ if(ciSelectedCommendation&&
+    CI_COMMENDATIONS.some(
+     award=>award.id===ciSelectedCommendation
+    )){
+  ciShowCommendationDetail(ciSelectedCommendation);
+ }else{
+  const detail=$('#profileCommendationDetail');
+
+  if(detail){
+   detail.textContent=
+    'SELECT A COMMENDATION TO REVIEW QUALIFICATION REQUIREMENTS.';
+  }
+ }
+}
+
+/* End CI command profile commendation renderer */
+/* CI command profile view navigation */
+
+function ciSelectCommandProfileView(view){
+ const commendations=view==='commendations';
+
+ const recordTab=$('#profileRecordTab');
+ const commendationTab=$('#profileCommendationTab');
+ const recordView=$('#profileRecordView');
+ const commendationView=$('#profileCommendationView');
+
+ if(!recordTab||!commendationTab||!recordView||!commendationView)return;
+
+ recordTab.classList.toggle('active',!commendations);
+ commendationTab.classList.toggle('active',commendations);
+
+ recordTab.setAttribute('aria-selected',String(!commendations));
+ commendationTab.setAttribute('aria-selected',String(commendations));
+
+ recordView.hidden=commendations;
+ commendationView.hidden=!commendations;
+
+ if(commendations){
+  ciRefreshCommendationProfile();
+ }
+
+ const panel=document.querySelector('#commandProfileMenu .command-profile-panel');
+ if(panel)panel.scrollTop=0;
+}
+
+/* End CI command profile view navigation */
+function openCommandProfile(){ciSelectedCommendation=null;ciRefreshCommendationProfile();ciSelectCommandProfileView("record");ciFirstVisitMark('profile');progressionMarkRead('profile');refreshCommandProfile();$('#mainMenu').classList.add('hidden');$('#commandProfileMenu').classList.remove('hidden')}
 function closeCommandProfile(){$('#commandProfileMenu').classList.add('hidden');$('#mainMenu').classList.remove('hidden')}
 
 
@@ -4055,7 +4990,7 @@ function globalArcadeActivity(){
 }
 function globalTrainingActivity(){closeGlobal();tutorialMenu();}
 function setGlobalRate(rate){document.documentElement.style.setProperty('--global-rate',rate);document.querySelectorAll('[data-global-rate]').forEach(b=>b.classList.toggle('selected',Number(b.dataset.globalRate)===rate));$('#globalRateLabel').textContent=rate+'X';const mult=rate;document.querySelectorAll('.orbit').forEach((el,i)=>{const base=[24,34,19][i]||24;el.style.animationDuration=(base/mult)+'s'});}
-// v0.11.6.146 // LEAN LIVE GLOBAL GLOBE
+// v0.11.6.147 // LEAN LIVE GLOBAL GLOBE
 const GLOBAL_OA_GEO={KESTREL:{lat:42,lon:-118},VANTAGE:{lat:35,lon:20},VERDANT:{lat:-4,lon:-70},MIRAGE:{lat:-21,lon:49},TEMPEST:{lat:-24,lon:143},ARCTIC:{lat:73,lon:28}};
 const GLOBAL_OA_DISPLAY={KESTREL:'KESTREL',VANTAGE:'VANTAGE',VERDANT:'VERDANT',MIRAGE:'MIRAGE',TEMPEST:'TEMPEST',ARCTIC:'POLARIS',RETRO:'RETRO STATION'};
 const GLOBAL_OA_NUM={KESTREL:'01',VANTAGE:'02',VERDANT:'03',MIRAGE:'04',TEMPEST:'05',ARCTIC:'06',RETRO:'R0'};
@@ -4335,7 +5270,9 @@ async function openPrivacyChoices(){
     if(status)status.textContent='PRIVACY OPTIONS UNAVAILABLE';
   }
 }
-let settingsReturn='main';function openSettings(from){settingsReturn=from||'main';$('#settingsMenu').classList.remove('hidden');if(settingsReturn==='pause')$('#pauseMenu').classList.add('hidden');else $('#mainMenu').classList.add('hidden');applyAudioSettings();refreshDevAccessUI();refreshPrivacyChoicesEntry()}function closeSettings(){$('#settingsMenu').classList.add('hidden');if(settingsReturn==='pause')$('#pauseMenu').classList.remove('hidden');else $('#mainMenu').classList.remove('hidden')}[['musicSlider','music'],['uiSlider','ui'],['sfxSlider','sfx']].forEach(([id,k])=>{const el=$('#'+id);if(el)el.addEventListener('input',e=>setAudioLevel(k,e.target.value))});[['gridOpacitySlider','gridOpacity'],['gridWeightSlider','gridWeight']].forEach(([id,k])=>$('#'+id)?.addEventListener('input',e=>saveVisualSetting(k,e.target.value)));$('#gridColorSelect')?.addEventListener('change',e=>saveVisualSetting('gridColor',e.target.value));$('#isrColorSelect')?.addEventListener('change',e=>saveVisualSetting('isrColor',e.target.value));$('#isrSymbolSelect')?.addEventListener('change',e=>saveVisualSetting('isrSymbol',e.target.value));$('#privacyChoicesBtn')?.addEventListener('click',openPrivacyChoices);$('#settingsBtn').addEventListener('click',()=>openSettings('main'));$('#hangarBtn')?.addEventListener('click',openHangar);$('#hangarBack')?.addEventListener('click',closeHangar);$('#commandProfileBtn')?.addEventListener('click',openCommandProfile);$('#commandProfileBack')?.addEventListener('click',closeCommandProfile);$('#pauseSettingsBtn').addEventListener('click',()=>openSettings('pause'));$('#settingsBack').addEventListener('click',closeSettings);
+let settingsReturn='main';function openSettings(from){settingsReturn=from||'main';$('#settingsMenu').classList.remove('hidden');if(settingsReturn==='pause')$('#pauseMenu').classList.add('hidden');else $('#mainMenu').classList.add('hidden');applyAudioSettings();refreshDevAccessUI();refreshPrivacyChoicesEntry()}function closeSettings(){$('#settingsMenu').classList.add('hidden');if(settingsReturn==='pause')$('#pauseMenu').classList.remove('hidden');else $('#mainMenu').classList.remove('hidden')}[['musicSlider','music'],['uiSlider','ui'],['sfxSlider','sfx']].forEach(([id,k])=>{const el=$('#'+id);if(el)el.addEventListener('input',e=>setAudioLevel(k,e.target.value))});[['gridOpacitySlider','gridOpacity'],['gridWeightSlider','gridWeight']].forEach(([id,k])=>$('#'+id)?.addEventListener('input',e=>saveVisualSetting(k,e.target.value)));$('#gridColorSelect')?.addEventListener('change',e=>saveVisualSetting('gridColor',e.target.value));$('#isrColorSelect')?.addEventListener('change',e=>saveVisualSetting('isrColor',e.target.value));$('#isrSymbolSelect')?.addEventListener('change',e=>saveVisualSetting('isrSymbol',e.target.value));$('#privacyChoicesBtn')?.addEventListener('click',openPrivacyChoices);$('#settingsBtn').addEventListener('click',()=>openSettings('main'));$('#hangarBtn')?.addEventListener('click',openHangar);$('#hangarBack')?.addEventListener('click',closeHangar);$('#commandProfileBtn')?.addEventListener('click',openCommandProfile);
+$('#profileRecordTab')?.addEventListener('click',()=>ciSelectCommandProfileView('record'));
+$('#profileCommendationTab')?.addEventListener('click',()=>ciSelectCommandProfileView('commendations'));$('#commandProfileBack')?.addEventListener('click',closeCommandProfile);$('#pauseSettingsBtn').addEventListener('click',()=>openSettings('pause'));$('#settingsBack').addEventListener('click',closeSettings);
 $('#devAccessUnlock')?.addEventListener('click',unlockDevAccess);
 $('#devAccessCode')?.addEventListener('keydown',e=>{if(e.key==='Enter')unlockDevAccess()});
  $('#devCampaignResetButton')?.addEventListener('click',resetSelectedDevCampaign);
@@ -4391,7 +5328,7 @@ const eventPanel=$('#eventPanel'),devPanel=$('#devPanel');if(eventPanel){eventPa
  el.addEventListener('pointerdown',skip,{once:true});document.addEventListener('keydown',skip,{once:true});
  const reposition=()=>placeCaret(caretTarget);window.addEventListener('resize',reposition,{passive:true,once:true});
 };;;(function bootSequence(){const splash=$('#bootSplash'),bar=$('#bootLoadBar'),pct=$('#bootPct'),minBoot=1800,t0=performance.now();ciPrimeBootAudio();const bootUnlock=()=>{audioUnlock();splash?.classList.add('audio-armed');const hint=$('#bootAudioHint');if(hint)hint.textContent='AUDIO LINK // ACTIVE'};splash?.addEventListener('pointerdown',bootUnlock,{once:true,capture:true});document.addEventListener('keydown',bootUnlock,{once:true,capture:true});const critical=[GLOBAL_EARTH_TEXTURE_SRC,'assets/maps/global-deep-space.png'];let complete=0,total=critical.length+1;function paint(){const n=Math.min(99,Math.round(complete/total*100));if(bar){bar.style.width=n+'%';bar.style.backgroundColor=n<50?'#ff4b45':n<80?'#e0b23d':'#55d67a'}if(pct){pct.textContent=n+'%';pct.style.color=n<50?'#ff6b65':n<80?'#e0b23d':'#55d67a'}}function preload(src){return new Promise(resolve=>{const img=new Image();let done=false;const finish=()=>{if(done)return;done=true;complete++;paint();resolve()};img.onload=()=>{const d=img.decode?.();if(d&&d.then)d.then(finish).catch(finish);else finish()};img.onerror=finish;img.src=src;if(img.complete&&img.naturalWidth)img.onload()})}async function warm(){paint();await Promise.all(critical.map(preload));try{const gl=initGlobalSurfaceGL();const limit=performance.now()+2200;while(gl&&!gl.ready&&performance.now()<limit)await new Promise(r=>setTimeout(r,32));if(gl){drawGlobalSurfaceGL(8,8,3);try{gl.gl.finish()}catch(e){}}}catch(e){}complete++;paint();const wait=Math.max(0,minBoot-(performance.now()-t0));if(wait)await new Promise(r=>setTimeout(r,wait));if(bar){bar.style.width='100%';bar.style.backgroundColor='#55d67a'}if(pct){pct.textContent='100%';pct.style.color='#55d67a'}requestAnimationFrame(()=>requestAnimationFrame(()=>{splash?.classList.add('done');window.CI_showStudioReveal?.()}))}warm();setTimeout(()=>ciPreloadInterstitial(),5000)})();
-ciCommendationInitialize();requestAnimationFrame(loop)})();
+ciCommendationInitialize();refreshProgressionBadges();requestAnimationFrame(loop)})();
 
 
 /* CI campaign briefing layout: pinned headings/actions, internally scrolling details */
