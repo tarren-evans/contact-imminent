@@ -3625,5 +3625,109 @@ button.training-target-highlight{position:relative!important;z-index:110!importa
 #mapWrap.training-intel-report #intelDrop:not(.hidden).intel-drop{min-height:0!important;padding-bottom:14px!important}
 /* CAMPAIGN 03 // show the route counter in the former timer position. */
 body.verdant-timeless-ui #app>header .clock b{display:block!important;font-size:clamp(16px,2.2vh,22px)!important;line-height:1!important;letter-spacing:.12em!important;white-space:nowrap!important}
-body.verdant-timeless-ui #app>header .clock small{font-size:clamp(7px,1.15vh,9px)!important;line-height:1.1!important;white-space:nowrap!important}.verdant-road-counter-label{display:none!important;color:#9fb4bb;font-size:clamp(7px,1.05vh,9px)!important;letter-spacing:.1em!important;margin-top:1px!important}
+body.verdant-timeless-ui #app>header .clock small{font-size:clamp(7px,1.15vh,9px)!important;line-height:1.1!important;white-space:nowrap!important}body:not(.verdant-timeless-ui) #app>header .clock #verdantRoadCounterLabel{display:none!important}#verdantRoadCounterLabel{color:#9fb4bb;font-size:clamp(7px,1.05vh,9px)!important;letter-spacing:.1em!important;margin-top:1px!important}
 body.verdant-timeless-ui #app>header .clock .verdant-road-counter-label{display:block!important}
+/* HOME AUDIO CONTROL // THREE-STATE */
+.command-audio-toggle {
+ position:fixed;
+ left:max(16px,calc(env(safe-area-inset-left) + 12px));
+ bottom:max(16px,calc(env(safe-area-inset-bottom) + 12px));
+ display:flex;
+ align-items:center;
+ justify-content:flex-start;
+ gap:8px;
+ width:auto;
+ min-width:44px;
+ min-height:44px;
+ padding:0;
+ margin:0;
+ border:0;
+ background:transparent;
+ color:#55d66b;
+ z-index:4;
+ cursor:pointer;
+ pointer-events:auto;
+ box-shadow:none;
+ transform:none;
+}
+.command-audio-toggle svg {
+ display:block;
+ width:clamp(22px,2.6vw,36px);
+ height:clamp(22px,2.6vw,36px);
+ flex-shrink:0;
+}
+.command-audio-label {
+ padding:6px 8px;
+ border:1px solid currentColor;
+ background:rgba(6,12,16,.94);
+ color:inherit;
+ font:700 clamp(8px,.72vw,10px)/1 monospace;
+ letter-spacing:.12em;
+ white-space:nowrap;
+}
+.command-audio-toggle[data-audio-state="sfx"],
+#muteBtn[data-audio-state="sfx"] {
+ color:#f0a340;
+}
+.command-audio-toggle[data-audio-state="off"],
+#muteBtn[data-audio-state="off"] {
+ color:#ff5b55;
+}
+#muteBtn[data-audio-state="on"] {
+ color:#55d66b;
+}
+.command-audio-toggle .audio-cross {
+ display:none;
+}
+.command-audio-toggle[data-audio-state="sfx"] .audio-wave-outer,
+.command-audio-toggle[data-audio-state="off"] .audio-wave-inner,
+.command-audio-toggle[data-audio-state="off"] .audio-wave-outer {
+ display:none;
+}
+.command-audio-toggle[data-audio-state="off"] .audio-cross {
+ display:block;
+}
+.command-audio-toggle:focus-visible {
+ outline:2px solid currentColor;
+ outline-offset:4px;
+}
+@media(max-width:700px) {
+ .command-audio-toggle {
+  left:max(12px,calc(env(safe-area-inset-left) + 10px));
+  bottom:max(12px,calc(env(safe-area-inset-bottom) + 10px));
+ }
+ .command-audio-toggle svg {width:24px;height:24px}
+}
+@media(max-width:390px) {
+ .command-audio-toggle {
+  left:max(10px,calc(env(safe-area-inset-left) + 8px));
+  bottom:max(10px,calc(env(safe-area-inset-bottom) + 8px));
+ }
+ .command-audio-toggle svg {width:21px;height:21px}
+}
+@media(max-height:520px) and (orientation:landscape) {
+ .command-audio-toggle {
+  left:max(10px,calc(env(safe-area-inset-left) + 8px));
+  bottom:max(9px,calc(env(safe-area-inset-bottom) + 7px));
+ }
+ .command-audio-toggle svg {width:21px;height:21px}
+}
+
+/* HOME AUDIO CONTROL // VISUAL REFINEMENT */
+#homeAudioBtn,
+#homeAudioBtn:hover,
+#homeAudioBtn:active,
+#homeAudioBtn:focus {
+ background:transparent!important;
+ background-image:none!important;
+ border:none!important;
+ box-shadow:none!important;
+}
+#homeAudioBtn::before,
+#homeAudioBtn::after {
+ display:none!important;
+}
+#homeAudioBtn {
+ padding:0!important;
+ border-radius:0!important;
+}
