@@ -78,7 +78,7 @@ function arcadeIntelHelp(mode){return mode==='FULL'?'COMPLETE INTELLIGENCE PICTU
 function refreshArcadeIntelAssist(){
  const label=$('#arcadeIntelModeLabel'),help=$('#arcadeIntelHelp');if(label)label.textContent=arcadeIntelAssist;if(help)help.textContent=arcadeIntelHelp(arcadeIntelAssist);
  function resetGlobalGlobe(){globalGlobe.drag=false;globalGlobe.pointer=null;globalGlobe.moved=false;globalGlobe.yaw=118;globalGlobe.pitch=0;globalGlobe.zoom=1;globalGlobe.lastX=0;globalGlobe.lastY=0;}
-$('#globalBtn')?.addEventListener('click',openGlobal);$('#globalGlobeReset')?.addEventListener('click',resetGlobalGlobe);$('#globalBack')?.addEventListener('click',closeGlobal);$('#globalCampaign')?.addEventListener('click',globalCampaignActivity);$('#globalArcade')?.addEventListener('click',globalArcadeActivity);$('#globalTraining')?.addEventListener('click',globalTrainingActivity);$('#globalPlanNAI')?.addEventListener('click',openGlobalPlanning);$('#planningClose')?.addEventListener('click',closeGlobalPlanning);$('#planningClear')?.addEventListener('click',clearGlobalPlanning);$('#planningUndo')?.addEventListener('click',undoGlobalPlanningPoint);$('#planningRevise')?.addEventListener('click',reviseGlobalPlanning);$('#planningCommit')?.addEventListener('click',commitGlobalPlanning);document.querySelectorAll('[data-global-oa]').forEach(b=>b.addEventListener('click',()=>selectGlobalOA(b.dataset.globalOa,true)));document.querySelectorAll('[data-global-rate]').forEach(b=>b.addEventListener('click',()=>setGlobalRate(Number(b.dataset.globalRate))));setGlobalRate(1.5);
+$('#globalBtn')?.addEventListener('click',openGlobal);$('#globalAudioBtn')?.addEventListener('click',ciCycleAudioMode);$('#globalBack')?.addEventListener('click',closeGlobal);$('#globalCampaign')?.addEventListener('click',globalCampaignActivity);$('#globalArcade')?.addEventListener('click',globalArcadeActivity);$('#globalTraining')?.addEventListener('click',globalTrainingActivity);$('#globalPlanNAI')?.addEventListener('click',openGlobalPlanning);$('#planningClose')?.addEventListener('click',closeGlobalPlanning);$('#planningClear')?.addEventListener('click',clearGlobalPlanning);$('#planningUndo')?.addEventListener('click',undoGlobalPlanningPoint);$('#planningRevise')?.addEventListener('click',reviseGlobalPlanning);$('#planningCommit')?.addEventListener('click',commitGlobalPlanning);document.querySelectorAll('[data-global-oa]').forEach(b=>b.addEventListener('click',()=>selectGlobalOA(b.dataset.globalOa,true)));document.querySelectorAll('[data-global-rate]').forEach(b=>b.addEventListener('click',()=>setGlobalRate(Number(b.dataset.globalRate))));setGlobalRate(1.5);
 document.querySelectorAll('[data-campaign-oa]').forEach(b=>b.addEventListener('click',()=>selectCampaignOA(b.dataset.campaignOa)));document.querySelectorAll('[data-intel-assist]').forEach(b=>b.classList.toggle('selected',b.dataset.intelAssist===arcadeIntelAssist));
 }
 function setArcadeIntelAssist(mode){if(!['FULL','TACTICAL','OFF'].includes(mode))return;arcadeIntelAssist=mode;localStorage.setItem(ARCADE_INTEL_KEY,mode);refreshArcadeIntelAssist();ui(true)}
@@ -232,7 +232,7 @@ function setDevProgressionStage(stage){
  if(!devAccessActive())return;
  if(!DEV_PROGRESSION_STAGES.includes(stage))return;
 
- devProgressionStage=stage;
+ devProgressionStage=stage;ciDeveloperISRSelection=null;normalizeISRCapability();
  refreshDevProgressionUI();
  cpRefreshCampaign();
  cpRefreshCampaign02();
@@ -272,13 +272,80 @@ function unlockDevAccess(){
 }
 function setDevMode(on){
  if(!devAccessUnlocked)return;
- devMode=!!on;if(!devMode)devProgressionStage='NONE';localStorage.setItem(DEV_MODE_KEY,devMode?'1':'0');
+ devMode=!!on;
+if(!devMode)devProgressionStage='NONE';
+ciDeveloperISRSelection=null;
+normalizeISRCapability();
+localStorage.setItem(DEV_MODE_KEY,devMode?'1':'0');
  refreshDevAccessState();refreshGlobalOAStatus();refreshProgressionBadges();if(globalSelectedOA&&document.querySelector('#globalMenu:not(.hidden)'))selectGlobalOA(globalSelectedOA);cpNotice('DEVELOPER MODE',devMode?'PROGRESSION LOCKS BYPASSED':'STANDARD ACCESS RESTORED','intel');sound('click');
 }
-const ISR_CAPABILITY_KEY='ci-isr-capability';let isrCapability=localStorage.getItem(ISR_CAPABILITY_KEY)||'STANDARD';
-function isrCapabilityUnlocked(k){if(k==='STANDARD')return true;if(k==='WIDE')return localStorage.getItem('ci-c01-complete')==='1';if(k==='RAPID')return localStorage.getItem('ci-c02-complete')==='1';if(k==='ORBIT')return localStorage.getItem('ci-c03-05-complete')==='1';if(k==='HARDENED')return localStorage.getItem('ci-c04-05-complete')==='1';return false}
-function normalizeISRCapability(){if(!isrCapabilityUnlocked(isrCapability))isrCapability='STANDARD'}
-function cpEffectiveISRSpeed(){if(campaignMission==='RETRO')return A.speed;normalizeISRCapability();const cyberFactor=cpCyberActive()?(isrCapability==='HARDENED'?.90:.80):1;return A.speed*(isrCapability==='RAPID'?1.12:1)*cyberFactor}
+const ISR_CAPABILITY_KEY='ci-isr-capability';
+let isrCapability=localStorage.getItem(ISR_CAPABILITY_KEY)||'STANDARD';
+let ciDeveloperISRSelection=null;
+/* HANGAR // ISR ASSET AUTHORIZATION */
+function ciISRCompletionKeys(k){
+    const requirements={
+        STANDARD:[],
+        WIDE:['ci-c01-complete'],
+        RAPID:['ci-c02-complete'],
+        ORBIT:['ci-c03-05-complete'],
+        HARDENED:['ci-c04-05-complete'],
+        WRAITH:[
+            'ci-c01-complete',
+            'ci-c02-complete',
+            'ci-c03-05-complete',
+            'ci-c04-05-complete',
+            'ci-c05-05-complete',
+            'ci-c06-05-complete'
+        ]
+    };
+    return Object.prototype.hasOwnProperty.call(requirements,k)?
+        requirements[k]:null;
+}
+
+function ciISRCapabilityEarned(k){
+    const keys=ciISRCompletionKeys(k);
+    return keys!==null&&keys.every(
+        key=>localStorage.getItem(key)==='1'
+    );
+}
+
+function isrCapabilityUnlocked(k){
+    const keys=ciISRCompletionKeys(k);
+    if(keys===null)return false;
+    if(devProgressionBypassActive())return true;
+    if(devProgressionSimulationActive()){
+        return keys.every(key=>progressionComplete(key));
+    }
+    return ciISRCapabilityEarned(k);
+}
+function ciSavedISRCapability(){
+    const saved=localStorage.getItem(ISR_CAPABILITY_KEY)||'STANDARD';
+    return ciISRCapabilityEarned(saved)?saved:'STANDARD';
+}
+
+function normalizeISRCapability(){
+    const saved=ciSavedISRCapability();
+
+    if(devAccessActive()){
+        const candidate=ciDeveloperISRSelection||saved;
+        isrCapability=isrCapabilityUnlocked(candidate)?
+            candidate:'STANDARD';
+    }else{
+        ciDeveloperISRSelection=null;
+        isrCapability=saved;
+    }
+}
+function cpEffectiveISRSpeed(){
+    if(campaignMission==='RETRO')return A.speed;
+    normalizeISRCapability();
+    const cyberFactor=cpCyberActive()?
+        (isrCapability==='WRAITH'?1:
+        isrCapability==='HARDENED'?.90:.80):1;
+    const assetFactor=isrCapability==='WRAITH'?1.25:
+        isrCapability==='RAPID'?1.12:1;
+    return A.speed*assetFactor*cyberFactor;
+}
 let B=[],T=[],sel=null,col=null,pct=0,score=0,integrity=100,decisionCorrect=0,decisionTotal=0,resolved=0,ints=0,next=1,campaignMission=null,campaignIds=0,campaignCorrect=0,campaignThreatResolved=0,campaignNonThreatResolved=0,campaignStationaryAssessed=0,campaignStationarySpawned=0,campaignProximityAssessed=0,campaignCollectionInterrupted=0,campaignCompromise=0,campaignFinished=false,arcadeStreak=0,arcadeBestStreak=0,arcadeCorrect=0,arcadeWrong=0,arcadeStart=0,arcadeThreatLevel=1,arcadeNextLevel=0,intelDropOffered=false,intelDropActive=false,intelDropAt=0,intelDropExpires=0,intelFusionUntil=0,passiveCredits=0,passiveNodes=[],passiveNAIs=[],passiveDeployMode=false,passiveNextId=1,ewoTargetMode=false,ewoUses=0,tutorialStep=0,supplyPackages=0,supplyRepairMode=false,cyberDegradedUntil=0,cyberRecoverNotice=false,cyberNextGlitch=0,running=false,start=0,lastSpawn=0,last=performance.now(),phase=1,ct=null,ci=null,lastUi=0,stallLogged=false;const C={raf:0,isr:0,map:0,track:0,orders:0,errors:0,lastRaf:performance.now(),maxGap:0,fps:0,fpsFrames:0,fpsAt:performance.now()};let dbg=[],lastDiag=0;let campaignHintSig='',campaignHintAt=0,campaignHintLevel=0;function rec(kind,msg){let ts=((performance.now()-(start||performance.now()))/1000).toFixed(3);dbg.push(`${ts}s | ${kind} | ${msg}`);if(dbg.length>500)dbg.shift()}window.addEventListener('error',e=>{C.errors++;rec('ERROR',`${e.message} @ ${e.filename}:${e.lineno}:${e.colno}`)});window.addEventListener('unhandledrejection',e=>{C.errors++;rec('REJECTION',String(e.reason))});function log(s){let d=document.createElement('div');d.textContent='> '+s;$('#log').prepend(d);while($('#log').children.length>7)$('#log').lastChild.remove()}function banner(s,d=1000){$('#bannerText').textContent=s;$('#banner').classList.add('show');setTimeout(()=>$('#banner').classList.remove('show'),d)}
 // v0.6.2.1 AUDIO IDENTITY // retained tactile/menu SFX + recorded background
 let ciSynthMasterGain=null,audioCtx=null,audioReady=false,audioEnabled=true,lastContactTone=0,lastWarningTone=0;const savedMute=localStorage.getItem('ci-audio-muted'),muteExplicit=localStorage.getItem('ci-audio-mute-explicit')==='1';let masterMuted=muteExplicit&&savedMute==='1';if(!muteExplicit){localStorage.setItem('ci-audio-muted','0');masterMuted=false;}if(savedMute!==null&&savedMute!=='0'&&savedMute!=='1'){localStorage.removeItem('ci-audio-muted');masterMuted=false;}
@@ -372,7 +439,7 @@ function ciUpdateAudioControls(){
  const label=masterMuted?'AUDIO OFF':musicOnlyMuted?'SFX ONLY':'AUDIO ON';
  const mb=$('#muteBtn'),hb=$('#homeAudioBtn');
  if(mb){mb.textContent=label;mb.dataset.audioState=state;mb.classList.toggle('muted',masterMuted)}
- if(hb){hb.dataset.audioState=state;hb.setAttribute('aria-label',label+' - change audio mode');const l=hb.querySelector('.command-audio-label');if(l)l.textContent=label}
+ [hb,$('#globalAudioBtn')].forEach(btn=>{if(btn){btn.dataset.audioState=state;btn.setAttribute('aria-label',label+' - change audio mode');const l=btn.querySelector('.command-audio-label');if(l)l.textContent=label}});
 }
 function ciCycleAudioMode(){
  if(masterMuted){masterMuted=false;musicOnlyMuted=false}
@@ -889,7 +956,21 @@ function cpIntelDropTick(){
  }
 }
 function cpFusionActive(){return usesIntelDrops()&&intelFusionUntil&&performance.now()<intelFusionUntil}
-function cpEffectiveISRRadius(){const posture=Number.isFinite(A.sensorPosture)?A.sensorPosture:1;if(campaignMission==='RETRO')return A.r*posture;normalizeISRCapability();const packageRadius=isrCapability==='WIDE'?1.10:isrCapability==='ORBIT'&&A.mode==='LOITER'?1.15:1,cyberFactor=cpCyberActive()?(isrCapability==='HARDENED'?.75:.60):1;return A.r*posture*packageRadius*(cpFusionActive()?1.30:1)*cyberFactor}
+function cpEffectiveISRRadius(){
+    const posture=Number.isFinite(A.sensorPosture)?
+        A.sensorPosture:1;
+    if(campaignMission==='RETRO')return A.r*posture;
+    normalizeISRCapability();
+    const packageRadius=isrCapability==='WRAITH'?
+        (A.mode==='LOITER'?1.40:1.25):
+        isrCapability==='WIDE'?1.10:
+        isrCapability==='ORBIT'&&A.mode==='LOITER'?1.15:1;
+    const cyberFactor=cpCyberActive()?
+        (isrCapability==='WRAITH'?1:
+        isrCapability==='HARDENED'?.75:.60):1;
+    return A.r*posture*packageRadius*
+        (cpFusionActive()?1.30:1)*cyberFactor;
+}
 function cpDegradedCount(){return B.filter(b=>b.degraded).length}
 function cpRenderBlueSite(b){
     if(!b||!b.el)return;
@@ -2419,6 +2500,7 @@ function cpCampaign(){
   $('#startScreen').style.display='none';deploy();last=performance.now();
 }
 function cpSetPause(v){
+  ciSetAbortConfirmation(false);
   if(window.CP_MENU||!running)return;
   if(v){
     window.CP_PAUSED=true;window.CP_PAUSE_AT=performance.now();applyAudioSettings();const pauseOALabel=$('#pauseOALabel');if(pauseOALabel)pauseOALabel.textContent='OA '+(activeOA==='ARCTIC'?'POLARIS':(activeOA||'KESTREL'))+' // COMMAND HOLD';
@@ -2435,10 +2517,10 @@ function cpSetPause(v){
 const PROGRESSION_NOTICE_KEY='ci-progression-notices-v2';
 const PROGRESSION_NOTICE_LEGACY_KEY='ci-progression-notices-v1';
 const PROGRESSION_MILESTONES=[
- ['ci-c01-complete','profile','WIDE AREA COLLECTION'],
- ['ci-c02-complete','profile','RAPID TASKING'],
- ['ci-c03-05-complete','profile','PERSISTENT ORBIT'],
- ['ci-c04-05-complete','profile','HARDENED LINK'],
+ ['ci-c01-complete','hangar','ISR-02 // OVERWATCH'],
+ ['ci-c02-complete','hangar','ISR-03 // SPECTRE'],
+ ['ci-c03-05-complete','hangar','ISR-04 // SENTINEL'],
+ ['ci-c04-05-complete','hangar','ISR-05 // PHANTOM'],
  ['ci-c01-01-complete','campaign','01-02 // PATTERN AVAILABLE'],['ci-c01-02-complete','campaign','01-03 // INDICATORS AVAILABLE'],['ci-c01-03-complete','campaign','01-04 // CONTESTED AVAILABLE'],['ci-c01-04-complete','campaign','01-05 // CONDITIONS SET AVAILABLE'],
  ['ci-c02-01-complete','campaign','02-02 // PATTERN AVAILABLE'],['ci-c02-02-complete','campaign','02-03 // ASSOCIATION AVAILABLE'],['ci-c02-03-complete','campaign','02-04 // NETWORK AVAILABLE'],['ci-c02-04-complete','campaign','02-05 // DISRUPTION AVAILABLE'],
  ['ci-c03-01-complete','campaign','03-02 // PATTERN AVAILABLE'],['ci-c03-02-complete','campaign','03-03 // TRANSFER AVAILABLE'],['ci-c03-03-complete','campaign','03-04 // SIGNATURE AVAILABLE'],['ci-c03-04-complete','campaign','03-05 // INTERDICTION AVAILABLE'],
@@ -2450,10 +2532,34 @@ const PROGRESSION_MILESTONES=[
  ['ci-c01-complete','arcade','KESTREL'],['ci-c02-complete','arcade','VANTAGE'],['ci-c03-05-complete','arcade','VERDANT'],['ci-c04-05-complete','arcade','MIRAGE'],['ci-c05-05-complete','arcade','TEMPEST'],['ci-c06-05-complete','arcade','POLARIS']
 ];
 function progressionSnapshot(){
-    return PROGRESSION_MILESTONES
+    const rewards=PROGRESSION_MILESTONES
         .filter(m=>localStorage.getItem(m[0])==='1')
         .map(m=>m[1]+':'+m[2]);
+
+    if(ciISRCapabilityEarned('WRAITH')){
+        rewards.push('hangar:ISR-69 // TarTak Wraith');
+    }
+
+    return rewards;
 }
+function ciMigrateHangarNoticeState(state){
+    const migration={
+        'profile:WIDE AREA COLLECTION':'hangar:ISR-02 // OVERWATCH',
+        'profile:RAPID TASKING':'hangar:ISR-03 // SPECTRE',
+        'profile:PERSISTENT ORBIT':'hangar:ISR-04 // SENTINEL',
+        'profile:HARDENED LINK':'hangar:ISR-05 // PHANTOM'
+    };
+
+    const migrate=items=>[
+        ...new Set(items.map(k=>migration[k]||k))
+    ];
+
+    state.seen=migrate(state.seen);
+    state.unread=migrate(state.unread);
+
+    return state;
+}
+
 function progressionNoticeState(){
  let state;
  try{state=JSON.parse(localStorage.getItem(PROGRESSION_NOTICE_KEY)||'null')}catch(e){}
@@ -2465,14 +2571,27 @@ function progressionNoticeState(){
   state={seen:[...new Set([...seen,...progressionSnapshot()])],unread:[...new Set(unread)]};
   if(!devProgressionSimulationActive()&&!devProgressionBypassActive())localStorage.setItem(PROGRESSION_NOTICE_KEY,JSON.stringify(state));
  }
+  const before=JSON.stringify(state);
+ ciMigrateHangarNoticeState(state);
+
+ if(before!==JSON.stringify(state)&&!devAccessActive()){
+    localStorage.setItem(
+        PROGRESSION_NOTICE_KEY,JSON.stringify(state)
+    );
+ }
+
  return state;
 }
 /* CI persistent first-visit indicators v1 */
 const CI_FIRST_VISITS_KEY='ci-first-visits-v1';
 const CI_FIRST_VISIT_DESTINATIONS=[
-    'global','campaign','arcade','profile',
+    'global','campaign','arcade','profile','hangar',
     'oa:KESTREL','oa:VANTAGE','oa:VERDANT',
-    'oa:MIRAGE','oa:TEMPEST','oa:ARCTIC'
+    'oa:MIRAGE','oa:TEMPEST','oa:ARCTIC',
+    'planning:KESTREL','planning:VANTAGE','planning:VERDANT',
+    'planning:MIRAGE','planning:TEMPEST','planning:ARCTIC',
+    'arcade:KESTREL','arcade:VANTAGE','arcade:VERDANT',
+    'arcade:MIRAGE','arcade:TEMPEST','arcade:ARCTIC'
 ];
 const ciFirstVisitsMemory=new Set();
 
@@ -2502,6 +2621,16 @@ function ciFirstVisitMark(destination){
     }catch(e){}
 }
 function refreshProgressionBadges(){
+    const hangar=$('#hangarNewBadge');
+
+    if(hangar){
+        const hangarState=progressionNoticeState();
+
+        hangar.hidden=devAccessActive()||(
+            ciFirstVisitSeen('hangar')&&
+            !hangarState.unread.some(k=>k.startsWith('hangar:'))
+        );
+    }
     const state=progressionNoticeState();
     const profile=$('#profileNewBadge'),arcade=$('#arcadeNewBadge');
     const global=$('#globalNewBadge'),campaign=$('#campaignNewBadge');
@@ -2576,7 +2705,22 @@ function progressionShowNextAnnouncement(){
     const title=document.createElement('b');
     const detail=document.createElement('span');
 
-    if(section==='profile'){
+    if(section==='hangar'){
+        const wraith=reward==='ISR-69 // TarTak Wraith';
+
+        notice.classList.toggle(
+            'progression-wraith-unlock',wraith
+        );
+
+        title.textContent=wraith?
+            'EXPERIMENTAL ASSET AUTHORIZED':
+            'NEW ISR ASSET AUTHORIZED';
+
+        detail.textContent=wraith?
+            reward+' // ALL SIX CAMPAIGNS COMPLETE // HANGAR':
+            'HANGAR // '+reward;
+
+    }else if(section==='profile'){
         title.textContent='NEW ISR CAPABILITY AVAILABLE';
         detail.textContent='COMMAND PROFILE // '+reward;
     }else if(section==='campaign'){
@@ -2631,10 +2775,343 @@ function refreshCommandProfile(){
   if(campaignCards){campaignCards.replaceChildren();COMMAND_PROFILE_CAMPAIGNS.forEach(c=>{const tab=document.querySelector('[data-campaign-oa="'+c.oa+'"]'),oaName=tab?.querySelector('b')?.textContent.replace(/^\d+\s*\/\/\s*/,'')||c.oa,descriptor=tab?.querySelector('span')?.textContent||'',complete=progressionComplete(c.complete),simulated=devProgressionSimulationActive()&&localStorage.getItem(c.complete)!=='1'&&simulatedProgressionComplete(c.complete),status=complete?(simulated?'SIMULATED':'COMPLETE'):devProgressionBypassActive()?'DEV ACCESS':campaignMissionUnlocked(c.series+'-01')?'AVAILABLE':'LOCKED',card=document.createElement('div'),label=document.createElement('span'),state=document.createElement('b'),detail=document.createElement('small');card.className='profile-card';card.dataset.state=status.toLowerCase().replaceAll(' ','-');label.textContent='CAMPAIGN '+c.series;state.textContent=status;detail.textContent='OA '+oaName+' // '+descriptor;card.append(label,state,detail);campaignCards.appendChild(card)})}
   if(tier)tier.textContent=done>=2?'NETWORK QUALIFIED':done===1?'OPERATIONAL':'FOUNDATION';if(bar)bar.style.width=(done/COMMAND_PROFILE_CAMPAIGNS.length*100)+'%';if(txt)txt.textContent='OPERATIONAL EXPERIENCE // '+done+' / '+COMMAND_PROFILE_CAMPAIGNS.length+' CAMPAIGNS COMPLETE';
   if(isr){const names={'#dce5e8':'TACTICAL WHITE','#4da3ff':'ISR BLUE','#d8a83e':'COMMAND GOLD','#55d66b':'FIELD GREEN'};isr.textContent=visualSettings.isrSymbol+' // '+(names[visualSettings.isrColor]||'CUSTOM');}
-  normalizeISRCapability();const cap=$('#profileCapability'),help=$('#profileCapabilityHelp');const capNames={STANDARD:'STANDARD SENSOR',WIDE:'WIDE AREA COLLECTION',RAPID:'RAPID TASKING',ORBIT:'PERSISTENT ORBIT',HARDENED:'HARDENED LINK'};if(cap)cap.textContent=capNames[isrCapability]||capNames.STANDARD;document.querySelectorAll('[data-isr-capability]').forEach(btn=>{const k=btn.dataset.isrCapability,u=isrCapabilityUnlocked(k);btn.disabled=!u;btn.classList.toggle('selected',k===isrCapability);});if(help){const locked=[];if(!isrCapabilityUnlocked('WIDE'))locked.push('WIDE AREA // C01');if(!isrCapabilityUnlocked('RAPID'))locked.push('RAPID TASKING // C02');if(!isrCapabilityUnlocked('ORBIT'))locked.push('PERSISTENT ORBIT // C03');if(!isrCapabilityUnlocked('HARDENED'))locked.push('HARDENED LINK // C04');help.textContent=locked.length?'UNLOCKS // '+locked.join(' // ')+' // ONE ACTIVE AT A TIME':'ALL PACKAGES EARNED // ONE ACTIVE AT A TIME';}
+    normalizeISRCapability();
+
+    const cap=$('#profileCapability');
+    const help=$('#profileCapabilityHelp');
+    const asset=ciISRAsset(isrCapability);
+
+    if(cap){
+        cap.textContent=asset.designation+' // '+asset.name;
+    }
+
+    if(help){
+        help.textContent=asset.benefit+
+            ' // MANAGE ASSETS IN HANGAR';
+    }
 }
-function setISRCapability(k){if(!isrCapabilityUnlocked(k))return;isrCapability=k;localStorage.setItem(ISR_CAPABILITY_KEY,k);refreshCommandProfile();sound('click')}
+function setISRCapability(k){
+    if(!isrCapabilityUnlocked(k))return;
+
+    if(devAccessActive()){
+        ciDeveloperISRSelection=k;
+    }else{
+        ciDeveloperISRSelection=null;
+        localStorage.setItem(ISR_CAPABILITY_KEY,k);
+    }
+
+    isrCapability=k;
+    refreshCommandProfile();
+    sound('click');
+}
 function rotateCommandBackground(){const maps=["url('assets/maps/oa-kestrel-overscan.png')","url('assets/maps/oa-vantage-overscan.png')","url('assets/maps/oa-verdant-overscan.png')","url('assets/maps/oa-mirage-overscan.png')","url('assets/maps/oa-tempest-overscan.png')"];const raw=sessionStorage.getItem('ci-command-bg-index');let last=raw===null?-1:Number(raw),next;if(last<0||!Number.isFinite(last))next=Math.floor(Math.random()*maps.length);else if(maps.length>1){const choices=maps.map((_,i)=>i).filter(i=>i!==last);next=choices[Math.floor(Math.random()*choices.length)]}else next=0;sessionStorage.setItem('ci-command-bg-index',String(next));const home=document.getElementById('mainMenu');if(home)home.style.setProperty('--ci-command-bg',maps[next]);document.documentElement.style.setProperty('--ci-command-bg',maps[next])}
+/* HANGAR // CENTRAL ASSET CATALOG */
+const CI_ISR_ASSETS=[
+    {
+        key:'STANDARD',
+        designation:'ISR-01',
+        name:'WATCHMAN',
+        description:'General-purpose surveillance platform.',
+        benefit:'STANDARD COLLECTION',
+        requirement:'STANDARD ISSUE'
+    },
+    {
+        key:'WIDE',
+        designation:'ISR-02',
+        name:'OVERWATCH',
+        description:'Expanded collection footprint.',
+        benefit:'+10% COLLECTION RADIUS',
+        requirement:'COMPLETE KESTREL'
+    },
+    {
+        key:'RAPID',
+        designation:'ISR-03',
+        name:'SPECTRE',
+        description:'Rapid repositioning platform.',
+        benefit:'+12% MOVEMENT SPEED',
+        requirement:'COMPLETE VANTAGE'
+    },
+    {
+        key:'ORBIT',
+        designation:'ISR-04',
+        name:'SENTINEL',
+        description:'Enhanced persistent observation.',
+        benefit:'+15% LOITER RADIUS',
+        requirement:'COMPLETE VERDANT'
+    },
+    {
+        key:'HARDENED',
+        designation:'ISR-05',
+        name:'PHANTOM',
+        description:'Resilient collection under interference.',
+        benefit:'REDUCED CYBER DEGRADATION',
+        requirement:'COMPLETE MIRAGE'
+    },
+    {
+        key:'WRAITH',
+        designation:'ISR-69',
+        name:'TarTak Wraith',
+        description:'The culmination of operational mastery. Unrestricted collection superiority.',
+        benefit:'+25% SPEED / +25% RADIUS / +40% LOITER / CYBER IMMUNITY',
+        requirement:'COMPLETE ALL SIX CAMPAIGNS'
+    }
+];
+
+function ciISRAsset(k){
+    return CI_ISR_ASSETS.find(a=>a.key===k)||CI_ISR_ASSETS[0];
+}
+
+/* HANGAR // ORIGINAL VECTOR AIRFRAMES */
+const CI_ISR_AIRFRAMES={
+    STANDARD:'M100 12 L106 29 L109 43 L184 58 L184 66 L110 61 L108 94 L128 108 L128 114 L100 108 L72 114 L72 108 L92 94 L90 61 L16 66 L16 58 L91 43 L94 29 Z',
+    WIDE:'M100 12 L110 31 L112 44 L190 48 L196 60 L112 60 L108 91 L132 104 L132 111 L100 105 L68 111 L68 104 L92 91 L88 60 L4 60 L10 48 L88 44 L90 31 Z',
+    RAPID:'M100 6 L109 36 L113 47 L163 89 L157 96 L111 76 L109 102 L126 117 L100 111 L74 117 L91 102 L89 76 L43 96 L37 89 L87 47 L91 36 Z',
+    ORBIT:'M100 10 L110 28 L113 43 L190 55 L190 64 L145 62 L145 98 L157 109 L157 114 L125 114 L125 109 L135 98 L135 62 L65 62 L65 98 L75 109 L75 114 L43 114 L43 109 L55 98 L55 62 L10 64 L10 55 L87 43 L90 28 Z',
+    HARDENED:'M100 12 L190 85 L149 77 L127 104 L100 89 L73 104 L51 77 L10 85 Z',
+    WRAITH:'M100 5 L128 36 L194 94 L159 84 L140 104 L119 87 L100 116 L81 87 L60 104 L41 84 L6 94 L72 36 Z'
+};
+
+function ciCreateHangarArtwork(key,unlocked){
+    const ns='http://www.w3.org/2000/svg';
+
+    const svg=document.createElementNS(ns,'svg');
+    svg.setAttribute('viewBox','0 0 200 126');
+    svg.setAttribute('aria-hidden','true');
+    svg.setAttribute('focusable','false');
+    svg.setAttribute('class','hangar-airframe');
+
+    function element(tag,attrs){
+        const el=document.createElementNS(ns,tag);
+        Object.entries(attrs).forEach(
+            ([k,v])=>el.setAttribute(k,String(v))
+        );
+        svg.appendChild(el);
+        return el;
+    }
+
+    if(!unlocked){
+        element('rect',{
+            x:78,y:49,width:44,height:36,rx:4,
+            class:'hangar-lock-body'
+        });
+
+        element('path',{
+            d:'M86 49 V38 A14 14 0 0 1 114 38 V49',
+            class:'hangar-lock-shackle'
+        });
+
+        element('circle',{
+            cx:100,cy:63,r:4,
+            class:'hangar-lock-keyhole'
+        });
+
+        element('path',{
+            d:'M100 64 V74',
+            class:'hangar-lock-shackle'
+        });
+
+        return svg;
+    }
+
+    element('path',{
+        d:CI_ISR_AIRFRAMES[key]||CI_ISR_AIRFRAMES.STANDARD,
+        class:'hangar-airframe-body'
+    });
+
+    element('path',{
+        d:'M100 20 V92',
+        class:'hangar-airframe-detail'
+    });
+
+    return svg;
+}
+
+function refreshHangar(){
+    const grid=$('#hangarGrid');
+    if(!grid)return;
+
+    normalizeISRCapability();
+
+    const authorized=CI_ISR_ASSETS.filter(
+        a=>isrCapabilityUnlocked(a.key)
+    ).length;
+
+    $('#hangarAuthorized').textContent=
+        String(authorized).padStart(2,'0')+
+        ' / 06 ASSETS AUTHORIZED';
+
+    const devStatus=$('#hangarDevStatus');
+
+    if(devStatus){
+        devStatus.hidden=!devAccessActive();
+        devStatus.textContent=devProgressionSimulationActive()?
+            'SIMULATED PROGRESSION // TEMPORARY ASSET SELECTION':
+            'DEVELOPER ACCESS // TEMPORARY ASSET SELECTION';
+    }
+
+    grid.replaceChildren();
+
+    CI_ISR_ASSETS.forEach(asset=>{
+        const unlocked=isrCapabilityUnlocked(asset.key);
+        const active=unlocked&&isrCapability===asset.key;
+        const experimental=asset.key==='WRAITH';
+        const card=document.createElement('button');
+
+        card.type='button';
+        card.className='hangar-asset-card';
+        card.dataset.asset=asset.key;
+        card.disabled=!unlocked;
+
+        card.classList.toggle('hangar-locked',!unlocked);
+        card.classList.toggle('hangar-selected',active);
+        card.classList.toggle(
+            'hangar-experimental',experimental&&unlocked
+        );
+
+        card.setAttribute('aria-pressed',String(active));
+
+        const designation=document.createElement('span');
+        designation.className='hangar-designation';
+        designation.textContent=experimental&&!unlocked?
+            'ISR-\u2588\u2588':asset.designation;
+
+        const artwork=document.createElement('div');
+        artwork.className='hangar-artwork';
+        artwork.dataset.airframe=asset.key;
+        artwork.setAttribute('aria-hidden','true');
+        artwork.appendChild(ciCreateHangarArtwork(asset.key,unlocked));
+
+        const name=document.createElement('b');
+        name.className='hangar-asset-name';
+        name.textContent=unlocked?asset.name:'[REDACTED]';
+
+        const detail=document.createElement('small');
+        detail.className='hangar-asset-detail';
+        detail.textContent=unlocked?
+            asset.benefit:asset.requirement;
+
+        const status=document.createElement('span');
+        status.className='hangar-asset-status';
+        const earned=ciISRCapabilityEarned(asset.key);
+        const simulated=unlocked&&devProgressionSimulationActive();
+        const temporary=unlocked&&!earned&&devProgressionBypassActive();
+
+        status.textContent=active?
+            (devAccessActive()?'ACTIVE // DEV':'ACTIVE'):
+            simulated?'SIMULATED':
+            temporary?'DEV ACCESS':
+            unlocked?'AVAILABLE':
+            experimental?'CLASSIFIED':'LOCKED';
+
+        card.append(
+            designation,artwork,name,detail,status
+        );
+
+        card.addEventListener('click',()=>{
+            setISRCapability(asset.key);
+            refreshHangar();
+        });
+
+        grid.appendChild(card);
+    });
+
+    const selected=ciISRAsset(isrCapability);
+
+    $('#hangarActiveName').textContent=
+        selected.designation+' // '+selected.name;
+
+    $('#hangarActiveDetail').textContent=
+        selected.description;
+
+    $('#hangarActiveName').classList.toggle(
+        'hangar-wraith-active',selected.key==='WRAITH'
+    );
+}
+
+/* HANGAR // CLASSIFIED DISPLAY EFFECTS */
+const ciHangarScrambleState=new Map();
+
+function tickHangarClassification(){
+    const menu=$('#hangarMenu');
+
+    if(!menu||menu.classList.contains('hidden')){
+        ciHangarScrambleState.clear();
+        return;
+    }
+
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+        menu.querySelectorAll('.hangar-locked .hangar-asset-name').forEach(
+            label=>{
+                label.textContent='[REDACTED]';
+                label.classList.remove('hangar-scrambling');
+            }
+        );
+        ciHangarScrambleState.clear();
+        return;
+    }
+
+    const now=performance.now();
+
+    menu.querySelectorAll('.hangar-locked').forEach(card=>{
+        const key=card.dataset.asset;
+        const label=card.querySelector('.hangar-asset-name');
+
+        if(!label)return;
+
+        let state=ciHangarScrambleState.get(key);
+
+        if(!state){
+            state={
+                next:now+4000+Math.random()*5000,
+                end:0,
+                frame:0
+            };
+            ciHangarScrambleState.set(key,state);
+        }
+
+        if(now>=state.next){
+            state.end=now+300+Math.random()*300;
+            state.frame=Math.floor(
+                Math.random()*GLOBAL_OA_SCRAMBLE_FRAMES.length
+            );
+            state.next=state.end+4000+Math.random()*5000;
+        }
+
+        const scrambling=now<state.end;
+
+        const text=scrambling?
+            GLOBAL_OA_SCRAMBLE_FRAMES[state.frame]:
+            '[REDACTED]';
+
+        if(label.textContent!==text){
+            label.textContent=text;
+        }
+
+        label.classList.toggle(
+            'hangar-scrambling',scrambling
+        );
+    });
+}
+
+setInterval(tickHangarClassification,120);
+
+/* HANGAR // MENU NAVIGATION */
+function openHangar(){
+    if(!devAccessActive()){
+        ciFirstVisitMark('hangar');
+        progressionMarkRead('hangar');
+    }
+    normalizeISRCapability();
+    refreshHangar();
+    $('#mainMenu').classList.add('hidden');
+    $('#hangarMenu').classList.remove('hidden');
+}
+
+function closeHangar(){
+    $('#hangarMenu').classList.add('hidden');
+    $('#mainMenu').classList.remove('hidden');
+}
+
 function openCommandProfile(){ciFirstVisitMark('profile');progressionMarkRead('profile');refreshCommandProfile();$('#mainMenu').classList.add('hidden');$('#commandProfileMenu').classList.remove('hidden')}
 function closeCommandProfile(){$('#commandProfileMenu').classList.add('hidden');$('#mainMenu').classList.remove('hidden')}
 
@@ -2725,10 +3202,79 @@ function refreshGlobalOAStatus(){
         String(classified).padStart(2,'0')+
         ' CLASSIFIED';
 }
-function openGlobal(){ciFirstVisitMark('global');progressionMarkRead('global');refreshProgressionBadges();refreshGlobalOAStatus();window.CP_MENU=true;document.body.classList.remove('retro-mode');$('#objectiveTracker')?.classList.remove('retro-objectives-hidden');globalSelectedOA=null;$('#globalMenu').classList.remove('retro-global-selection');$('#mainMenu').classList.add('hidden');$('#globalMenu').classList.remove('hidden');document.querySelectorAll('[data-global-oa]').forEach(b=>b.classList.remove('selected'));$('#globalOAName').textContent='NO OA SELECTED';$('#globalOADetail').textContent='Select an operational-area marker on the globe to inspect the regional picture.';$('#globalCampaign').style.display='';$('#globalArcade').style.display='';$('#globalPlanNAI').style.display='';$('#globalCampaign').disabled=true;$('#globalArcade').disabled=true;$('#globalPlanNAI').disabled=true;}
+function openGlobal(){ciFirstVisitMark('global');progressionMarkRead('global');refreshProgressionBadges();refreshGlobalOAStatus();window.CP_MENU=true;document.body.classList.remove('retro-mode');$('#objectiveTracker')?.classList.remove('retro-objectives-hidden');globalSelectedOA=null;$('#globalMenu').classList.remove('retro-global-selection');$('#mainMenu').classList.add('hidden');$('#globalMenu').classList.remove('hidden');document.querySelectorAll('[data-global-oa]').forEach(b=>b.classList.remove('selected'));$('#globalOAName').textContent='NO OA SELECTED';$('#globalOADetail').textContent='Select an operational-area marker on the globe to inspect the regional picture.';$('#globalCampaign').style.display='';$('#globalArcade').style.display='';$('#globalPlanNAI').style.display='';$('#globalCampaign').disabled=true;$('#globalArcade').disabled=true;$('#globalPlanNAI').disabled=true;refreshGlobalFeatureButtons();}
 function closeGlobal(){$('#globalMenu').classList.add('hidden');$('#mainMenu').classList.remove('hidden');rotateCommandBackground();}
+/* GLOBAL FEATURE PROGRESSION // persistent OA-specific notices */
+const globalFeatureScrambleState={};
+
+function refreshGlobalFeatureButtons(now=performance.now()){
+    const oa=globalSelectedOA;
+    const features=[
+        ['globalCampaign','CAMPAIGN','campaign'],
+        ['globalArcade','ARCADE','arcade'],
+        ['globalPlanNAI','COLLECTION PLANNING','planning']
+    ];
+
+    features.forEach(([id,name,type])=>{
+        const btn=document.getElementById(id);
+        if(!btn)return;
+
+        const label=btn.querySelector('.global-feature-label');
+        const badge=btn.querySelector('.global-feature-new');
+        if(!label||!badge)return;
+
+        const locked=btn.disabled;
+        const key=type+':'+oa;
+        const eligible=!!oa&&oa!=='RETRO'&&!locked;
+        const simulation=devProgressionSimulationActive()||
+            devProgressionBypassActive();
+
+        badge.hidden=type==='campaign'||!eligible||simulation||ciFirstVisitSeen(key);
+        btn.classList.toggle('global-feature-locked',locked);
+
+        let text=name;
+        let scrambling=false;
+
+        if(locked&&oa&&oa!=='RETRO'){
+            let s=globalFeatureScrambleState[key];
+
+            if(!s){
+                s={next:now+4000+Math.random()*5000,end:0,frame:0};
+                globalFeatureScrambleState[key]=s;
+            }
+
+            if(now>=s.next){
+                s.end=now+300+Math.random()*300;
+                s.frame=Math.floor(Math.random()*GLOBAL_OA_SCRAMBLE_FRAMES.length);
+                s.next=s.end+4000+Math.random()*5000;
+            }
+
+            scrambling=now<s.end;
+            text=scrambling?GLOBAL_OA_SCRAMBLE_FRAMES[s.frame]:'[REDACTED]';
+        }else{
+            delete globalFeatureScrambleState[key];
+        }
+
+        if(label.textContent!==text)label.textContent=text;
+        label.classList.toggle('global-feature-scrambling',scrambling);
+
+        if(type==='arcade'){
+            btn.setAttribute('aria-label',locked?
+                'Arcade locked. Complete this campaign to unlock it.':
+                'Arcade');
+        }
+    });
+}
+
+function tickGlobalFeatureButtons(){
+    if(!document.getElementById('globalMenu')?.classList.contains('hidden')){
+        refreshGlobalFeatureButtons();
+    }
+}
+
+setInterval(tickGlobalFeatureButtons,120);
 function globalPlanningUnlocked(oa){if(!oa||oa==='RETRO')return false;if(devProgressionBypassActive())return true;const series=({KESTREL:'01',VANTAGE:'02',VERDANT:'03',MIRAGE:'04',TEMPEST:'05',ARCTIC:'06'})[oa];return !!series&&progressionComplete('ci-c'+series+'-01-complete')}
-function selectGlobalOA(oa,playerVisit=false){if(playerVisit&&globalOAIdentityRevealed(oa)){ciFirstVisitMark('oa:'+oa);refreshProgressionBadges();}globalSelectedOA=oa;$('#globalMenu').classList.toggle('retro-global-selection',oa==='RETRO');document.querySelectorAll('[data-global-oa]').forEach(b=>b.classList.toggle('selected',b.dataset.globalOa===oa));const num=GLOBAL_OA_NUM[oa]||'--';$('#globalOAName').textContent=oa==='RETRO'?'R0 // RETRO STATION // CONTACT IMMINENT':'OA '+num+' // '+globalOADisplayName(oa);$('#globalOADetail').textContent=globalOAIdentityRevealed(oa)?'REGIONAL PICTURE AVAILABLE':'REGIONAL INTELLIGENCE // CLASSIFIED';const retro=oa==='RETRO',campaignReady=!retro&&globalOAIdentityRevealed(oa),arcadeReady=oa==='RETRO'||arcadeOAAllowed().includes(oa);$('#globalCampaign').style.display=retro?'none':'';$('#globalPlanNAI').style.display=retro?'none':'';$('#globalPlanNAI').classList.toggle('hidden',retro);$('#globalArcade').style.display='';$('#globalCampaign').disabled=!campaignReady;$('#globalArcade').disabled=!arcadeReady;const planUnlocked=globalPlanningUnlocked(oa);$('#globalPlanNAI').disabled=!planUnlocked;$('#globalPlanNAI').title=planUnlocked?'':'Complete the first campaign mission in this region to unlock collection planning.';$('#globalPlanNAI').setAttribute('aria-label',planUnlocked?'Collection planning':'Collection planning locked. Complete the first campaign mission in this region to unlock it.');refreshGlobalTaskingDetail(oa);}
+function selectGlobalOA(oa,playerVisit=false){if(playerVisit&&globalOAIdentityRevealed(oa)){ciFirstVisitMark('oa:'+oa);refreshProgressionBadges();}globalSelectedOA=oa;$('#globalMenu').classList.toggle('retro-global-selection',oa==='RETRO');document.querySelectorAll('[data-global-oa]').forEach(b=>b.classList.toggle('selected',b.dataset.globalOa===oa));const num=GLOBAL_OA_NUM[oa]||'--';$('#globalOAName').textContent=oa==='RETRO'?'R0 // RETRO STATION // CONTACT IMMINENT':'OA '+num+' // '+globalOADisplayName(oa);$('#globalOADetail').textContent=globalOAIdentityRevealed(oa)?'REGIONAL PICTURE AVAILABLE':'REGIONAL INTELLIGENCE // CLASSIFIED';const retro=oa==='RETRO',campaignReady=!retro&&globalOAIdentityRevealed(oa),arcadeReady=oa==='RETRO'||arcadeOAAllowed().includes(oa);$('#globalCampaign').style.display=retro?'none':'';$('#globalPlanNAI').style.display=retro?'none':'';$('#globalPlanNAI').classList.toggle('hidden',retro);$('#globalArcade').style.display='';$('#globalCampaign').disabled=!campaignReady;$('#globalArcade').disabled=!arcadeReady;const planUnlocked=globalPlanningUnlocked(oa);$('#globalPlanNAI').disabled=!planUnlocked;$('#globalPlanNAI').title=planUnlocked?'':'Complete the first campaign mission in this region to unlock collection planning.';$('#globalPlanNAI').setAttribute('aria-label',planUnlocked?'Collection planning':'Collection planning locked. Complete the first campaign mission in this region to unlock it.');refreshGlobalTaskingDetail(oa);refreshGlobalFeatureButtons();}
 
 let globalActivityContext=false;
 function cpRetroGrid(){const g=$('#retroGrid');if(!g)return;g.textContent='';const ns='http://www.w3.org/2000/svg';for(let x=45;x<900;x+=45){let l=document.createElementNS(ns,'line');l.setAttribute('x1',x);l.setAttribute('y1','0');l.setAttribute('x2',x);l.setAttribute('y2','650');l.setAttribute('class',x%225===0?'retro-major':'retro-minor');g.appendChild(l)}for(let y=45;y<650;y+=45){let l=document.createElementNS(ns,'line');l.setAttribute('x1','0');l.setAttribute('y1',y);l.setAttribute('x2','900');l.setAttribute('y2',y);l.setAttribute('class',y%225===0?'retro-major':'retro-minor');g.appendChild(l)}}
@@ -2747,7 +3293,7 @@ if(!globalOAIdentityRevealed(globalSelectedOA))return;
 function globalArcadeActivity(){
  if(globalSelectedOA==='RETRO'){globalRetroActivity();return;}
  if(!globalSelectedOA||!arcadeOAAllowed().includes(globalSelectedOA))return;
- globalActivityContext=true;setArcadeOA(globalSelectedOA);closeGlobal();arcadeMenu();document.body.classList.add('global-context-arcade');
+ ciFirstVisitMark('arcade:'+globalSelectedOA);refreshGlobalFeatureButtons();globalActivityContext=true;setArcadeOA(globalSelectedOA);closeGlobal();arcadeMenu();document.body.classList.add('global-context-arcade');
 }
 function globalTrainingActivity(){closeGlobal();tutorialMenu();}
 function setGlobalRate(rate){document.documentElement.style.setProperty('--global-rate',rate);document.querySelectorAll('[data-global-rate]').forEach(b=>b.classList.toggle('selected',Number(b.dataset.globalRate)===rate));$('#globalRateLabel').textContent=rate+'X';const mult=rate;document.querySelectorAll('.orbit').forEach((el,i)=>{const base=[24,34,19][i]||24;el.style.animationDuration=(base/mult)+'s'});}
@@ -2921,10 +3467,38 @@ function planningSelfIntersects(){const p=globalPlanningPoints,n=p.length;if(n<4
 function planningValid(){return globalPlanningPoints.length>=3&&globalPlanningPoints.length<=4&&!planningSelfIntersects()&&planningAreaFraction()>0.00005&&planningAreaFraction()<=GLOBAL_NAI_MAX_AREA;}
 function refreshGlobalTaskingDetail(oa){const p=readGlobalNAIs()[oa];if(!p)return;$('#globalOADetail').textContent=globalOAIdentityRevealed(oa)?'NAI TASKED // '+(p.points?.length||0)+' CONTROL POINTS':'REGIONAL INTELLIGENCE // CLASSIFIED';}
 function openGlobalPlanning(){if(!globalSelectedOA)return;openGlobalPlanningDirect();}
-function openGlobalPlanningDirect(){if(!globalSelectedOA)return;const oa=globalSelectedOA,saved=readGlobalNAIs()[oa];globalPlanningPoints=(saved?.points||[]).map(p=>({x:p.x,y:p.y}));globalPlanningCommitted=!!saved?.committed;globalPlanningDrag=-1;$('#planningOAName').textContent='OA '+({'KESTREL':'01','VANTAGE':'02','VERDANT':'03','MIRAGE':'04','TEMPEST':'05','ARCTIC':'06'}[oa])+' // '+(oa==='ARCTIC'?'POLARIS':oa);$('#planningMap').style.backgroundImage="linear-gradient(rgba(4,10,13,.08),rgba(4,10,13,.08)),url('"+GLOBAL_PLANNING_IMAGE[oa]+"')";$('#globalPlanning').classList.remove('hidden');renderGlobalPlanning();}
-function closeGlobalPlanning(){$('#globalPlanning').classList.add('hidden');globalPlanningDrag=-1;}
+/* COLLECTION PLANNING // FIRST ACCESS ORIENTATION */
+const CI_PLANNING_ORIENTATION_KEY='ci-planning-orientation-v1';
+let ciPlanningOrientationCompleted=false;
+
+function ciSetPlanningOrientation(show){
+    $('#planningOrientation')?.classList.toggle('hidden',!show);
+    $('#planningMap')?.classList.toggle('planning-orientation-focus',show);
+}
+
+function ciShowPlanningOrientation(){
+    let completed=ciPlanningOrientationCompleted;
+    try{
+        completed=completed||localStorage.getItem(CI_PLANNING_ORIENTATION_KEY)==='1';
+    }catch(_){}
+    ciSetPlanningOrientation(!completed&&!globalPlanningCommitted&&globalPlanningPoints.length===0);
+}
+
+function ciCompletePlanningOrientation(){
+    const guide=$('#planningOrientation');
+    if(!guide||guide.classList.contains('hidden'))return;
+    ciSetPlanningOrientation(false);
+    if(devProgressionSimulationActive()||devProgressionBypassActive())return;
+    ciPlanningOrientationCompleted=true;
+    try{
+        localStorage.setItem(CI_PLANNING_ORIENTATION_KEY,'1');
+    }catch(_){}
+}
+
+function openGlobalPlanningDirect(){if(!globalSelectedOA||!globalPlanningUnlocked(globalSelectedOA))return;ciFirstVisitMark('planning:'+globalSelectedOA);refreshGlobalFeatureButtons();const oa=globalSelectedOA,saved=readGlobalNAIs()[oa];globalPlanningPoints=(saved?.points||[]).map(p=>({x:p.x,y:p.y}));globalPlanningCommitted=!!saved?.committed;globalPlanningDrag=-1;$('#planningOAName').textContent='OA '+({'KESTREL':'01','VANTAGE':'02','VERDANT':'03','MIRAGE':'04','TEMPEST':'05','ARCTIC':'06'}[oa])+' // '+(oa==='ARCTIC'?'POLARIS':oa);$('#planningMap').style.backgroundImage="linear-gradient(rgba(4,10,13,.08),rgba(4,10,13,.08)),url('"+GLOBAL_PLANNING_IMAGE[oa]+"')";$('#globalPlanning').classList.remove('hidden');renderGlobalPlanning();ciShowPlanningOrientation();}
+function closeGlobalPlanning(){ciSetPlanningOrientation(false);$('#globalPlanning').classList.add('hidden');globalPlanningDrag=-1;}
 function eventPlanningPoint(e){const r=$('#planningMap').getBoundingClientRect();return{x:Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)),y:Math.max(0,Math.min(1,(e.clientY-r.top)/r.height))};}
-function placeGlobalNAI(e){if(!globalSelectedOA||globalPlanningCommitted||globalPlanningDrag>=0||globalPlanningPoints.length>=4||e.target.closest?.('.planning-vertex'))return;globalPlanningPoints.push(eventPlanningPoint(e));renderGlobalPlanning();}
+function placeGlobalNAI(e){if(!globalSelectedOA||globalPlanningCommitted||globalPlanningDrag>=0||globalPlanningPoints.length>=4||e.target.closest?.('.planning-vertex'))return;globalPlanningPoints.push(eventPlanningPoint(e));renderGlobalPlanning();ciCompletePlanningOrientation();}
 function startPlanningDrag(e,i){if(globalPlanningCommitted)return;e.preventDefault();e.stopPropagation();globalPlanningDrag=i;e.currentTarget.setPointerCapture?.(e.pointerId);}
 function movePlanningDrag(e){if(globalPlanningDrag<0||globalPlanningCommitted)return;globalPlanningPoints[globalPlanningDrag]=eventPlanningPoint(e);renderGlobalPlanning();}
 function endPlanningDrag(){globalPlanningDrag=-1;}
@@ -3003,7 +3577,7 @@ async function openPrivacyChoices(){
     if(status)status.textContent='PRIVACY OPTIONS UNAVAILABLE';
   }
 }
-let settingsReturn='main';function openSettings(from){settingsReturn=from||'main';$('#settingsMenu').classList.remove('hidden');if(settingsReturn==='pause')$('#pauseMenu').classList.add('hidden');else $('#mainMenu').classList.add('hidden');applyAudioSettings();refreshDevAccessUI();refreshPrivacyChoicesEntry()}function closeSettings(){$('#settingsMenu').classList.add('hidden');if(settingsReturn==='pause')$('#pauseMenu').classList.remove('hidden');else $('#mainMenu').classList.remove('hidden')}[['musicSlider','music'],['uiSlider','ui'],['sfxSlider','sfx']].forEach(([id,k])=>{const el=$('#'+id);if(el)el.addEventListener('input',e=>setAudioLevel(k,e.target.value))});[['gridOpacitySlider','gridOpacity'],['gridWeightSlider','gridWeight']].forEach(([id,k])=>$('#'+id)?.addEventListener('input',e=>saveVisualSetting(k,e.target.value)));$('#gridColorSelect')?.addEventListener('change',e=>saveVisualSetting('gridColor',e.target.value));$('#isrColorSelect')?.addEventListener('change',e=>saveVisualSetting('isrColor',e.target.value));$('#isrSymbolSelect')?.addEventListener('change',e=>saveVisualSetting('isrSymbol',e.target.value));$('#privacyChoicesBtn')?.addEventListener('click',openPrivacyChoices);$('#settingsBtn').addEventListener('click',()=>openSettings('main'));$('#commandProfileBtn')?.addEventListener('click',openCommandProfile);$('#commandProfileBack')?.addEventListener('click',closeCommandProfile);document.querySelectorAll('[data-isr-capability]').forEach(b=>b.addEventListener('click',()=>setISRCapability(b.dataset.isrCapability)));$('#pauseSettingsBtn').addEventListener('click',()=>openSettings('pause'));$('#settingsBack').addEventListener('click',closeSettings);
+let settingsReturn='main';function openSettings(from){settingsReturn=from||'main';$('#settingsMenu').classList.remove('hidden');if(settingsReturn==='pause')$('#pauseMenu').classList.add('hidden');else $('#mainMenu').classList.add('hidden');applyAudioSettings();refreshDevAccessUI();refreshPrivacyChoicesEntry()}function closeSettings(){$('#settingsMenu').classList.add('hidden');if(settingsReturn==='pause')$('#pauseMenu').classList.remove('hidden');else $('#mainMenu').classList.remove('hidden')}[['musicSlider','music'],['uiSlider','ui'],['sfxSlider','sfx']].forEach(([id,k])=>{const el=$('#'+id);if(el)el.addEventListener('input',e=>setAudioLevel(k,e.target.value))});[['gridOpacitySlider','gridOpacity'],['gridWeightSlider','gridWeight']].forEach(([id,k])=>$('#'+id)?.addEventListener('input',e=>saveVisualSetting(k,e.target.value)));$('#gridColorSelect')?.addEventListener('change',e=>saveVisualSetting('gridColor',e.target.value));$('#isrColorSelect')?.addEventListener('change',e=>saveVisualSetting('isrColor',e.target.value));$('#isrSymbolSelect')?.addEventListener('change',e=>saveVisualSetting('isrSymbol',e.target.value));$('#privacyChoicesBtn')?.addEventListener('click',openPrivacyChoices);$('#settingsBtn').addEventListener('click',()=>openSettings('main'));$('#hangarBtn')?.addEventListener('click',openHangar);$('#hangarBack')?.addEventListener('click',closeHangar);$('#commandProfileBtn')?.addEventListener('click',openCommandProfile);$('#commandProfileBack')?.addEventListener('click',closeCommandProfile);$('#pauseSettingsBtn').addEventListener('click',()=>openSettings('pause'));$('#settingsBack').addEventListener('click',closeSettings);
 $('#devAccessUnlock')?.addEventListener('click',unlockDevAccess);
 $('#devAccessCode')?.addEventListener('keydown',e=>{if(e.key==='Enter')unlockDevAccess()});
  $('#devCampaignResetButton')?.addEventListener('click',resetSelectedDevCampaign);
@@ -3015,7 +3589,24 @@ $('#tutorialBtn').addEventListener('click',tutorialMenu);$('#tutorialBegin').add
 $('#pauseBtn').addEventListener('click',()=>cpSetPause(!window.CP_PAUSED));$('#muteBtn').addEventListener('click',ciCycleAudioMode);$('#homeAudioBtn')?.addEventListener('click',ciCycleAudioMode);
 $('#resumeBtn').addEventListener('click',()=>cpSetPause(false));
 $('#restartBtn').addEventListener('click',()=>{if(!confirm('Restart this mission? Current mission progress will be reset.'))return;window.CP_PAUSED=false;$('#pauseMenu').classList.add('hidden');if(campaignMission==='ARCADE')arcadeBegin();else{deploy();last=performance.now()}});$('#pauseUtilitiesBtn')?.addEventListener('click',()=>{$('#pauseMenu').classList.add('hidden');$('#utilityMenu').classList.remove('hidden')});$('#utilityBack')?.addEventListener('click',()=>{$('#utilityMenu').classList.add('hidden');$('#pauseMenu').classList.remove('hidden')});
-$('#abortBtn').addEventListener('click',()=>{campaignMission==='RETRO'?cpRetroExit():(campaignMission==='ARCADE'?cpShowMenu():(campaignMission?cpCampaignMenu():cpShowMenu()))});
+function ciSetAbortConfirmation(show){
+    const menu=$('#pauseMenu');
+    const panel=$('#abortConfirmation');
+    if(!menu||!panel)return;
+    menu.classList.toggle('abort-confirming',show);
+    panel.classList.toggle('hidden',!show);
+}
+$('#abortBtn').addEventListener('click',()=>{
+    if(window.CP_PAUSED)ciSetAbortConfirmation(true);
+});
+$('#abortCancelBtn').addEventListener('click',()=>{
+    ciSetAbortConfirmation(false);
+});
+$('#abortConfirmBtn').addEventListener('click',()=>{
+    if(!window.CP_PAUSED)return;
+    ciSetAbortConfirmation(false);
+    campaignMission==='RETRO'?cpRetroExit():(campaignMission==='ARCADE'?cpShowMenu():(campaignMission?cpCampaignMenu():cpShowMenu()));
+});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!window.CP_MENU&&running){e.preventDefault();cpSetPause(!window.CP_PAUSED)}});
 
 document.querySelectorAll('[data-arcade-oa]').forEach(b=>b.addEventListener('click',()=>setArcadeOA(b.dataset.arcadeOa)));
@@ -3162,7 +3753,7 @@ function resetSelectedDevCampaign(){
  }
  devProgressionStage='NONE';
  normalizeISRCapability();
- localStorage.setItem(ISR_CAPABILITY_KEY,isrCapability);
+ ciDeveloperISRSelection=null;localStorage.setItem(ISR_CAPABILITY_KEY,ciSavedISRCapability());normalizeISRCapability();
  refreshDevProgressionUI();
  cpRefreshCampaign();
  cpRefreshCampaign02();
