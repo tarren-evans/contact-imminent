@@ -195,8 +195,10 @@ function campaignMissionUnlocked(id){
 }
 function campaignProgressionWrite(key,value){
  if(devProgressionSimulationActive()||devProgressionBypassActive())return;
+ const completion=value==='1'&&/-complete$/.test(key);
+ if(completion)progressionNoticeState();
  localStorage.setItem(key,value);
- if(value==='1'&&/-complete$/.test(key))progressionCollectUnlocks();
+ if(completion)progressionCollectUnlocks();
 }
 function campaignSessionProgressionWrite(key,value){
  if(devProgressionSimulationActive()||devProgressionBypassActive())return;
@@ -468,9 +470,132 @@ function ciCycleAudioMode(){
  rec('AUDIO_MODE',masterMuted?'OFF':musicOnlyMuted?'SFX_ONLY':'ON');
 }
 function setAudioLevel(k,v){audioLevels[k]=Math.max(0,Math.min(1,Number(v)/100));localStorage.setItem('ci-audio-'+k,String(Math.round(audioLevels[k]*100)));if(k==='music')ensureMusicGain();applyAudioSettings()}
-const visualSettings={gridOpacity:Number(localStorage.getItem('ci-grid-opacity')??42)/100,gridWeight:Number(localStorage.getItem('ci-grid-weight')??1.45),gridColor:localStorage.getItem('ci-grid-color')||'#e0e9ec',isrColor:localStorage.getItem('ci-isr-color')||'#dce5e8',isrSymbol:localStorage.getItem('ci-isr-symbol')||'AIRCRAFT'};
+const visualSettings={gridOpacity:Number(localStorage.getItem('ci-grid-opacity')??42)/100,gridWeight:Number(localStorage.getItem('ci-grid-weight')??1.45),gridColor:localStorage.getItem('ci-grid-color')||'#e0e9ec',isrColor:localStorage.getItem('ci-isr-color')||'#dce5e8',isrSymbol:localStorage.getItem('ci-isr-symbol')||'AIRFRAME'};
 const ISR_PATHS={AIRCRAFT:'M0 -19L15 10L5 6L0 18L-5 6L-15 10Z',DIAMOND:'M0 -20L18 0L0 20L-18 0Z',CROSSHAIR:'M-18 -4H-4V-18H4V-4H18V4H4V18H-4V4H-18Z'};
-function applyVisualSettings(){const root=document.documentElement;root.style.setProperty('--ci-grid-color',visualSettings.gridColor);root.style.setProperty('--ci-grid-opacity',String(visualSettings.gridOpacity));root.style.setProperty('--ci-grid-weight',String(visualSettings.gridWeight));document.querySelectorAll('#geometricGrid .geoHex').forEach(h=>{h.style.stroke=visualSettings.gridColor;h.style.strokeOpacity=String(visualSettings.gridOpacity);h.style.strokeWidth=String(visualSettings.gridWeight)});const asset=$('#asset'),sensor=$('#sensor'),label=$('#alabel');if(asset)asset.style.color=visualSettings.isrColor;if(sensor)sensor.style.color=visualSettings.isrColor;if(label)label.style.fill=visualSettings.isrColor;const path=$('#plane path');if(path)path.setAttribute('d',ISR_PATHS[visualSettings.isrSymbol]||ISR_PATHS.AIRCRAFT);const go=$('#gridOpacitySlider'),gov=$('#gridOpacityValue'),gw=$('#gridWeightSlider'),gwv=$('#gridWeightValue'),gc=$('#gridColorSelect'),ic=$('#isrColorSelect'),is=$('#isrSymbolSelect');if(go)go.value=Math.round(visualSettings.gridOpacity*100);if(gov)gov.textContent=Math.round(visualSettings.gridOpacity*100)+'%';if(gw)gw.value=visualSettings.gridWeight;if(gwv)gwv.textContent=visualSettings.gridWeight.toFixed(2);if(gc)gc.value=visualSettings.gridColor;if(ic)ic.value=visualSettings.isrColor;if(is)is.value=visualSettings.isrSymbol}
+/* HANGAR // CENTRAL ASSET CATALOG */
+const CI_ISR_ASSETS=[
+    {
+        key:'STANDARD',
+        designation:'ISR-01',
+        name:'WATCHMAN',
+        description:'General-purpose surveillance platform.',
+        benefit:'STANDARD COLLECTION',
+        requirement:'STANDARD ISSUE'
+    },
+    {
+        key:'WIDE',
+        designation:'ISR-02',
+        name:'OVERWATCH',
+        description:'Expanded collection footprint.',
+        benefit:'+10% COLLECTION RADIUS',
+        requirement:'COMPLETE KESTREL'
+    },
+    {
+        key:'RAPID',
+        designation:'ISR-03',
+        name:'SPECTRE',
+        description:'Rapid repositioning platform.',
+        benefit:'+12% MOVEMENT SPEED',
+        requirement:'COMPLETE VANTAGE'
+    },
+    {
+        key:'ORBIT',
+        designation:'ISR-04',
+        name:'SENTINEL',
+        description:'Enhanced persistent observation.',
+        benefit:'+15% LOITER RADIUS',
+        requirement:'COMPLETE VERDANT'
+    },
+    {
+        key:'HARDENED',
+        designation:'ISR-05',
+        name:'PHANTOM',
+        description:'Resilient collection under interference.',
+        benefit:'REDUCED CYBER DEGRADATION',
+        requirement:'COMPLETE MIRAGE'
+    },
+    {
+        key:'WRAITH',
+        designation:'ISR-69',
+        name:'TarTak Wraith',
+        description:'The culmination of operational mastery. Unrestricted collection superiority.',
+        benefit:'+25% SPEED / +25% RADIUS / +40% LOITER / CYBER IMMUNITY',
+        requirement:'COMPLETE ALL SIX CAMPAIGNS'
+    }
+];
+
+function ciISRAsset(k){
+    return CI_ISR_ASSETS.find(a=>a.key===k)||CI_ISR_ASSETS[0];
+}
+
+/* HANGAR // ORIGINAL VECTOR AIRFRAMES */
+const CI_ISR_AIRFRAMES={
+    STANDARD:'M100 12 L106 29 L109 43 L184 58 L184 66 L110 61 L108 94 L128 108 L128 114 L100 108 L72 114 L72 108 L92 94 L90 61 L16 66 L16 58 L91 43 L94 29 Z',
+    WIDE:'M100 12 L110 31 L112 44 L190 48 L196 60 L112 60 L108 91 L132 104 L132 111 L100 105 L68 111 L68 104 L92 91 L88 60 L4 60 L10 48 L88 44 L90 31 Z',
+    RAPID:'M100 6 L109 36 L113 47 L163 89 L157 96 L111 76 L109 102 L126 117 L100 111 L74 117 L91 102 L89 76 L43 96 L37 89 L87 47 L91 36 Z',
+    ORBIT:'M100 10 L110 28 L113 43 L190 55 L190 64 L145 62 L145 98 L157 109 L157 114 L125 114 L125 109 L135 98 L135 62 L65 62 L65 98 L75 109 L75 114 L43 114 L43 109 L55 98 L55 62 L10 64 L10 55 L87 43 L90 28 Z',
+    HARDENED:'M100 12 L190 85 L149 77 L127 104 L100 89 L73 104 L51 77 L10 85 Z',
+    WRAITH:'M100 5 L128 36 L194 94 L159 84 L140 104 L119 87 L100 116 L81 87 L60 104 L41 84 L6 94 L72 36 Z'
+};
+
+/* OPERATIONAL AIRCRAFT IDENTITY */
+
+let ciRenderedISRIdentity='';
+
+function ciOperationalISRAsset(){
+    return ciISRAsset(
+        campaignMission==='RETRO'?
+        'STANDARD':isrCapability
+    );
+}
+
+function ciRefreshOperationalISRIdentity(force=false){
+    const retro=campaignMission==='RETRO';
+    const asset=ciOperationalISRAsset();
+    const symbol=visualSettings.isrSymbol;
+    const airframe=!retro&&symbol==='AIRFRAME';
+
+    const signature=[
+        retro,
+        asset.key,
+        symbol
+    ].join('|');
+
+    if(!force&&signature===ciRenderedISRIdentity)return;
+
+    const path=$('#plane path');
+    const label=$('#alabel');
+
+    if(!path||!label)return;
+
+    if(airframe){
+        path.setAttribute(
+            'd',
+            CI_ISR_AIRFRAMES[asset.key]||
+            CI_ISR_AIRFRAMES.STANDARD
+        );
+
+        path.setAttribute(
+            'transform',
+            'scale(0.28) translate(-100 -63)'
+        );
+    }else{
+        path.setAttribute(
+            'd',
+            ISR_PATHS[symbol]||ISR_PATHS.AIRCRAFT
+        );
+
+        path.removeAttribute('transform');
+    }
+
+    label.textContent=retro?
+        'ISR-01':
+        asset.designation+' // '+asset.name;
+
+    ciRenderedISRIdentity=signature;
+}
+
+function applyVisualSettings(){const root=document.documentElement;root.style.setProperty('--ci-grid-color',visualSettings.gridColor);root.style.setProperty('--ci-grid-opacity',String(visualSettings.gridOpacity));root.style.setProperty('--ci-grid-weight',String(visualSettings.gridWeight));document.querySelectorAll('#geometricGrid .geoHex').forEach(h=>{h.style.stroke=visualSettings.gridColor;h.style.strokeOpacity=String(visualSettings.gridOpacity);h.style.strokeWidth=String(visualSettings.gridWeight)});const asset=$('#asset'),sensor=$('#sensor'),label=$('#alabel');if(asset)asset.style.color=visualSettings.isrColor;if(sensor)sensor.style.color=visualSettings.isrColor;if(label)label.style.fill=visualSettings.isrColor;ciRefreshOperationalISRIdentity(true);const go=$('#gridOpacitySlider'),gov=$('#gridOpacityValue'),gw=$('#gridWeightSlider'),gwv=$('#gridWeightValue'),gc=$('#gridColorSelect'),ic=$('#isrColorSelect'),is=$('#isrSymbolSelect');if(go)go.value=Math.round(visualSettings.gridOpacity*100);if(gov)gov.textContent=Math.round(visualSettings.gridOpacity*100)+'%';if(gw)gw.value=visualSettings.gridWeight;if(gwv)gwv.textContent=visualSettings.gridWeight.toFixed(2);if(gc)gc.value=visualSettings.gridColor;if(ic)ic.value=visualSettings.isrColor;if(is)is.value=visualSettings.isrSymbol}
 function saveVisualSetting(k,v){if(k==='gridOpacity'){visualSettings[k]=Number(v)/100;localStorage.setItem('ci-grid-opacity',String(Math.round(Number(v))))}else if(k==='gridWeight'){visualSettings[k]=Number(v);localStorage.setItem('ci-grid-weight',String(v))}else{visualSettings[k]=v;localStorage.setItem(k==='gridColor'?'ci-grid-color':k==='isrColor'?'ci-isr-color':'ci-isr-symbol',v)}applyVisualSettings()}
 function makeNoiseBuffer(){if(!audioCtx)return null;const len=Math.max(1,Math.floor(audioCtx.sampleRate*2)),b=audioCtx.createBuffer(1,len,audioCtx.sampleRate),d=b.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1);return b}
 function audioUnlock(){if(!audioEnabled)return;try{if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();if(!ciSynthMasterGain){ciSynthMasterGain=audioCtx.createGain();ciSynthMasterGain.gain.value=masterMuted?0:1;ciSynthMasterGain.connect(audioCtx.destination)}if(audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});audioReady=true;ciMusicUnlocked=true;if(!musicNoiseBuffer)musicNoiseBuffer=makeNoiseBuffer();musicSetMode((running&&!window.CP_MENU)?'mission':'menu');ciMusicRecover('user-gesture')}catch(e){rec('AUDIO_FAIL',String(e));audioEnabled=false}}
@@ -809,9 +934,19 @@ function cpCyberActive(){return campaignMission==='ARCADE'&&cyberDegradedUntil>p
 function cpCyberPulse(t){const layer=$('#decisionFeedback');if(!layer||!t)return;const p=document.createElementNS(NS,'circle');p.setAttribute('class','cyber-compromise-pulse');p.setAttribute('cx',t.x);p.setAttribute('cy',t.y);p.setAttribute('r','18');layer.appendChild(p);setTimeout(()=>p.remove(),1100)}
 function cpCyberTrigger(t){
  if(campaignMission!=='ARCADE'||!t)return;
+ normalizeISRCapability();
+ if(isrCapability==='WRAITH'){
+    cpNotice('CYBER/EW ATTACK DEFEATED','SYSTEM INTEGRITY MAINTAINED // NO DEGRADATION','friendly');
+    log('ISR-69 // TarTak Wraith // CYBER/EW ATTACK DEFEATED');
+    return;
+ }
  if(cpCyberActive()){cpNotice('CYBER/EW SIGNATURE','THREAT NODE EXPOSED // SYSTEM DEGRADATION ALREADY ACTIVE','intel');return;}
  sound('cyberAttack');
- cyberDegradedUntil=performance.now()+10000;cyberRecoverNotice=true;cyberNextGlitch=0;document.body.classList.add('cyber-compromised');cpCyberPulse(t);cpCyberGlitchBurst(true);setTimeout(()=>cpCyberActive()&&cpCyberGlitchBurst(true),110);setTimeout(()=>cpCyberActive()&&cpCyberGlitchBurst(true),260);banner('CYBER/EW COMPROMISE',1400);cpNotice('COLLECTION SYSTEM COMPROMISED','ISR SYSTEMS // DEGRADED // 10 SEC','hostile');log('CYBER/EW COMPROMISE // ISR RADIUS -40% // COLLECTION -50% // MOVEMENT -20%');
+ cyberDegradedUntil=performance.now()+10000;cyberRecoverNotice=true;cyberNextGlitch=0;document.body.classList.add('cyber-compromised');cpCyberPulse(t);cpCyberGlitchBurst(true);setTimeout(()=>cpCyberActive()&&cpCyberGlitchBurst(true),110);setTimeout(()=>cpCyberActive()&&cpCyberGlitchBurst(true),260);banner('CYBER/EW COMPROMISE',1400);cpNotice('COLLECTION SYSTEM COMPROMISED','ISR SYSTEMS // DEGRADED // 10 SEC','hostile');if(isrCapability==='HARDENED'){
+    log('CYBER/EW COMPROMISE // ISR RADIUS -25% // COLLECTION -50% // MOVEMENT -10%');
+}else{
+    log('CYBER/EW COMPROMISE // ISR RADIUS -40% // COLLECTION -50% // MOVEMENT -20%');
+}
 }
 function cpCyberClear(reason='ISR SYSTEMS // RESTORED'){
  const was=cyberDegradedUntil>0;cyberDegradedUntil=0;cyberRecoverNotice=false;cyberNextGlitch=0;document.body.classList.remove('cyber-compromised');document.querySelectorAll('.cyber-glitch-fragment').forEach(n=>n.remove());if(was){cpNotice('CYBER/EW RECOVERY',reason,'friendly');log('CYBER/EW // '+reason)}
@@ -1195,7 +1330,7 @@ function cpRefreshStatusColors(){
  cpStatusClass($('#integrity'),integrityState);cpStatusClass($('#objIntegrity'),integrityState);
  cpStatusClass($('#comp'),oeState);cpStatusClass($('#objCompromise'),oeState);
 }
-function displayMode(mode){return String(mode||'STANDBY').replaceAll('_',' ')}function ui(force=false){document.body.classList.toggle('arcade-ui',campaignMission==='ARCADE'||campaignMission==='RETRO');document.body.classList.toggle('verdant-timeless-ui',/^03-0[1-5]$/.test(campaignMission||''));let now=performance.now();if(!force&&now-lastUi<200)return;lastUi=now;const cpVerdantUiValues=/^03-0[1-5]$/.test(campaignMission||'')?verdantMissionValues():null;let p=parms(),c=(cpThreatMission()?campaignCompromise:compromise()),n=/^04-0[1-5]$/.test(campaignMission||'')?mirageTraffic.filter(t=>t.type==='UNKNOWN'&&Math.hypot(A.x-t.x,A.y-t.y)<=cpEffectiveISRRadius()).length:T.filter(t=>!t.done&&t.type==='UNKNOWN'&&cpMapRadialDistance(A,t)<=cpEffectiveISRRadius()).length;$('#stateLine').textContent=A.controlSelected?'ISR CONTROL // SELECT DESTINATION':'ISR // '+displayMode(A.mode);$('#rangeLine').textContent='SENSOR // '+n+' UNKNOWN IN RANGE';$('#score').textContent=String(Math.max(0,Math.round(score))).padStart(4,'0');$('#integrity').textContent=Math.round(integrity)+'%';$('#comp').textContent=Math.round(c)+'%';const compCard=$('#comp')?.closest('.op-status-item');if(compCard)compCard.style.display=((activeOA==='VERDANT'&&/^03-/.test(campaignMission||''))||(activeOA==='MIRAGE'&&/^04-/.test(campaignMission||'')))?'none':'';const cm=$('#compMeter'),im=$('#integrityMeter');if(cm){cm.style.width=Math.min(100,Math.max(0,c))+'%';cm.className=c>=50?'danger':c>=30?'warn':''}if(im){im.style.width=Math.min(100,Math.max(0,integrity))+'%';im.className=integrity<40?'danger':integrity<80?'warn':''}$('#compTop').textContent=Math.round(c)+'%';$('#resolved').textContent=resolved;$('#ints').textContent=ints;
+function displayMode(mode){return String(mode||'STANDBY').replaceAll('_',' ')}function ui(force=false){document.body.classList.toggle('arcade-ui',campaignMission==='ARCADE'||campaignMission==='RETRO');document.body.classList.toggle('verdant-timeless-ui',/^03-0[1-5]$/.test(campaignMission||''));let now=performance.now();if(!force&&now-lastUi<200)return;lastUi=now;const cpVerdantUiValues=/^03-0[1-5]$/.test(campaignMission||'')?verdantMissionValues():null;let p=parms(),c=(cpThreatMission()?campaignCompromise:compromise()),n=/^04-0[1-5]$/.test(campaignMission||'')?mirageTraffic.filter(t=>t.type==='UNKNOWN'&&Math.hypot(A.x-t.x,A.y-t.y)<=cpEffectiveISRRadius()).length:T.filter(t=>!t.done&&t.type==='UNKNOWN'&&cpMapRadialDistance(A,t)<=cpEffectiveISRRadius()).length;$('#stateLine').textContent=campaignMission==='RETRO'?(A.controlSelected?'ISR CONTROL // SELECT DESTINATION':'ISR // '+displayMode(A.mode)):(ciOperationalISRAsset().designation+' // '+ciOperationalISRAsset().name+' // '+(A.controlSelected?'SELECT DESTINATION':displayMode(A.mode)));$('#rangeLine').textContent='SENSOR // '+n+' UNKNOWN IN RANGE';$('#score').textContent=String(Math.max(0,Math.round(score))).padStart(4,'0');$('#integrity').textContent=Math.round(integrity)+'%';$('#comp').textContent=Math.round(c)+'%';const compCard=$('#comp')?.closest('.op-status-item');if(compCard)compCard.style.display=((activeOA==='VERDANT'&&/^03-/.test(campaignMission||''))||(activeOA==='MIRAGE'&&/^04-/.test(campaignMission||'')))?'none':'';const cm=$('#compMeter'),im=$('#integrityMeter');if(cm){cm.style.width=Math.min(100,Math.max(0,c))+'%';cm.className=c>=50?'danger':c>=30?'warn':''}if(im){im.style.width=Math.min(100,Math.max(0,integrity))+'%';im.className=integrity<40?'danger':integrity<80?'warn':''}$('#compTop').textContent=Math.round(c)+'%';$('#resolved').textContent=resolved;$('#ints').textContent=ints;
 let or=$('#objResolved'),oi=$('#objInterrupted'),og=$('#objIntegrity'),oc=$('#objCompromise'),ot=$('#objectiveTracker'),
     ott=$('#objectiveTitle'),osl=$('#objectiveSecondaryLabel'),osc=$('#objectiveSecondaryChip'),otc=$('#objectiveThirdChip'),otl=$('#objectiveThirdLabel'),oec=$('#objectiveOEChip');
 if(ot)ot.style.display=usesObjectiveTracker()?'flex':'none';cpTempestObjectiveExtra();cpPolarisObjectiveExtra();
@@ -1230,7 +1365,7 @@ if(campaignMission&&or){
  let od=$('#objDegraded');if(od)od.textContent=cpDegradedCount()+' / 5 // FLOOR '+cpCompromiseFloor()+'%';
  cpRefreshStatusColors();
 }
-B.forEach(cpRenderBlueSite);$('#active').textContent=/^04-0[1-5]$/.test(campaignMission||'')?mirageTraffic.length:T.filter(t=>!t.done).length;$('#cap').textContent=/^04-0[1-5]$/.test(campaignMission||'')?mirageTraffic.length:p.cap;$('#isrTop').textContent=displayMode(A.mode);let mb=$('#isrModeBadge');mb.textContent=A.controlSelected?'ISR // CONTROL ACTIVE // SELECT DESTINATION':A.mode==='ENROUTE'?'ISR // ENROUTE':A.mode==='LOITER_ENTRY'?'ISR // ESTABLISHING LOITER':A.mode==='LOITER_EXIT'?'ISR // DEPARTING LOITER':A.mode==='LOITER'?'ISR // LOITERING':A.mode==='ON_STATION'?'ISR // ON STATION':'ISR // STANDBY';mb.classList.toggle('active',A.controlSelected);const sitePanel=$('#sites');if(sitePanel)sitePanel.innerHTML='';const pp=$('#passiveIsrPanel'),pb=$('#passiveDeploy'),it=$('#isrTask');if(pp){pp.classList.remove('hidden');pp.classList.toggle('passive-unavailable',!passiveEnabled())}if(it){it.textContent=A.controlSelected?'CANCEL ISR TASKING':(A.mode==='ON_STATION'||A.mode==='IDLE'?'TASK ISR':'RETASK ISR');it.classList.toggle('deploying',A.controlSelected)}if(passiveEnabled()){const pc=$('#passiveCredits'),pn=$('#passiveCount'),ph=$('#passiveHint');if(pc)pc.textContent=passiveCredits;if(pn)pn.textContent=passiveNodes.length+' / '+PASSIVE_MAX;if(pb){const cost=passiveCost(),maxed=passiveNodes.length>=PASSIVE_MAX;pb.textContent=maxed?'NODE LIMIT // 9 / 9':(passiveDeployMode?'CANCEL DEPLOYMENT':'DEPLOY NODE // '+cost);pb.disabled=!running||(campaignMission==='TUTORIAL'&&!(tutorialStep===6||tutorialStep===7))||(!passiveDeployMode&&(maxed||passiveCredits<cost));pb.classList.toggle('deploying',passiveDeployMode)}if(ph)ph.textContent=ewoTargetMode?'EWO TARGETING // SELECT SWEEP ORIGIN':passiveDeployMode?'SELECT A POINT ON THE MAP // NODE FOOTPRINT '+PASSIVE_RADIUS:'Correct +10 // interrupt +10 // NAI: 3 nodes / 4 hex max // SUPPLY '+supplyPackages+'/1';const su=$('#supplyUse');if(su){su.textContent=supplyRepairMode?'CANCEL SUPPLY TARGETING':'SUPPLY // '+supplyPackages+' / 1'+(supplyPackages?' // READY':'');su.disabled=!running||supplyPackages<1||(campaignMission==='TUTORIAL'&&tutorialStep<9);}const ew=$('#ewoSweep');if(ew){ew.textContent=ewoTargetMode?'CANCEL EWO TARGETING':'EWO SWEEP // '+EWO_COST+' // BUY';ew.disabled=!running||(campaignMission==='TUTORIAL'&&tutorialStep!==8)||(!ewoTargetMode&&(passiveCredits<EWO_COST||!T.some(t=>!t.done&&t.type==='UNKNOWN')))}}detail()}function geometry(){let now=performance.now();if(running&&A.mode==='ENROUTE'&&valid(A.dest)&&now-A.lastMove>700&&!stallLogged){stallLogged=true;log('ISR MONITOR // STALL DETECTED')}{const k=activeOA==='VERDANT'?cpVerdantSymbolAspect():1;const sensorR=cpEffectiveISRRadius();$('#sf').setAttribute('r',sensorR);$('#sr').setAttribute('r',sensorR);$('#sensor').setAttribute('transform',`translate(${A.x} ${A.y}) scale(${k} 1)`);$('#asset').setAttribute('transform',`translate(${A.x} ${A.y}) scale(${k} 1)`);}$('#plane').setAttribute('transform',`rotate(${A.heading})`);$('#halo').setAttribute('stroke-opacity',A.controlSelected?'.8':'0');$('#alabel').setAttribute('x',A.x+31);$('#alabel').setAttribute('y',A.y+5);if(valid(A.dest)){ $('#wp').setAttribute('visibility','visible');$('#route').setAttribute('x1',A.x);$('#route').setAttribute('y1',A.y);$('#route').setAttribute('x2',A.dest.x);$('#route').setAttribute('y2',A.dest.y);$('#dest').setAttribute('cx',A.dest.x);$('#dest').setAttribute('cy',A.dest.y)}else $('#wp').setAttribute('visibility','hidden');if(col){$('#beam').setAttribute('visibility','visible');$('#beamLine').setAttribute('x1',A.x);$('#beamLine').setAttribute('y1',A.y);$('#beamLine').setAttribute('x2',col.x);$('#beamLine').setAttribute('y2',col.y)}else $('#beam').setAttribute('visibility','hidden');T.forEach(draw)}function diagnostic(now){if(now-lastDiag<100)return;lastDiag=now;let age=Math.round(now-A.lastMove),stall=running&&A.mode==='ENROUTE'&&valid(A.dest)&&age>700;
+B.forEach(cpRenderBlueSite);$('#active').textContent=/^04-0[1-5]$/.test(campaignMission||'')?mirageTraffic.length:T.filter(t=>!t.done).length;$('#cap').textContent=/^04-0[1-5]$/.test(campaignMission||'')?mirageTraffic.length:p.cap;$('#isrTop').textContent=displayMode(A.mode);let mb=$('#isrModeBadge');mb.textContent=A.controlSelected?'ISR // CONTROL ACTIVE // SELECT DESTINATION':A.mode==='ENROUTE'?'ISR // ENROUTE':A.mode==='LOITER_ENTRY'?'ISR // ESTABLISHING LOITER':A.mode==='LOITER_EXIT'?'ISR // DEPARTING LOITER':A.mode==='LOITER'?'ISR // LOITERING':A.mode==='ON_STATION'?'ISR // ON STATION':'ISR // STANDBY';mb.classList.toggle('active',A.controlSelected);const sitePanel=$('#sites');if(sitePanel)sitePanel.innerHTML='';const pp=$('#passiveIsrPanel'),pb=$('#passiveDeploy'),it=$('#isrTask');if(pp){pp.classList.remove('hidden');pp.classList.toggle('passive-unavailable',!passiveEnabled())}if(it){it.textContent=A.controlSelected?'CANCEL ISR TASKING':(A.mode==='ON_STATION'||A.mode==='IDLE'?'TASK ISR':'RETASK ISR');it.classList.toggle('deploying',A.controlSelected)}if(passiveEnabled()){const pc=$('#passiveCredits'),pn=$('#passiveCount'),ph=$('#passiveHint');if(pc)pc.textContent=passiveCredits;if(pn)pn.textContent=passiveNodes.length+' / '+PASSIVE_MAX;if(pb){const cost=passiveCost(),maxed=passiveNodes.length>=PASSIVE_MAX;pb.textContent=maxed?'NODE LIMIT // 9 / 9':(passiveDeployMode?'CANCEL DEPLOYMENT':'DEPLOY NODE // '+cost);pb.disabled=!running||(campaignMission==='TUTORIAL'&&!(tutorialStep===6||tutorialStep===7))||(!passiveDeployMode&&(maxed||passiveCredits<cost));pb.classList.toggle('deploying',passiveDeployMode)}if(ph)ph.textContent=ewoTargetMode?'EWO TARGETING // SELECT SWEEP ORIGIN':passiveDeployMode?'SELECT A POINT ON THE MAP // NODE FOOTPRINT '+PASSIVE_RADIUS:'Correct +10 // interrupt +10 // NAI: 3 nodes / 4 hex max // SUPPLY '+supplyPackages+'/1';const su=$('#supplyUse');if(su){su.textContent=supplyRepairMode?'CANCEL SUPPLY TARGETING':'SUPPLY // '+supplyPackages+' / 1'+(supplyPackages?' // READY':'');su.disabled=!running||supplyPackages<1||(campaignMission==='TUTORIAL'&&tutorialStep<9);}const ew=$('#ewoSweep');if(ew){ew.textContent=ewoTargetMode?'CANCEL EWO TARGETING':'EWO SWEEP // '+EWO_COST+' // BUY';ew.disabled=!running||(campaignMission==='TUTORIAL'&&tutorialStep!==8)||(!ewoTargetMode&&(passiveCredits<EWO_COST||!T.some(t=>!t.done&&t.type==='UNKNOWN')))}}detail()}function geometry(){let now=performance.now();if(running&&A.mode==='ENROUTE'&&valid(A.dest)&&now-A.lastMove>700&&!stallLogged){stallLogged=true;log('ISR MONITOR // STALL DETECTED')}{const k=activeOA==='VERDANT'?cpVerdantSymbolAspect():1;const sensorR=cpEffectiveISRRadius();$('#sf').setAttribute('r',sensorR);$('#sr').setAttribute('r',sensorR);$('#sensor').setAttribute('transform',`translate(${A.x} ${A.y}) scale(${k} 1)`);$('#asset').setAttribute('transform',`translate(${A.x} ${A.y}) scale(${k} 1)`);}ciRefreshOperationalISRIdentity();$('#plane').setAttribute('transform',`rotate(${A.heading})`);$('#halo').setAttribute('stroke-opacity',A.controlSelected?'.8':'0');$('#alabel').setAttribute('x',A.x+31);$('#alabel').setAttribute('y',A.y+5);if(valid(A.dest)){ $('#wp').setAttribute('visibility','visible');$('#route').setAttribute('x1',A.x);$('#route').setAttribute('y1',A.y);$('#route').setAttribute('x2',A.dest.x);$('#route').setAttribute('y2',A.dest.y);$('#dest').setAttribute('cx',A.dest.x);$('#dest').setAttribute('cy',A.dest.y)}else $('#wp').setAttribute('visibility','hidden');if(col){$('#beam').setAttribute('visibility','visible');$('#beamLine').setAttribute('x1',A.x);$('#beamLine').setAttribute('y1',A.y);$('#beamLine').setAttribute('x2',col.x);$('#beamLine').setAttribute('y2',col.y)}else $('#beam').setAttribute('visibility','hidden');T.forEach(draw)}function diagnostic(now){if(now-lastDiag<100)return;lastDiag=now;let age=Math.round(now-A.lastMove),stall=running&&A.mode==='ENROUTE'&&valid(A.dest)&&age>700;
 if(stall&&!stallLogged){
  stallLogged=true;
  rec('STALL',`mode=${A.mode} pos=${A.x.toFixed(2)},${A.y.toFixed(2)} dest=${A.dest.x.toFixed(2)},${A.dest.y.toFixed(2)} age=${age} gap=${C.maxGap.toFixed(1)}`);
@@ -2467,8 +2602,8 @@ function cpFinishCampaign02(pass){if(campaignFinished)return;campaignMenuOA='VAN
 function tutorialGuide(step,title,text,button=false){tutorialStep=step;if(campaignMission==='TUTORIAL'&&(step===2||step===3||step===4)&&!T.some(t=>!t.done)){spawn(false);const q=T[T.length-1];if(q){q.truth='FRIENDLY';q.type='UNKNOWN';q.x=430;q.y=315;q.vx=.25;q.vy=.1}}const g=$('#tutorialGuide');const map=$('#mapWrap');if(map&&g.parentElement!==map)map.appendChild(g);map?.classList.toggle("training-intel-report",step===5);g.dataset.trainingStep=String(step);g.classList.remove('hidden');$('#tutorialTitle').textContent=title;$('#tutorialText').textContent=text;const kicker=g.querySelector('.tutorial-kicker');if(kicker)kicker.textContent=step>=12?'TRAINING // COMPLETE':'TRAINING // STEP '+step+' OF 12';const n=$('#tutorialNext');n.textContent=step>=12?'RETURN TO MENU':'CONTINUE';n.classList.toggle('hidden',!button);tutorialSetHighlights(step)}
 function tutorialMenu(){window.CP_MENU=true;clearTutorialState();$('#mainMenu').classList.add('hidden');$('#tutorialBriefing').classList.remove('hidden')}
 function tutorialBegin(){missionTransition('TRAINING // OA KESTREL','FULL SYSTEMS WALKTHROUGH',tutorialBeginNow)}
-function tutorialBeginNow(){musicSetMode('mission');campaignMenuOA='KESTREL';cpSetOAVisual('KESTREL');campaignMission='TUTORIAL';campaignFinished=false;campaignCompromise=0;$('#phase').textContent='TRAINING // SYSTEMS';cpHideCampaignOverlays();$('#tutorialBriefing').classList.add('hidden');window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();setTimeout(()=>{if(campaignMission!=='TUTORIAL')return;trainingPrime();tutorialGuide(1,'1 // ACQUIRE ISR-01','Tap ISR-01 to begin.')},2100)}
-function tutorialAdvance(event){if(campaignMission!=='TUTORIAL')return;if(tutorialStep===1&&event==='acquire'){tutorialGuide(2,'2 // MOVE ISR-01','Order ISR-01 near the UNKNOWN. Move it inside the sensor ring.');spawn(true);const guided=T[T.length-1];if(guided){guided.x=315;guided.y=510;guided.vx=0;guided.vy=0;guided.stationary=true;guided.truth='FRIENDLY';}}else if(tutorialStep===2&&event==='order')tutorialGuide(3,'3 // COLLECT','Select the UNKNOWN, then tap COLLECT.');else if(tutorialStep===3&&event==='classified')tutorialGuide(4,'4 // DISPOSITION','FRIENDLY: CLEAR. HOSTILE: INTERCEPT.');else if(tutorialStep===4&&event==='decision'){intelDropActive=true;intelDropOffered=true;intelDropExpires=performance.now()+3600000;$('#intelDrop').classList.remove('hidden');tutorialGuide(5,'5 // INTEL REPORTING','Select MITIGATE, EXPLOIT and SUPPLY once each.');}else if(tutorialStep===5&&event==='intel'){if(tutorialIntelSeen.size<3){intelDropActive=true;intelDropExpires=performance.now()+3600000;$('#intelDrop').classList.remove('hidden');tutorialGuide(5,'5 // INTEL REPORTING',`Reports used ${tutorialIntelSeen.size}/3. Select each remaining option.`);}else{intelDropActive=false;$('#intelDrop').classList.add('hidden');passiveCredits=9999;tutorialGuide(6,'6 // PASSIVE ISR','Deploy a Passive ISR node, then place it on the map.');ui(true)}}else if(tutorialStep===6&&event==='passive'){tutorialGuide(7,'7 // BUILD AN NAI','Place two more nearby. Three nodes within four hexes form an NAI.');}else if(tutorialStep===7&&event==='nai'){for(const pos of [[760,500],[720,155],[190,520]]){spawn(false);const q=T[T.length-1];if(q){q.type='UNKNOWN';q.truth='HOSTILE';q.x=pos[0];q.y=pos[1];q.vx=0;q.vy=0;}}tutorialGuide(8,'8 // EWO SWEEP','Buy EWO. Select a map point to launch the sweep; three UNKNOWNs are ready.');ui(true);}else if(tutorialStep===8&&event==='ewo'){supplyPackages=1;trainingPrime();tutorialGuide(9,'9 // BLUFOR SUPPLY','Activate SUPPLY and select a red BLUFOR site.');ui(true)}else if(tutorialStep===9&&event==='supply-target'){tutorialGuide(10,'10 // RECONSTITUTION','Wait for exposure to fall and the site to return blue.');}else if(tutorialStep===10&&event==='repair-complete'){tutorialGuide(11,'11 // SUPPORT ECONOMY','Earn credits with correct decisions and interrupted collection. Buy EWO as needed.',true)} }
+function tutorialBeginNow(){musicSetMode('mission');campaignMenuOA='KESTREL';cpSetOAVisual('KESTREL');campaignMission='TUTORIAL';campaignFinished=false;campaignCompromise=0;$('#phase').textContent='TRAINING // SYSTEMS';cpHideCampaignOverlays();$('#tutorialBriefing').classList.add('hidden');window.CP_MENU=false;window.CP_PAUSED=false;$('#startScreen').style.display='none';deploy();setTimeout(()=>{if(campaignMission!=='TUTORIAL')return;trainingPrime();tutorialGuide(1,'1 // ACQUIRE '+ciOperationalISRAsset().designation,'Tap '+ciOperationalISRAsset().designation+' to begin.')},2100)}
+function tutorialAdvance(event){if(campaignMission!=='TUTORIAL')return;if(tutorialStep===1&&event==='acquire'){tutorialGuide(2,'2 // MOVE '+ciOperationalISRAsset().designation,'Order '+ciOperationalISRAsset().designation+' near the UNKNOWN. Move it inside the sensor ring.');spawn(true);const guided=T[T.length-1];if(guided){guided.x=315;guided.y=510;guided.vx=0;guided.vy=0;guided.stationary=true;guided.truth='FRIENDLY';}}else if(tutorialStep===2&&event==='order')tutorialGuide(3,'3 // COLLECT','Select the UNKNOWN, then tap COLLECT.');else if(tutorialStep===3&&event==='classified')tutorialGuide(4,'4 // DISPOSITION','FRIENDLY: CLEAR. HOSTILE: INTERCEPT.');else if(tutorialStep===4&&event==='decision'){intelDropActive=true;intelDropOffered=true;intelDropExpires=performance.now()+3600000;$('#intelDrop').classList.remove('hidden');tutorialGuide(5,'5 // INTEL REPORTING','Select MITIGATE, EXPLOIT and SUPPLY once each.');}else if(tutorialStep===5&&event==='intel'){if(tutorialIntelSeen.size<3){intelDropActive=true;intelDropExpires=performance.now()+3600000;$('#intelDrop').classList.remove('hidden');tutorialGuide(5,'5 // INTEL REPORTING',`Reports used ${tutorialIntelSeen.size}/3. Select each remaining option.`);}else{intelDropActive=false;$('#intelDrop').classList.add('hidden');passiveCredits=9999;tutorialGuide(6,'6 // PASSIVE ISR','Deploy a Passive ISR node, then place it on the map.');ui(true)}}else if(tutorialStep===6&&event==='passive'){tutorialGuide(7,'7 // BUILD AN NAI','Place two more nearby. Three nodes within four hexes form an NAI.');}else if(tutorialStep===7&&event==='nai'){for(const pos of [[760,500],[720,155],[190,520]]){spawn(false);const q=T[T.length-1];if(q){q.type='UNKNOWN';q.truth='HOSTILE';q.x=pos[0];q.y=pos[1];q.vx=0;q.vy=0;}}tutorialGuide(8,'8 // EWO SWEEP','Buy EWO. Select a map point to launch the sweep; three UNKNOWNs are ready.');ui(true);}else if(tutorialStep===8&&event==='ewo'){supplyPackages=1;trainingPrime();tutorialGuide(9,'9 // BLUFOR SUPPLY','Activate SUPPLY and select a red BLUFOR site.');ui(true)}else if(tutorialStep===9&&event==='supply-target'){tutorialGuide(10,'10 // RECONSTITUTION','Wait for exposure to fall and the site to return blue.');}else if(tutorialStep===10&&event==='repair-complete'){tutorialGuide(11,'11 // SUPPORT ECONOMY','Earn credits with correct decisions and interrupted collection. Buy EWO as needed.',true)} }
 function tutorialSupportNext(){if(campaignMission!=='TUTORIAL')return;if(tutorialStep===11){tutorialGuide(12,'TRAINING COMPLETE','Core command, collection and support training complete.',true)}else if(tutorialStep>=12){clearTutorialState();cpShowMenu()}}
 function arcadeHide(){const a=$('#arcadeBriefing'),r=$('#arcadeResult');if(a)a.classList.add('hidden');if(r)r.classList.add('hidden')}
 function arcadeOAAllowed(){
@@ -2560,7 +2695,7 @@ function ciMigrateHangarNoticeState(state){
     return state;
 }
 
-function progressionNoticeState(){
+function progressionNoticeState(reconcile=true){
  let state;
  try{state=JSON.parse(localStorage.getItem(PROGRESSION_NOTICE_KEY)||'null')}catch(e){}
  if(!state||!Array.isArray(state.seen)||!Array.isArray(state.unread)){
@@ -2568,11 +2703,31 @@ function progressionNoticeState(){
   try{legacy=JSON.parse(localStorage.getItem(PROGRESSION_NOTICE_LEGACY_KEY)||'null')}catch(e){}
   const seen=Array.isArray(legacy?.seen)?legacy.seen:[];
   const unread=Array.isArray(legacy?.unread)?legacy.unread:[];
-  state={seen:[...new Set([...seen,...progressionSnapshot()])],unread:[...new Set(unread)]};
+  const wraith='hangar:ISR-69 // TarTak Wraith';
+  const snapshot=progressionSnapshot();
+  const retroactiveWraith=snapshot.includes(wraith)&&!seen.includes(wraith);
+  state={
+   seen:[...new Set([...seen,...snapshot])],
+   unread:[...new Set([
+    ...unread,
+    ...(retroactiveWraith?[wraith]:[])
+   ])]
+  };
   if(!devProgressionSimulationActive()&&!devProgressionBypassActive())localStorage.setItem(PROGRESSION_NOTICE_KEY,JSON.stringify(state));
  }
   const before=JSON.stringify(state);
  ciMigrateHangarNoticeState(state);
+
+ // Reconcile newly introduced aircraft for existing players.
+ const wraithReward='hangar:ISR-69 // TarTak Wraith';
+
+ if(reconcile&&!devAccessActive()&&ciISRCapabilityEarned('WRAITH')&&!state.seen.includes(wraithReward)){
+    state.seen.push(wraithReward);
+
+    if(!state.unread.includes(wraithReward)){
+        state.unread.push(wraithReward);
+    }
+ }
 
  if(before!==JSON.stringify(state)&&!devAccessActive()){
     localStorage.setItem(
@@ -2750,7 +2905,7 @@ function progressionShowNextAnnouncement(){
 }
 function progressionCollectUnlocks(){
     if(devProgressionSimulationActive()||devProgressionBypassActive())return [];
-    const state=progressionNoticeState();
+    const state=progressionNoticeState(false);
     const current=progressionSnapshot();
     const added=current.filter(k=>!state.seen.includes(k));
     if(!added.length)return [];
@@ -2805,72 +2960,6 @@ function setISRCapability(k){
     sound('click');
 }
 function rotateCommandBackground(){const maps=["url('assets/maps/oa-kestrel-overscan.png')","url('assets/maps/oa-vantage-overscan.png')","url('assets/maps/oa-verdant-overscan.png')","url('assets/maps/oa-mirage-overscan.png')","url('assets/maps/oa-tempest-overscan.png')"];const raw=sessionStorage.getItem('ci-command-bg-index');let last=raw===null?-1:Number(raw),next;if(last<0||!Number.isFinite(last))next=Math.floor(Math.random()*maps.length);else if(maps.length>1){const choices=maps.map((_,i)=>i).filter(i=>i!==last);next=choices[Math.floor(Math.random()*choices.length)]}else next=0;sessionStorage.setItem('ci-command-bg-index',String(next));const home=document.getElementById('mainMenu');if(home)home.style.setProperty('--ci-command-bg',maps[next]);document.documentElement.style.setProperty('--ci-command-bg',maps[next])}
-/* HANGAR // CENTRAL ASSET CATALOG */
-const CI_ISR_ASSETS=[
-    {
-        key:'STANDARD',
-        designation:'ISR-01',
-        name:'WATCHMAN',
-        description:'General-purpose surveillance platform.',
-        benefit:'STANDARD COLLECTION',
-        requirement:'STANDARD ISSUE'
-    },
-    {
-        key:'WIDE',
-        designation:'ISR-02',
-        name:'OVERWATCH',
-        description:'Expanded collection footprint.',
-        benefit:'+10% COLLECTION RADIUS',
-        requirement:'COMPLETE KESTREL'
-    },
-    {
-        key:'RAPID',
-        designation:'ISR-03',
-        name:'SPECTRE',
-        description:'Rapid repositioning platform.',
-        benefit:'+12% MOVEMENT SPEED',
-        requirement:'COMPLETE VANTAGE'
-    },
-    {
-        key:'ORBIT',
-        designation:'ISR-04',
-        name:'SENTINEL',
-        description:'Enhanced persistent observation.',
-        benefit:'+15% LOITER RADIUS',
-        requirement:'COMPLETE VERDANT'
-    },
-    {
-        key:'HARDENED',
-        designation:'ISR-05',
-        name:'PHANTOM',
-        description:'Resilient collection under interference.',
-        benefit:'REDUCED CYBER DEGRADATION',
-        requirement:'COMPLETE MIRAGE'
-    },
-    {
-        key:'WRAITH',
-        designation:'ISR-69',
-        name:'TarTak Wraith',
-        description:'The culmination of operational mastery. Unrestricted collection superiority.',
-        benefit:'+25% SPEED / +25% RADIUS / +40% LOITER / CYBER IMMUNITY',
-        requirement:'COMPLETE ALL SIX CAMPAIGNS'
-    }
-];
-
-function ciISRAsset(k){
-    return CI_ISR_ASSETS.find(a=>a.key===k)||CI_ISR_ASSETS[0];
-}
-
-/* HANGAR // ORIGINAL VECTOR AIRFRAMES */
-const CI_ISR_AIRFRAMES={
-    STANDARD:'M100 12 L106 29 L109 43 L184 58 L184 66 L110 61 L108 94 L128 108 L128 114 L100 108 L72 114 L72 108 L92 94 L90 61 L16 66 L16 58 L91 43 L94 29 Z',
-    WIDE:'M100 12 L110 31 L112 44 L190 48 L196 60 L112 60 L108 91 L132 104 L132 111 L100 105 L68 111 L68 104 L92 91 L88 60 L4 60 L10 48 L88 44 L90 31 Z',
-    RAPID:'M100 6 L109 36 L113 47 L163 89 L157 96 L111 76 L109 102 L126 117 L100 111 L74 117 L91 102 L89 76 L43 96 L37 89 L87 47 L91 36 Z',
-    ORBIT:'M100 10 L110 28 L113 43 L190 55 L190 64 L145 62 L145 98 L157 109 L157 114 L125 114 L125 109 L135 98 L135 62 L65 62 L65 98 L75 109 L75 114 L43 114 L43 109 L55 98 L55 62 L10 64 L10 55 L87 43 L90 28 Z',
-    HARDENED:'M100 12 L190 85 L149 77 L127 104 L100 89 L73 104 L51 77 L10 85 Z',
-    WRAITH:'M100 5 L128 36 L194 94 L159 84 L140 104 L119 87 L100 116 L81 87 L60 104 L41 84 L6 94 L72 36 Z'
-};
-
 function ciCreateHangarArtwork(key,unlocked){
     const ns='http://www.w3.org/2000/svg';
 
