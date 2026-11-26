@@ -5025,3 +5025,105 @@ body.verdant-timeless-ui #app>header .clock .verdant-road-counter-label{display:
     display:none!important;
 }
 /* End CI 147-001 */
+/* CI 147-002: Command Profile Hangar layout parity */
+
+#commandProfileMenu .command-profile-panel {
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    box-sizing:border-box!important;
+    width:min(680px,86vw)!important;
+    max-width:680px!important;
+    height:calc(100dvh - 16px)!important;
+    max-height:calc(100dvh - 16px)!important;
+    min-height:0!important;
+    padding:8px 12px!important;
+    overflow:hidden!important;
+}
+
+#commandProfileMenu .command-profile-panel > .menu-kicker,
+#commandProfileMenu .command-profile-panel > .menu-title,
+#commandProfileMenu .command-profile-panel > .ci-profile-tabs,
+#commandProfileMenu #commandProfileBack,
+#commandProfileMenu .command-profile-panel > .menu-version {
+    flex:0 0 auto!important;
+}
+
+#commandProfileMenu .command-profile-panel > .menu-kicker {
+    font-size:9px!important;
+    line-height:1.1!important;
+    margin:0 0 3px!important;
+}
+
+#commandProfileMenu .command-profile-panel > .menu-title {
+    font-size:18px!important;
+    line-height:1.1!important;
+    margin:0!important;
+    padding:0!important;
+}
+
+#commandProfileMenu #profileRecordView,
+#commandProfileMenu #profileCommendationView {
+    flex:1 1 0!important;
+    min-height:0!important;
+    min-width:0!important;
+    width:100%!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    overscroll-behavior-y:contain;
+    touch-action:pan-y;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:thin;
+    scrollbar-color:#8b7948 rgba(16,27,33,.65);
+    padding:0 4px 6px 0!important;
+}
+
+#commandProfileMenu #profileRecordView[hidden],
+#commandProfileMenu #profileCommendationView[hidden] {
+    display:none!important;
+}
+
+#commandProfileMenu #profileRecordView::-webkit-scrollbar,
+#commandProfileMenu #profileCommendationView::-webkit-scrollbar {
+    width:5px;
+}
+
+#commandProfileMenu #profileRecordView::-webkit-scrollbar-thumb,
+#commandProfileMenu #profileCommendationView::-webkit-scrollbar-thumb {
+    background:#8b7948;
+    border-radius:3px;
+}
+
+#commandProfileMenu #profileRecordView::-webkit-scrollbar-track,
+#commandProfileMenu #profileCommendationView::-webkit-scrollbar-track {
+    background:rgba(16,27,33,.65);
+}
+
+#commandProfileMenu #commandProfileBack {
+    width:100%!important;
+    height:auto!important;
+    min-height:28px!important;
+    padding:5px 8px!important;
+    margin:5px 0 0!important;
+    font-size:10px!important;
+    line-height:1.1!important;
+}
+
+#commandProfileMenu .command-profile-panel > .menu-version {
+    font-size:7px!important;
+    line-height:1.1!important;
+    margin:4px 0 0!important;
+}
+
+@media (orientation:landscape) and (max-height:520px) {
+    #commandProfileMenu .command-profile-panel {
+        width:min(680px,84vw)!important;
+        padding:6px 10px!important;
+    }
+
+    #commandProfileMenu .command-profile-panel > .menu-title {
+        font-size:16px!important;
+    }
+}
+
+/* End CI 147-002 Command Profile layout parity */
